@@ -17,11 +17,6 @@ use crate::consts::*;
 use crate::params::*;
 use crate::results::*;
 
-pub struct AssignImageCall {
-    pub func:   ScFunc,
-    pub params: MutableAssignImageParams,
-}
-
 pub struct CreateGameCall {
     pub func:   ScFunc,
     pub params: MutableCreateGameParams,
@@ -31,18 +26,14 @@ pub struct EndGameCall {
     pub func: ScFunc,
 }
 
-pub struct InitCall {
-    pub func:   ScInitFunc,
-    pub params: MutableInitParams,
-}
-
 pub struct RequestPlayCall {
-    pub func: ScFunc,
+    pub func:    ScFunc,
+    pub results: ImmutableRequestPlayResults,
 }
 
-pub struct SendTagCall {
+pub struct SendTagsCall {
     pub func:   ScFunc,
-    pub params: MutableSendTagParams,
+    pub params: MutableSendTagsParams,
 }
 
 pub struct GetPlaysPerImageCall {
@@ -64,14 +55,6 @@ pub struct ScFuncs {
 }
 
 impl ScFuncs {
-    pub fn assign_image(_ctx: & dyn ScFuncCallContext) -> AssignImageCall {
-        let mut f = AssignImageCall {
-            func:   ScFunc::new(HSC_NAME, HFUNC_ASSIGN_IMAGE),
-            params: MutableAssignImageParams { id: 0 },
-        };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
-        f
-    }
     pub fn create_game(_ctx: & dyn ScFuncCallContext) -> CreateGameCall {
         let mut f = CreateGameCall {
             func:   ScFunc::new(HSC_NAME, HFUNC_CREATE_GAME),
@@ -85,23 +68,18 @@ impl ScFuncs {
             func: ScFunc::new(HSC_NAME, HFUNC_END_GAME),
         }
     }
-    pub fn init(_ctx: & dyn ScFuncCallContext) -> InitCall {
-        let mut f = InitCall {
-            func:   ScInitFunc::new(HSC_NAME, HFUNC_INIT),
-            params: MutableInitParams { id: 0 },
+    pub fn request_play(_ctx: & dyn ScFuncCallContext) -> RequestPlayCall {
+        let mut f = RequestPlayCall {
+            func:    ScFunc::new(HSC_NAME, HFUNC_REQUEST_PLAY),
+            results: ImmutableRequestPlayResults { id: 0 },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
         f
     }
-    pub fn request_play(_ctx: & dyn ScFuncCallContext) -> RequestPlayCall {
-        RequestPlayCall {
-            func: ScFunc::new(HSC_NAME, HFUNC_REQUEST_PLAY),
-        }
-    }
-    pub fn send_tag(_ctx: & dyn ScFuncCallContext) -> SendTagCall {
-        let mut f = SendTagCall {
-            func:   ScFunc::new(HSC_NAME, HFUNC_SEND_TAG),
-            params: MutableSendTagParams { id: 0 },
+    pub fn send_tags(_ctx: & dyn ScFuncCallContext) -> SendTagsCall {
+        let mut f = SendTagsCall {
+            func:   ScFunc::new(HSC_NAME, HFUNC_SEND_TAGS),
+            params: MutableSendTagsParams { id: 0 },
         };
         f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
         f

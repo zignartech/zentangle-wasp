@@ -15,6 +15,28 @@ use crate::*;
 use crate::keys::*;
 use crate::structs::*;
 
+#[derive(Clone, Copy)]
+pub struct ImmutableRequestPlayResults {
+    pub(crate) id: i32,
+}
+
+impl ImmutableRequestPlayResults {
+    pub fn image_id(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableRequestPlayResults {
+    pub(crate) id: i32,
+}
+
+impl MutableRequestPlayResults {
+    pub fn image_id(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+    }
+}
+
 pub struct ArrayOfImmutableInt16 {
     pub(crate) obj_id: i32,
 }

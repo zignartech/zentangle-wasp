@@ -13,8 +13,9 @@ use wasmlib::*;
 use wasmlib::host::*;
 
 pub struct Bet {
-    pub amount: i64,
-    pub player: ScAgentID, // player placing the bet
+    pub amount:   i64,
+    pub image_id: i32,
+    pub player:   ScAgentID, // player placing the bet
 }
 
 impl Bet {
@@ -22,6 +23,7 @@ impl Bet {
         let mut decode = BytesDecoder::new(bytes);
         Bet {
             amount: decode.int64(),
+            image_id: decode.int32(),
             player: decode.agent_id(),
         }
     }
@@ -29,6 +31,7 @@ impl Bet {
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
         encode.int64(self.amount);
+        encode.int32(self.image_id);
         encode.agent_id(&self.player);
         return encode.data();
     }
@@ -68,18 +71,22 @@ impl MutableBet {
     }
 }
 
-pub struct Tag {
-    pub h: i64, // height of the Tag
-    pub w: i64, // width of the Tag
-    pub x: i64, // x top-left position of the Tag
-    pub y: i64, // y top-left position of the Tag
+pub struct TaggedImage {
+    pub h:        i64,       // height of the Tag
+    pub image_id: i32,
+    pub player:   ScAgentID, // player that has tagged this image
+    pub w:        i64,       // width of the Tag
+    pub x:        i64,       // x top-left position of the Tag TODO: This should be a nested constructor in the future
+    pub y:        i64,       // y top-left position of the Tag
 }
 
-impl Tag {
-    pub fn from_bytes(bytes: &[u8]) -> Tag {
+impl TaggedImage {
+    pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
         let mut decode = BytesDecoder::new(bytes);
-        Tag {
+        TaggedImage {
             h: decode.int64(),
+            image_id: decode.int32(),
+            player: decode.agent_id(),
             w: decode.int64(),
             x: decode.int64(),
             y: decode.int64(),
@@ -89,68 +96,11 @@ impl Tag {
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
         encode.int64(self.h);
+        encode.int32(self.image_id);
+        encode.agent_id(&self.player);
         encode.int64(self.w);
         encode.int64(self.x);
         encode.int64(self.y);
-        return encode.data();
-    }
-}
-
-pub struct ImmutableTag {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
-}
-
-impl ImmutableTag {
-    pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
-    }
-
-    pub fn value(&self) -> Tag {
-        Tag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
-    }
-}
-
-pub struct MutableTag {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
-}
-
-impl MutableTag {
-    pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
-    }
-
-    pub fn set_value(&self, value: &Tag) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
-    }
-
-    pub fn value(&self) -> Tag {
-        Tag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
-    }
-}
-
-pub struct TaggedImage {
-    pub image_id: i64,
-    pub player:   ScAgentID, // player that has tagged this image
-    pub tags:     ,
-}
-
-impl TaggedImage {
-    pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
-        let mut decode = BytesDecoder::new(bytes);
-        TaggedImage {
-            image_id: decode.int64(),
-            player: decode.agent_id(),
-            tags: decode.tag(),
-        }
-    }
-
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-        encode.int64(self.image_id);
-        encode.agent_id(&self.player);
-        encode.tag(&self.tags);
         return encode.data();
     }
 }

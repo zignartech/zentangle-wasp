@@ -32,12 +32,10 @@ mod dtag;
 #[no_mangle]
 fn on_load() {
     let exports = ScExports::new();
-    exports.add_func(FUNC_ASSIGN_IMAGE, func_assign_image_thunk);
     exports.add_func(FUNC_CREATE_GAME, func_create_game_thunk);
     exports.add_func(FUNC_END_GAME, func_end_game_thunk);
-    exports.add_func(FUNC_INIT, func_init_thunk);
     exports.add_func(FUNC_REQUEST_PLAY, func_request_play_thunk);
-    exports.add_func(FUNC_SEND_TAG, func_send_tag_thunk);
+    exports.add_func(FUNC_SEND_TAGS, func_send_tags_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
     exports.add_view(VIEW_GET_RESULTS, view_get_results_thunk);
     exports.add_view(VIEW_GET_TAGGED_IMAGES, view_get_tagged_images_thunk);
@@ -47,29 +45,6 @@ fn on_load() {
             IDX_MAP[i] = get_key_id_from_string(KEY_MAP[i]);
         }
     }
-}
-
-pub struct AssignImageContext {
-    params: ImmutableAssignImageParams,
-    state:  MutabledtagState,
-}
-
-fn func_assign_image_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcAssignImage");
-    // only SC itself can invoke this function
-    ctx.require(ctx.caller() == ctx.account_id(), "no permission");
-
-    let f = AssignImageContext {
-        params: ImmutableAssignImageParams {
-            id: OBJ_ID_PARAMS,
-        },
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
-    func_assign_image(ctx, &f);
-    ctx.log("dtag.funcAssignImage ok");
 }
 
 pub struct CreateGameContext {
@@ -108,32 +83,17 @@ fn func_end_game_thunk(ctx: &ScFuncContext) {
     ctx.log("dtag.funcEndGame ok");
 }
 
-pub struct InitContext {
-    params: ImmutableInitParams,
-    state:  MutabledtagState,
-}
-
-fn func_init_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcInit");
-    let f = InitContext {
-        params: ImmutableInitParams {
-            id: OBJ_ID_PARAMS,
-        },
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    func_init(ctx, &f);
-    ctx.log("dtag.funcInit ok");
-}
-
 pub struct RequestPlayContext {
-    state: MutabledtagState,
+    results: MutableRequestPlayResults,
+    state:   MutabledtagState,
 }
 
 fn func_request_play_thunk(ctx: &ScFuncContext) {
     ctx.log("dtag.funcRequestPlay");
     let f = RequestPlayContext {
+        results: MutableRequestPlayResults {
+            id: OBJ_ID_RESULTS,
+        },
         state: MutabledtagState {
             id: OBJ_ID_STATE,
         },
@@ -142,24 +102,27 @@ fn func_request_play_thunk(ctx: &ScFuncContext) {
     ctx.log("dtag.funcRequestPlay ok");
 }
 
-pub struct SendTagContext {
-    params: ImmutableSendTagParams,
+pub struct SendTagsContext {
+    params: ImmutableSendTagsParams,
     state:  MutabledtagState,
 }
 
-fn func_send_tag_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcSendTag");
-    let f = SendTagContext {
-        params: ImmutableSendTagParams {
+fn func_send_tags_thunk(ctx: &ScFuncContext) {
+    ctx.log("dtag.funcSendTags");
+    let f = SendTagsContext {
+        params: ImmutableSendTagsParams {
             id: OBJ_ID_PARAMS,
         },
         state: MutabledtagState {
             id: OBJ_ID_STATE,
         },
     };
-    ctx.require(f.params.tag().exists(), "missing mandatory tag");
-    func_send_tag(ctx, &f);
-    ctx.log("dtag.funcSendTag ok");
+    ctx.require(f.params.h().exists(), "missing mandatory h");
+    ctx.require(f.params.w().exists(), "missing mandatory w");
+    ctx.require(f.params.x().exists(), "missing mandatory x");
+    ctx.require(f.params.y().exists(), "missing mandatory y");
+    func_send_tags(ctx, &f);
+    ctx.log("dtag.funcSendTags ok");
 }
 
 pub struct GetPlaysPerImageContext {

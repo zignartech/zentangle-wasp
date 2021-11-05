@@ -15,28 +15,6 @@ use crate::*;
 use crate::keys::*;
 
 #[derive(Clone, Copy)]
-pub struct ImmutableAssignImageParams {
-    pub(crate) id: i32,
-}
-
-impl ImmutableAssignImageParams {
-    pub fn image_id(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct MutableAssignImageParams {
-    pub(crate) id: i32,
-}
-
-impl MutableAssignImageParams {
-    pub fn image_id(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
-}
-
-#[derive(Clone, Copy)]
 pub struct ImmutableCreateGameParams {
     pub(crate) id: i32,
 }
@@ -46,8 +24,12 @@ impl ImmutableCreateGameParams {
         ScImmutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
     }
 
-    pub fn number_of_images(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+    pub fn number_of_images(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+    }
+
+    pub fn tags_required_per_image(&self) -> ScImmutableInt16 {
+        ScImmutableInt16::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
     }
 }
 
@@ -61,51 +43,57 @@ impl MutableCreateGameParams {
         ScMutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
     }
 
-    pub fn number_of_images(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+    pub fn number_of_images(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+    }
+
+    pub fn tags_required_per_image(&self) -> ScMutableInt16 {
+        ScMutableInt16::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct ImmutableInitParams {
+pub struct ImmutableSendTagsParams {
     pub(crate) id: i32,
 }
 
-impl ImmutableInitParams {
-    pub fn owner(&self) -> ScImmutableAgentID {
-        ScImmutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+impl ImmutableSendTagsParams {
+    pub fn h(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_H))
+    }
+
+    pub fn w(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_W))
+    }
+
+    pub fn x(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_X))
+    }
+
+    pub fn y(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct MutableInitParams {
+pub struct MutableSendTagsParams {
     pub(crate) id: i32,
 }
 
-impl MutableInitParams {
-    pub fn owner(&self) -> ScMutableAgentID {
-        ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+impl MutableSendTagsParams {
+    pub fn h(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_H))
     }
-}
 
-#[derive(Clone, Copy)]
-pub struct ImmutableSendTagParams {
-    pub(crate) id: i32,
-}
-
-impl ImmutableSendTagParams {
-    pub fn tag(&self) -> ImmutableTag {
-        ImmutableTag { obj_id: self.id, key_id: idx_map(IDX_PARAM_TAG) }
+    pub fn w(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_W))
     }
-}
 
-#[derive(Clone, Copy)]
-pub struct MutableSendTagParams {
-    pub(crate) id: i32,
-}
+    pub fn x(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_X))
+    }
 
-impl MutableSendTagParams {
-    pub fn tag(&self) -> MutableTag {
-        MutableTag { obj_id: self.id, key_id: idx_map(IDX_PARAM_TAG) }
+    pub fn y(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
     }
 }

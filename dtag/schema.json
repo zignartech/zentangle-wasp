@@ -1,54 +1,53 @@
 {
 	"name": "dtag",
-	"description": "Agricultural AI Training Casino",
+	"description": "Incentivized AI Training Casino",
 	"structs": {
-		"Tag": {
-			"x": "Int64 // x top-left position of the Tag",
+		"TaggedImage": {
+			"imageId": "Int32",
+			"player": "AgentID // player that has tagged this image",
+			"x": "Int64 // x top-left position of the Tag TODO: This should be a nested constructor in the future",
 			"y": "Int64 // y top-left position of the Tag",
 			"w": "Int64 // width of the Tag",
 			"h": "Int64 // height of the Tag"
 		},
-		"TaggedImage": {
-			"imageId": "Int64",
-			"tags": "Tag[]",
-			"player": "AgentID // player that has tagged this image"
-		},
 		"Bet": {
 			"amount": "Int64",
-			"player": "AgentID // player placing the bet"
+			"player": "AgentID // player placing the bet",
+			"imageId": "Int32"
 		}
 	},
 	"typedefs": {},
 	"state": {
-		"owner": "AgentID // current owner of this smart contract",
-		"numberOfImages": "Int64 // total number of images to tag",
+		"numberOfImages": "Int32 // total number of images to tag",
+		"reward": "Int64 // current reward to split between players",
+		"description": "String // details on how should the images be tagged",
+		"creator": "AgentID // the creator of the game",
+		"tagsRequiredPerImage": "Int16 // Images have to be tagged by this amount of players to be ready",
+		"bets": "Bet[]",
+		"pendingPlays": "Bet[] // List of Plays that have been requested but not completed",
 		"playsPerImage": "Int16[] // counts how many times an image has been tagged",
-		"taggedImages": "TaggedImage[] // a list with every TaggedImage (10 per imageId)",
+		"taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
 		"processedImages": "TaggedImage[]"
 	},
 	"funcs": {
-		"init": {
-			"params": {
-				"owner": "AgentID? // optional owner of this smart contract"
-			}
-		},
 		"createGame": {
 			"params": {
-				"numberOfImages": "Int64 // total number of images to tag",
-				"description": "String // details on how should the images be tagged"
+				"numberOfImages": "Int32 // total number of images to tag",
+				"description": "String // details on how should the images be tagged",
+				"tagsRequiredPerImage":"Int16? // Images have to be tagged by this amount of players to be ready"
 			}
 		},
 		"requestPlay": {
-		},
-		"assignImage": {
-    		"access": "self // only SC itself can invoke this function",
-    		"params": {
-      			"imageId": "Int64"
+			"results": {
+				"imageId": "Int32"
 			}
 		},
-		"sendTag": {
+		"sendTags": {
 			"params": {
-				"tag": "Tag"
+				"x": "Int64 // x top-left position of the Tag TODO: This should be a constructor in the future",
+				"y": "Int64 // y top-left position of the Tag",
+				"w": "Int64 // width of the Tag",
+				"h": "Int64 // height of the Tag"
 			}
 		},
 		"endGame": {
@@ -67,7 +66,7 @@
 		},
 		"getResults": {
 			"results": {
-				"processedImages": "TaggedImage[]"
+				"processedImages": "TaggedImage[]  // a list with the resulting images"
 			}
 		}
 	}
