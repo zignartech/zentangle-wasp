@@ -1,0 +1,74 @@
+{
+	"name": "dtag",
+	"description": "Agricultural AI Training Casino",
+	"structs": {
+		"Tag": {
+			"x": "Int64 // x top-left position of the Tag",
+			"y": "Int64 // y top-left position of the Tag",
+			"w": "Int64 // width of the Tag",
+			"h": "Int64 // height of the Tag"
+		},
+		"TaggedImage": {
+			"imageId": "Int64",
+			"tags": "Tag[]",
+			"player": "AgentID // player that has tagged this image"
+		},
+		"Bet": {
+			"amount": "Int64",
+			"player": "AgentID // player placing the bet"
+		}
+	},
+	"typedefs": {},
+	"state": {
+		"owner": "AgentID // current owner of this smart contract",
+		"numberOfImages": "Int64 // total number of images to tag",
+		"playsPerImage": "Int16[] // counts how many times an image has been tagged",
+		"taggedImages": "TaggedImage[] // a list with every TaggedImage (10 per imageId)",
+		"processedImages": "TaggedImage[]"
+	},
+	"funcs": {
+		"init": {
+			"params": {
+				"owner": "AgentID? // optional owner of this smart contract"
+			}
+		},
+		"createGame": {
+			"params": {
+				"numberOfImages": "Int64 // total number of images to tag",
+				"description": "String // details on how should the images be tagged"
+			}
+		},
+		"requestPlay": {
+		},
+		"assignImage": {
+    		"access": "self // only SC itself can invoke this function",
+    		"params": {
+      			"imageId": "Int64"
+			}
+		},
+		"sendTag": {
+			"params": {
+				"tag": "Tag"
+			}
+		},
+		"endGame": {
+		}
+	},
+	"views": {
+		"getTaggedImages": {
+			"results": {
+				"taggedImages": "TaggedImage[] // a list with every TaggedImage (10 per imageId)"
+			}
+		},
+		"getPlaysPerImage": {
+			"results": {
+				"playsPerImage": "Int16[]"
+			}
+		},
+		"getResults": {
+			"results": {
+				"processedImages": "TaggedImage[]"
+			}
+		}
+	}
+}
