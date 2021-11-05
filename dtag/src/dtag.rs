@@ -81,28 +81,70 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     for image in 0..number_of_images {
 
         // Apply Aglomerative Hierarchical clustering:
-        let mut image_taggs:Vec<Vec<i64>> = Vec::new();
-        let mut real_number_of_images = 0; // this number will be lower than number_of_images if the required ammount of tags was not met
+        let mut clusters:Vec<Vec<i64>> = Vec::new();
+        let mut n_clusters = 0; // every tag starts as a cluster
+        
+        // 'cluster' is a vector storing the data of the 4 dimentional center of the cluster 
+        // and all the id's of the point's that conform it
         for i in image..image+number_of_images{
             if _f.state.tagged_images().get_tagged_image(i).exists() == false {break}
             let tagged_image = _f.state.tagged_images().get_tagged_image(i).value();
-            let tag = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
-            image_taggs.push(tag);
-            real_number_of_images +=1;
-        }
-        // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance'
-        fn ed(a: Vec<i64>, b: Vec<i64>) -> f64 {
-            (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
+            let cluster = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w, i as i64];
+            clusters.push(cluster);
+            n_clusters +=1;
         }
 
-        let mut min_distance= [9999999.0, 0.0, 0.0];
-        for x in 0..real_number_of_images {
-            for y in 0..real_number_of_images {
-                let distance = ed(image_taggs[x].clone(), image_taggs[y].clone());
-                if distance < min_distance[0] {
-                    min_distance = [distance, x as f64, y as f64];
+        // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
+        let mut min_distance= [0.0, 0.0, 0.0]; // stores [min_distance between two clusters, 1st cluster, 2nd cluster]
+
+        while min_distance[0] < 100.0 {
+            // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
+            fn ed(a: Vec<i64>, b: Vec<i64>) -> f64 { // Euclidean Distance function in four dimentions
+                (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
+            }
+
+            min_distance[0]= 9999999.0;
+            for x in 0..n_clusters {
+                for y in 0..n_clusters {
+                    let distance = ed(clusters[x].clone(), clusters[y].clone());
+                    if distance < min_distance[0] {
+                        min_distance = [distance, x as f64, y as f64];
+                    }
                 }
             }
+
+            // If the four dimentional distance is greter than 100, then we dont merge the clusters.
+            // Points thet are this far away are considered a different clusters
+            if min_distance[0] < 100.0 {
+
+                // define the indexes of the clusters one and two, to be merged
+                let index_1 = min_distance[1] as usize;
+                let index_2 = min_distance[2] as usize;
+                // the weight is equal to the number of point's that conform the cluster
+                let weight_1 = (clusters[index_1].len() - 4) as i64;
+                let weight_2 = (clusters[index_2].len() - 4) as i64;
+                
+                // Calculating the coordiantes of the new cluster. The more weight a cluster has, 
+                // the more influence on the new coordinate it has.
+                let mut new_cluster = vec![
+                    (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)/(weight_1 + weight_2),
+                    (clusters[index_1][1] * weight_1 + clusters[index_2][1] * weight_2)/(weight_1 + weight_2),
+                    (clusters[index_1][2] * weight_1 + clusters[index_2][2] * weight_2)/(weight_1 + weight_2),
+                    (clusters[index_1][3] * weight_1 + clusters[index_2][3] * weight_2)/(weight_1 + weight_2)
+                ];
+                // Copying the point's inside both clusters to the new one
+                for i in 0..weight_1 {
+                    new_cluster.push(clusters[index_1][i as usize + 5]);
+                }
+                for i in 0..weight_2 {
+                    new_cluster.push(clusters[index_2][i as usize + 5]);
+                }
+
+                // Remove the old clusters and replaces with the new one.
+                clusters.remove(index_1);
+                clusters.remove(index_2);
+                clusters.push(new_cluster);
+            }         
         }
         
     }
