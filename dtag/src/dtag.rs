@@ -81,8 +81,13 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
         (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
     }
 
+    struct ValidTag {
+        player: ScAgentID,
+        tagged_image_id: i32
+    }
+
+    let mut valid_tags: Vec<ValidTag> = Vec::new();
     let mut centers: Vec<Vec<TaggedImage>> = Vec::new();
-    let mut players_to_reward: Vec<ScAgentID> = Vec::new();
     let number_of_images = _f.state.number_of_images().value();
     let tags_required_per_image = _f.state.tags_required_per_image().value();
     for image in 0..number_of_images {
@@ -151,18 +156,31 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
             }         
         }
 
-        // We should be left with verty few clusters. The ones that have fewer points get discarted.
+        // We should be left only one cluster. The ones that have fewer points get discarted.
+        // Here we also store all the players that made correct taggs. They can be stored multiple times.
         let length = clusters.len();
+        let mut check_min_one_tag = false;
         for i in 0..length {
             let id = length-i-1; // this way it's a backwards iterator and we dont change the id's as we remove them.
-            if clusters[id].len() -4 < (plays_for_this_image as f32 * 0.8) as usize {
+            if clusters[id].len() -4 < (plays_for_this_image as f32 * 0.6) as usize {
                 clusters.remove(i);
             } else { // here we push the players that tagged correctly to the reward-list
                 for i in 0..clusters[id].len()-4 {
-                    let player = _f.state.tagged_images().get_tagged_image(clusters[id][i] as i32).value().player;
-                    players_to_reward.push(player);
+                    let vaid_tag = ValidTag{
+                        player: _f.state.tagged_images().get_tagged_image(clusters[id][i] as i32).value().player,
+                        tagged_image_id: clusters[id][i] as i32
+                    };
+                    valid_tags.push(vaid_tag);
                 }
+                check_min_one_tag = true;
             }
+        }
+        // We want to have one cluster per image, even if it is an empty cluster. This way,
+        // it's easier to find processed imaged based on their id. With nested arrays and nested
+        // constructors, this abomination would not be necessary. Also, this is a hackaton, so no time...
+        if !check_min_one_tag {
+            let cluster = vec![0, 0, 0, 0];
+            clusters.push(cluster);
         }
 
         // We append the clusters coordinate to the centers vector (a vector of centers for every image)
@@ -190,6 +208,14 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
         }
     }
 
+    // Now, we pay all the players for their respective valid tags.
+    // This is done by splitting the reward money placed by the creator.
+    let n_rewards = valid_tags.len() as i64;
+    let transfers: ScTransfers = ScTransfers::iotas(_f.state.reward().value()/n_rewards);
+    for valid_tag in &valid_tags {
+        // Transfer the reward to players who tagged correctly
+        _ctx.transfer_to_address(&valid_tag.player.address(), transfers);
+    }
 
     // Now, we set the winners and the rewards for the correct tags
     // The winners vector is an ordered list of the winners, from better to worse tagger.
@@ -209,8 +235,8 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     // 'top_betters' stores all the bets placed (with the player and the accuracy of the tag), including zero value ones
     let mut top_betters: Vec<Better> = Vec::new();
     // fill the 'top_betters with the bets'
-    for i in 0.._f.state.tagged_images().length(){
-        let tagged_image = _f.state.tagged_images().get_tagged_image(i).value();
+    for valid_tag in valid_tags {
+        let tagged_image = _f.state.tagged_images().get_tagged_image(valid_tag.tagged_image_id).value();
         let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
         let cluster_center = _f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
         let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
@@ -220,11 +246,11 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     // sort the 'top_betters' by the accuracy
     top_betters.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
 
-    let n_rewards = top_betters.len() as i64;
-    let transfers: ScTransfers = ScTransfers::iotas(_f.state.reward().value()/n_rewards);
-    for i in top_betters {
-        // Transfer the amount initially offered back to the issuer
-        _ctx.transfer_to_address(&i.player.address(), transfers);
+    // Finding the total value placed in the game's bets
+    let mut total_payout: i64 = 0_i64;
+    // calculating total bounty to pay out
+    for bet_id in 0.._f.state.bets().length() {
+        total_payout += _f.state.bets().get_bet(bet_id).value().amount;
     }
       
     // We clear all the state variables, so a new game can begin
