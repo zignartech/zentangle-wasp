@@ -28,6 +28,7 @@ pub fn func_create_game(_ctx: &ScFuncContext, _f: &CreateGameContext) {
     let incoming: ScBalances = _ctx.incoming();
 
     // Set the state variables of the game.
+    _f.state.processed_images().clear();
     let reward = incoming.balance(&ScColor::IOTA);
     let number_of_images = _f.params.number_of_images().value();
     let description = &_f.params.description().value();
@@ -76,22 +77,28 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     // - the players realted to the valid tags
     // - the distances of valid tags to the center of it's cluster
 
-    let mut centers: Vec<Vec<i64>> = Vec::new();
+    fn euclidean_distance(a: Vec<i64>, b: Vec<i64>) -> f64 {
+        (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
+    }
+
+    let mut centers: Vec<Vec<TaggedImage>> = Vec::new();
+    let mut players_to_reward: Vec<ScAgentID> = Vec::new();
     let number_of_images = _f.state.number_of_images().value();
+    let tags_required_per_image = _f.state.tags_required_per_image().value();
     for image in 0..number_of_images {
 
         // Apply Aglomerative Hierarchical clustering:
         let mut clusters:Vec<Vec<i64>> = Vec::new();
-        let mut n_clusters = 0; // every tag starts as a cluster
+        let mut plays_for_this_image = 0; // counts the real amount of players that tagges this image
         
         // 'cluster' is a vector storing the data of the 4 dimentional center of the cluster 
         // and all the id's of the point's that conform it
-        for i in image..image+number_of_images{
+        for i in image*10..image*10+tags_required_per_image as i32 {  // I'm forced to do this is because there are no nested arrays in schema yet
             if _f.state.tagged_images().get_tagged_image(i).exists() == false {break}
             let tagged_image = _f.state.tagged_images().get_tagged_image(i).value();
             let cluster = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w, i as i64];
             clusters.push(cluster);
-            n_clusters +=1;
+            plays_for_this_image +=1;
         }
 
         // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
@@ -99,14 +106,10 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
 
         while min_distance[0] < 100.0 {
             // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
-            fn ed(a: Vec<i64>, b: Vec<i64>) -> f64 { // Euclidean Distance function in four dimentions
-                (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
-            }
-
             min_distance[0]= 9999999.0;
-            for x in 0..n_clusters {
-                for y in 0..n_clusters {
-                    let distance = ed(clusters[x].clone(), clusters[y].clone());
+            for x in 0..clusters.len() {
+                for y in x+1..clusters.len() { // this way we dont evaluete a pair twice, nor a cluster against itself
+                    let distance = euclidean_distance(clusters[x].clone(), clusters[y].clone());
                     if distance < min_distance[0] {
                         min_distance = [distance, x as f64, y as f64];
                     }
@@ -114,17 +117,17 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
             }
 
             // If the four dimentional distance is greter than 100, then we dont merge the clusters.
-            // Points thet are this far away are considered a different clusters
+            // Points that are this far away are considered different final clusters
             if min_distance[0] < 100.0 {
 
-                // define the indexes of the clusters one and two, to be merged
+                // define the indexes of the clusters one and two to be merged
                 let index_1 = min_distance[1] as usize;
                 let index_2 = min_distance[2] as usize;
                 // the weight is equal to the number of point's that conform the cluster
                 let weight_1 = (clusters[index_1].len() - 4) as i64;
                 let weight_2 = (clusters[index_2].len() - 4) as i64;
                 
-                // Calculating the coordiantes of the new cluster. The more weight a cluster has, 
+                // Calculating the coordiantes of the new cluster. The more weight, 
                 // the more influence on the new coordinate it has.
                 let mut new_cluster = vec![
                     (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)/(weight_1 + weight_2),
@@ -132,30 +135,104 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
                     (clusters[index_1][2] * weight_1 + clusters[index_2][2] * weight_2)/(weight_1 + weight_2),
                     (clusters[index_1][3] * weight_1 + clusters[index_2][3] * weight_2)/(weight_1 + weight_2)
                 ];
-                // Copying the point's inside both clusters to the new one
+                // Copying the point's inside both clusters to the new cluster
                 for i in 0..weight_1 {
-                    new_cluster.push(clusters[index_1][i as usize + 5]);
+                    new_cluster.push(clusters[index_1][i as usize + 4]);
                 }
                 for i in 0..weight_2 {
-                    new_cluster.push(clusters[index_2][i as usize + 5]);
+                    new_cluster.push(clusters[index_2][i as usize + 4]);
                 }
 
-                // Remove the old clusters and replaces with the new one.
-                clusters.remove(index_1);
+                // Remove the old clusters and replace with the new one. Note that inxex_2 > index_1.
+                // When removing index_2 first, we don't alter index_1.
                 clusters.remove(index_2);
+                clusters.remove(index_1);
                 clusters.push(new_cluster);
             }         
         }
-        
+
+        // We should be left with verty few clusters. The ones that have fewer points get discarted.
+        let length = clusters.len();
+        for i in 0..length {
+            let id = length-i-1; // this way it's a backwards iterator and we dont change the id's as we remove them.
+            if clusters[id].len() -4 < (plays_for_this_image as f32 * 0.8) as usize {
+                clusters.remove(i);
+            } else { // here we push the players that tagged correctly to the reward-list
+                for i in 0..clusters[id].len()-4 {
+                    let player = _f.state.tagged_images().get_tagged_image(clusters[id][i] as i32).value().player;
+                    players_to_reward.push(player);
+                }
+            }
+        }
+
+        // We append the clusters coordinate to the centers vector (a vector of centers for every image)
+        let mut image_centers: Vec<TaggedImage> = Vec::new(); 
+        for i in clusters {
+            let center = TaggedImage {
+                player: _f.state.creator().value(),
+                image_id: image,
+                x: i[0],
+                y: i[1],
+                h: i[2],
+                w: i[3]
+            };
+            image_centers.push(center);
+        }
+        centers.push(image_centers);
+    }
+
+    // The following line, sorts the centers vector by 'image_id'
+    centers.sort_by(|a, b| b[0].image_id.cmp(&a[0].image_id));
+    // update the 'processed_images' state variable with the final tagging data
+    for i in centers{
+        for j in i{
+            _f.state.processed_images().get_tagged_image(j.image_id).set_value(&j)
+        }
+    }
+
+
+    // Now, we set the winners and the rewards for the correct tags
+    // The winners vector is an ordered list of the winners, from better to worse tagger.
+    struct Better {
+        accuracy: f64,
+        player: ScAgentID
+    }
+    impl Better {
+        pub fn new(accuracy: f64, player: ScAgentID) -> Self {
+            Better {
+                accuracy,
+                player
+            }
+        }
+    }
+
+    // 'top_betters' stores all the bets placed (with the player and the accuracy of the tag), including zero value ones
+    let mut top_betters: Vec<Better> = Vec::new();
+    // fill the 'top_betters with the bets'
+    for i in 0.._f.state.tagged_images().length(){
+        let tagged_image = _f.state.tagged_images().get_tagged_image(i).value();
+        let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
+        let cluster_center = _f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
+        let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
+        let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
+        top_betters.push(Better::new(distance_to_cluster_center, tagged_image.player));
+    }
+    // sort the 'top_betters' by the accuracy
+    top_betters.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
+
+    let n_rewards = top_betters.len() as i64;
+    let transfers: ScTransfers = ScTransfers::iotas(_f.state.reward().value()/n_rewards);
+    for i in top_betters {
+        // Transfer the amount initially offered back to the issuer
+        _ctx.transfer_to_address(&i.player.address(), transfers);
     }
       
     // We clear all the state variables, so a new game can begin
     _f.state.bets().clear();
 	_f.state.plays_per_image().clear();
 	_f.state.tagged_images().clear();
-	_f.state.processed_images().clear();
     _f.state.reward().set_value(0);
-
+    _f.state.pending_plays().clear();
 }
 
 // This function is used by players to be assigned an image and for them to place a bet on their tags.
