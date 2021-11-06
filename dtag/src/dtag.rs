@@ -445,8 +445,9 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
     }
 
     // We gather all the information into this struct
+    let image_id = bet.unwrap().value().image_id;
     let tagged_image = TaggedImage {
-        image_id: bet.unwrap().value().image_id,
+        image_id: image_id,
         player: _ctx.caller(),
         x: _f.params.x().value(),
         y: _f.params.y().value(),
@@ -456,7 +457,13 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
 
     // Get the array of current tagged immages from state storage and find it's length.
     let tagged_images: ArrayOfMutableTaggedImage = _f.state.tagged_images();
-    let tagged_image_nr: i32 = tagged_images.length();
+    let mut tagged_image_nr: i32 = image_id;
+    let tags_req_per_image = _f.state.tags_required_per_image().value() as i32;
+    for i in image_id.. image_id+tags_req_per_image{
+        if tagged_images.get_tagged_image(i).exists() {
+            tagged_image_nr += 1;
+        }
+    }
 
     // Append the bet data to the bets array. The bet array will automatically take care
     // of serializing the bet struct into a bytes representation.
