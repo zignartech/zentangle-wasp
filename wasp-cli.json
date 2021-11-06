@@ -1,0 +1,19 @@
+{
+  "chain": "mychain",
+  "chains": {
+    "mychain": "hyz27cSWtq1JFUtNBAcryv8PPiAeGpgAyXzwpTvecqXR"
+  },
+  "goshimmer": {
+    "api": "https://api.goshimmer.sc.iota.org"
+  },
+  "wallet": {
+    "seed": "J1g5QSZgFHw7MqDpu6VWT8Tfq5cdeqYQL96w5rganRL3"
+  },
+  "wasp": {
+    "0": {
+      "api": "127.0.0.1:9090",
+      "nanomsg": "127.0.0.1:5550",
+      "peering": "127.0.0.1:4000"
+    }
+  }
+}

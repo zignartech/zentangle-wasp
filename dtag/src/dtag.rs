@@ -26,7 +26,7 @@ const CONFIRMATION_PERCENTAGE: f32 = 0.6;
 pub fn func_create_game(_ctx: &ScFuncContext, _f: &CreateGameContext) {
 
     // No game can be in progress in order to be able to crate a new one
-    _ctx.require(_f.state.reward().value() != 0_i64, "Error: Game already in progress");
+    _ctx.require(_f.state.reward().value() == 0_i64, "Error: Game already in progress");
 
     // Create ScBalances proxy to the incoming balances for this request.
     let incoming: ScBalances = _ctx.incoming();
@@ -181,10 +181,10 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
             if clusters[id].len() -4 <= (plays_for_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize {
                 clusters.remove(i);
             } else { // here we push the players that tagged correctly to the reward-list
-                for i in 0..clusters[id].len()-4 {
+                for j in 4..clusters[id].len() {
                     let vaid_tag = ValidTag{
-                        player: _f.state.tagged_images().get_tagged_image(clusters[id][i] as i32).value().player,
-                        tagged_image_id: clusters[id][i] as i32
+                        player: _f.state.tagged_images().get_tagged_image(clusters[id][j] as i32).value().player,
+                        tagged_image_id: clusters[id][j] as i32
                     };
                     valid_tags.push(vaid_tag);
                 }
@@ -325,6 +325,13 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
 	_f.state.tagged_images().clear();
     _f.state.reward().set_value(0_i64);
     _f.state.pending_plays().clear();
+
+    _ctx.event(&format!(
+        "dtag.game.ended {0} {1} {2}",
+        _f.state.pending_plays().length().to_string(),
+        _f.state.tagged_images().length().to_string(),
+        _f.state.bets().length().to_string()
+    ));
 }
 
 // This function is used by players to be assigned an image and for them to place a bet on their tags.
@@ -350,7 +357,8 @@ pub fn func_request_play(_ctx: &ScFuncContext, _f: &RequestPlayContext) {
     // Check if any images are available for the player to tag. If all are tagged the required amount of times
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
-    'image: for i in 0..plays_per_image.length() {
+    'image: for i in 0..number_of_images {
+        if ! _f.state.plays_per_image().get_int16(i).exists() { break }
         if plays_per_image.get_int16(i).value() >= tags_required_per_image {
             counter += 1;
             continue;
@@ -361,10 +369,11 @@ pub fn func_request_play(_ctx: &ScFuncContext, _f: &RequestPlayContext) {
                 continue 'image;
             }
         }
+        break;
     }
 
     // If no more images are available to tag, we dont accept the request and panic.
-    _ctx.require(counter != number_of_images, "Error: Sorry, no more images are available to tag");
+    _ctx.require(counter < number_of_images, "Error: Sorry, no more images are available to tag");
 
     // We choose an image randomly to assign to the player for tagging.
     // This loop checks if the image has been tagged the required amount of times, 
@@ -375,9 +384,11 @@ pub fn func_request_play(_ctx: &ScFuncContext, _f: &RequestPlayContext) {
         image_id = _ctx.utility().random((number_of_images-1) as i64) as i32;
         if plays_per_image.get_int16(image_id).value() == tags_required_per_image { continue }
         for i in image_id..image_id+tags_required_per_image as i32 {
-            if _f.state.tagged_images().get_tagged_image(i).value().player.address() == player.address() {
-                continue
-            }   
+            if  _f.state.tagged_images().get_tagged_image(i).exists() { 
+                if _f.state.tagged_images().get_tagged_image(i).value().player.address() == player.address() {
+                    continue
+                }
+            }  
         }
         break
     }
@@ -399,10 +410,11 @@ pub fn func_request_play(_ctx: &ScFuncContext, _f: &RequestPlayContext) {
     pending_plays.get_bet(pending_plays_nr).set_value(&bet);
 
     _ctx.event(&format!(
-        "play.requested {0} {1} {2}",
+        "play.requested {0} {1} {2} {3}",
         &bet.player.address().to_string(),
         bet.amount,
-        bet.image_id
+        bet.image_id,
+        _f.state.pending_plays().length().to_string()
     ));
 
     _f.results.image_id().set_value(image_id);
@@ -426,7 +438,7 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
     for i in 0..pending_plays.length() {
-        if pending_plays.get_bet(i).value().player == _ctx.caller() {
+        if pending_plays.get_bet(i).value().player.address() == _ctx.caller().address() {
             bet = Some(pending_plays.get_bet(i));
             pending_play_id = i;
         }
@@ -435,8 +447,13 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
         _ctx.panic("Error: No plays requested for this address");
     }
 
+    // Get the image_id and the number of times a play has been made for this image.
+    let image_id = bet.unwrap().value().image_id;
+    let plays_per_image: i16 = _f.state.plays_per_image().get_int16(image_id).value();
+
     // We delete the bet from the pending plays by clearing the array and copying again, minus the bet of the player
     _f.state.pending_plays().clear();
+
     for i in 0..pending_play_id {
         _f.state.pending_plays().get_bet(i).set_value(&pending_plays.get_bet(i).value());
     }
@@ -444,8 +461,13 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
         _f.state.pending_plays().get_bet(i-1).set_value(&pending_plays.get_bet(i).value());
     }
 
+    // If the image has all it's required plays, we panic. 
+    // Note that the request has been removed from the pendingPlays list
+    if plays_per_image >= _f.state.tags_required_per_image().value() {
+        _ctx.panic("Error: All plays have been made for this image. Please request another one.");
+    }
+
     // We gather all the information into this struct
-    let image_id = bet.unwrap().value().image_id;
     let tagged_image = TaggedImage {
         image_id: image_id,
         player: _ctx.caller(),
@@ -455,28 +477,20 @@ pub fn func_send_tags(_ctx: &ScFuncContext, _f: &SendTagsContext) {
         w: _f.params.w().value()
     };
 
-    // Get the array of current tagged immages from state storage and find it's length.
-    let tagged_images: ArrayOfMutableTaggedImage = _f.state.tagged_images();
-    let mut tagged_image_nr: i32 = image_id;
-    let tags_req_per_image = _f.state.tags_required_per_image().value() as i32;
-    for i in image_id.. image_id+tags_req_per_image{
-        if tagged_images.get_tagged_image(i).exists() {
-            tagged_image_nr += 1;
-        }
-    }
-
     // Append the bet data to the bets array. The bet array will automatically take care
     // of serializing the bet struct into a bytes representation.
-    tagged_images.get_tagged_image(tagged_image_nr).set_value(&tagged_image);
-
-    _ctx.event(&format!(
-        "dtag.image.tagged {0}",
-        &tagged_image.player.address().to_string(),
-    ));
+    _f.state.tagged_images().get_tagged_image(image_id + plays_per_image as i32).set_value(&tagged_image);
 
     // Add one to the number of times this image has been tagged
     let plays_for_this_image: i16 = _f.state.plays_per_image().get_int16(tagged_image.image_id).value();
     _f.state.plays_per_image().get_int16(tagged_image.image_id).set_value(plays_for_this_image + 1);
+ 
+    _ctx.event(&format!(
+        "dtag.image.tagged {0} {1} {2}",
+        &tagged_image.player.address().to_string(),
+        _f.state.plays_per_image().get_int16(tagged_image.image_id).value().to_string(),
+        _f.state.pending_plays().length().to_string()
+    ));
 }
 
 pub fn view_get_plays_per_image(_ctx: &ScViewContext, _f: &GetPlaysPerImageContext) {
