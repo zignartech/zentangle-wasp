@@ -29,6 +29,34 @@ impl ArrayOfImmutableBet {
     }
 }
 
+pub struct ArrayOfImmutableInt16 {
+    pub(crate) obj_id: i32,
+}
+
+impl ArrayOfImmutableInt16 {
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+    pub fn get_int16(&self, index: i32) -> ScImmutableInt16 {
+        ScImmutableInt16::new(self.obj_id, Key32(index))
+    }
+}
+
+pub struct ArrayOfImmutableTaggedImage {
+    pub(crate) obj_id: i32,
+}
+
+impl ArrayOfImmutableTaggedImage {
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+    pub fn get_tagged_image(&self, index: i32) -> ImmutableTaggedImage {
+        ImmutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub struct ImmutabledtagState {
     pub(crate) id: i32,
@@ -96,6 +124,42 @@ impl ArrayOfMutableBet {
 
     pub fn get_bet(&self, index: i32) -> MutableBet {
         MutableBet { obj_id: self.obj_id, key_id: Key32(index) }
+    }
+}
+
+pub struct ArrayOfMutableInt16 {
+    pub(crate) obj_id: i32,
+}
+
+impl ArrayOfMutableInt16 {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+    pub fn get_int16(&self, index: i32) -> ScMutableInt16 {
+        ScMutableInt16::new(self.obj_id, Key32(index))
+    }
+}
+
+pub struct ArrayOfMutableTaggedImage {
+    pub(crate) obj_id: i32,
+}
+
+impl ArrayOfMutableTaggedImage {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+    pub fn get_tagged_image(&self, index: i32) -> MutableTaggedImage {
+        MutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
     }
 }
 

@@ -38,7 +38,6 @@ fn on_load() {
     exports.add_func(FUNC_SEND_TAGS, func_send_tags_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
     exports.add_view(VIEW_GET_RESULTS, view_get_results_thunk);
-    exports.add_view(VIEW_GET_TAGGED_IMAGES, view_get_tagged_images_thunk);
 
     unsafe {
         for i in 0..KEY_MAP_LEN {
@@ -126,6 +125,7 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct GetPlaysPerImageContext {
+    params:  ImmutableGetPlaysPerImageParams,
     results: MutableGetPlaysPerImageResults,
     state:   ImmutabledtagState,
 }
@@ -133,6 +133,9 @@ pub struct GetPlaysPerImageContext {
 fn view_get_plays_per_image_thunk(ctx: &ScViewContext) {
     ctx.log("dtag.viewGetPlaysPerImage");
     let f = GetPlaysPerImageContext {
+        params: ImmutableGetPlaysPerImageParams {
+            id: OBJ_ID_PARAMS,
+        },
         results: MutableGetPlaysPerImageResults {
             id: OBJ_ID_RESULTS,
         },
@@ -140,11 +143,13 @@ fn view_get_plays_per_image_thunk(ctx: &ScViewContext) {
             id: OBJ_ID_STATE,
         },
     };
+    ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
     view_get_plays_per_image(ctx, &f);
     ctx.log("dtag.viewGetPlaysPerImage ok");
 }
 
 pub struct GetResultsContext {
+    params:  ImmutableGetResultsParams,
     results: MutableGetResultsResults,
     state:   ImmutabledtagState,
 }
@@ -152,6 +157,9 @@ pub struct GetResultsContext {
 fn view_get_results_thunk(ctx: &ScViewContext) {
     ctx.log("dtag.viewGetResults");
     let f = GetResultsContext {
+        params: ImmutableGetResultsParams {
+            id: OBJ_ID_PARAMS,
+        },
         results: MutableGetResultsResults {
             id: OBJ_ID_RESULTS,
         },
@@ -159,27 +167,9 @@ fn view_get_results_thunk(ctx: &ScViewContext) {
             id: OBJ_ID_STATE,
         },
     };
+    ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
     view_get_results(ctx, &f);
     ctx.log("dtag.viewGetResults ok");
-}
-
-pub struct GetTaggedImagesContext {
-    results: MutableGetTaggedImagesResults,
-    state:   ImmutabledtagState,
-}
-
-fn view_get_tagged_images_thunk(ctx: &ScViewContext) {
-    ctx.log("dtag.viewGetTaggedImages");
-    let f = GetTaggedImagesContext {
-        results: MutableGetTaggedImagesResults {
-            id: OBJ_ID_RESULTS,
-        },
-        state: ImmutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    view_get_tagged_images(ctx, &f);
-    ctx.log("dtag.viewGetTaggedImages ok");
 }
 
 // @formatter:on

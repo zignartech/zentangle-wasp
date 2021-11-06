@@ -97,3 +97,47 @@ impl MutableSendTagsParams {
         ScMutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
     }
 }
+
+#[derive(Clone, Copy)]
+pub struct ImmutableGetPlaysPerImageParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetPlaysPerImageParams {
+    pub fn image_id(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetPlaysPerImageParams {
+    pub(crate) id: i32,
+}
+
+impl MutableGetPlaysPerImageParams {
+    pub fn image_id(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct ImmutableGetResultsParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetResultsParams {
+    pub fn image_id(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetResultsParams {
+    pub(crate) id: i32,
+}
+
+impl MutableGetResultsParams {
+    pub fn image_id(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+    }
+}

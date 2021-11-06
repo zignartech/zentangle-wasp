@@ -54,19 +54,20 @@
 		}
 	},
 	"views": {
-		"getTaggedImages": {
-			"results": {
-				"taggedImages": "TaggedImage[] // a list with every TaggedImage (10 per imageId)"
-			}
-		},
 		"getPlaysPerImage": {
+			"params": {
+				"imageId": "Int32"
+			},
 			"results": {
-				"playsPerImage": "Int16[]"
+				"playsPerImage": "Int16"
 			}
 		},
 		"getResults": {
+			"params": {
+				"imageId": "Int32"
+			},
 			"results": {
-				"processedImages": "TaggedImage[]  // a list with the resulting images"
+				"processedImages": "TaggedImage // the resulting images"
 			}
 		}
 	}

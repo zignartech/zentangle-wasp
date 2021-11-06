@@ -38,17 +38,14 @@ pub struct SendTagsCall {
 
 pub struct GetPlaysPerImageCall {
     pub func:    ScView,
+    pub params:  MutableGetPlaysPerImageParams,
     pub results: ImmutableGetPlaysPerImageResults,
 }
 
 pub struct GetResultsCall {
     pub func:    ScView,
+    pub params:  MutableGetResultsParams,
     pub results: ImmutableGetResultsResults,
-}
-
-pub struct GetTaggedImagesCall {
-    pub func:    ScView,
-    pub results: ImmutableGetTaggedImagesResults,
 }
 
 pub struct ScFuncs {
@@ -87,25 +84,19 @@ impl ScFuncs {
     pub fn get_plays_per_image(_ctx: & dyn ScViewCallContext) -> GetPlaysPerImageCall {
         let mut f = GetPlaysPerImageCall {
             func:    ScView::new(HSC_NAME, HVIEW_GET_PLAYS_PER_IMAGE),
+            params:  MutableGetPlaysPerImageParams { id: 0 },
             results: ImmutableGetPlaysPerImageResults { id: 0 },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
         f
     }
     pub fn get_results(_ctx: & dyn ScViewCallContext) -> GetResultsCall {
         let mut f = GetResultsCall {
             func:    ScView::new(HSC_NAME, HVIEW_GET_RESULTS),
+            params:  MutableGetResultsParams { id: 0 },
             results: ImmutableGetResultsResults { id: 0 },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
-        f
-    }
-    pub fn get_tagged_images(_ctx: & dyn ScViewCallContext) -> GetTaggedImagesCall {
-        let mut f = GetTaggedImagesCall {
-            func:    ScView::new(HSC_NAME, HVIEW_GET_TAGGED_IMAGES),
-            results: ImmutableGetTaggedImagesResults { id: 0 },
-        };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
         f
     }
 }

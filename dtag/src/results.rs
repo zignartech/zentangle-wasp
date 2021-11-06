@@ -37,47 +37,14 @@ impl MutableRequestPlayResults {
     }
 }
 
-pub struct ArrayOfImmutableInt16 {
-    pub(crate) obj_id: i32,
-}
-
-impl ArrayOfImmutableInt16 {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
-    }
-
-    pub fn get_int16(&self, index: i32) -> ScImmutableInt16 {
-        ScImmutableInt16::new(self.obj_id, Key32(index))
-    }
-}
-
 #[derive(Clone, Copy)]
 pub struct ImmutableGetPlaysPerImageResults {
     pub(crate) id: i32,
 }
 
 impl ImmutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ArrayOfImmutableInt16 {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT16);
-        ArrayOfImmutableInt16 { obj_id: arr_id }
-    }
-}
-
-pub struct ArrayOfMutableInt16 {
-    pub(crate) obj_id: i32,
-}
-
-impl ArrayOfMutableInt16 {
-    pub fn clear(&self) {
-        clear(self.obj_id);
-    }
-
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
-    }
-
-    pub fn get_int16(&self, index: i32) -> ScMutableInt16 {
-        ScMutableInt16::new(self.obj_id, Key32(index))
+    pub fn plays_per_image(&self) -> ScImmutableInt16 {
+        ScImmutableInt16::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
     }
 }
 
@@ -87,23 +54,8 @@ pub struct MutableGetPlaysPerImageResults {
 }
 
 impl MutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ArrayOfMutableInt16 {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT16);
-        ArrayOfMutableInt16 { obj_id: arr_id }
-    }
-}
-
-pub struct ArrayOfImmutableTaggedImage {
-    pub(crate) obj_id: i32,
-}
-
-impl ArrayOfImmutableTaggedImage {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
-    }
-
-    pub fn get_tagged_image(&self, index: i32) -> ImmutableTaggedImage {
-        ImmutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
+    pub fn plays_per_image(&self) -> ScMutableInt16 {
+        ScMutableInt16::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
     }
 }
 
@@ -113,27 +65,8 @@ pub struct ImmutableGetResultsResults {
 }
 
 impl ImmutableGetResultsResults {
-    pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-        ArrayOfImmutableTaggedImage { obj_id: arr_id }
-    }
-}
-
-pub struct ArrayOfMutableTaggedImage {
-    pub(crate) obj_id: i32,
-}
-
-impl ArrayOfMutableTaggedImage {
-    pub fn clear(&self) {
-        clear(self.obj_id);
-    }
-
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
-    }
-
-    pub fn get_tagged_image(&self, index: i32) -> MutableTaggedImage {
-        MutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
+    pub fn processed_images(&self) -> ImmutableTaggedImage {
+        ImmutableTaggedImage { obj_id: self.id, key_id: idx_map(IDX_RESULT_PROCESSED_IMAGES) }
     }
 }
 
@@ -143,32 +76,7 @@ pub struct MutableGetResultsResults {
 }
 
 impl MutableGetResultsResults {
-    pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-        ArrayOfMutableTaggedImage { obj_id: arr_id }
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct ImmutableGetTaggedImagesResults {
-    pub(crate) id: i32,
-}
-
-impl ImmutableGetTaggedImagesResults {
-    pub fn tagged_images(&self) -> ArrayOfImmutableTaggedImage {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-        ArrayOfImmutableTaggedImage { obj_id: arr_id }
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct MutableGetTaggedImagesResults {
-    pub(crate) id: i32,
-}
-
-impl MutableGetTaggedImagesResults {
-    pub fn tagged_images(&self) -> ArrayOfMutableTaggedImage {
-        let arr_id = get_object_id(self.id, idx_map(IDX_RESULT_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-        ArrayOfMutableTaggedImage { obj_id: arr_id }
+    pub fn processed_images(&self) -> MutableTaggedImage {
+        MutableTaggedImage { obj_id: self.id, key_id: idx_map(IDX_RESULT_PROCESSED_IMAGES) }
     }
 }
