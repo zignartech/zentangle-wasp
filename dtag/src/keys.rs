@@ -21,21 +21,24 @@ pub(crate) const IDX_PARAM_TAGS_REQUIRED_PER_IMAGE: usize = 4;
 pub(crate) const IDX_PARAM_W:                       usize = 5;
 pub(crate) const IDX_PARAM_X:                       usize = 6;
 pub(crate) const IDX_PARAM_Y:                       usize = 7;
-pub(crate) const IDX_RESULT_IMAGE_ID:               usize = 8;
-pub(crate) const IDX_RESULT_PLAYS_PER_IMAGE:        usize = 9;
-pub(crate) const IDX_RESULT_PROCESSED_IMAGES:       usize = 10;
-pub(crate) const IDX_STATE_BETS:                    usize = 11;
-pub(crate) const IDX_STATE_CREATOR:                 usize = 12;
-pub(crate) const IDX_STATE_DESCRIPTION:             usize = 13;
-pub(crate) const IDX_STATE_NUMBER_OF_IMAGES:        usize = 14;
-pub(crate) const IDX_STATE_PENDING_PLAYS:           usize = 15;
-pub(crate) const IDX_STATE_PLAYS_PER_IMAGE:         usize = 16;
-pub(crate) const IDX_STATE_PROCESSED_IMAGES:        usize = 17;
-pub(crate) const IDX_STATE_REWARD:                  usize = 18;
-pub(crate) const IDX_STATE_TAGGED_IMAGES:           usize = 19;
-pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE: usize = 20;
+pub(crate) const IDX_RESULT_H:                      usize = 8;
+pub(crate) const IDX_RESULT_IMAGE_ID:               usize = 9;
+pub(crate) const IDX_RESULT_PLAYS_PER_IMAGE:        usize = 10;
+pub(crate) const IDX_RESULT_W:                      usize = 11;
+pub(crate) const IDX_RESULT_X:                      usize = 12;
+pub(crate) const IDX_RESULT_Y:                      usize = 13;
+pub(crate) const IDX_STATE_BETS:                    usize = 14;
+pub(crate) const IDX_STATE_CREATOR:                 usize = 15;
+pub(crate) const IDX_STATE_DESCRIPTION:             usize = 16;
+pub(crate) const IDX_STATE_NUMBER_OF_IMAGES:        usize = 17;
+pub(crate) const IDX_STATE_PENDING_PLAYS:           usize = 18;
+pub(crate) const IDX_STATE_PLAYS_PER_IMAGE:         usize = 19;
+pub(crate) const IDX_STATE_PROCESSED_IMAGES:        usize = 20;
+pub(crate) const IDX_STATE_REWARD:                  usize = 21;
+pub(crate) const IDX_STATE_TAGGED_IMAGES:           usize = 22;
+pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE: usize = 23;
 
-pub const KEY_MAP_LEN: usize = 21;
+pub const KEY_MAP_LEN: usize = 24;
 
 pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
     PARAM_DESCRIPTION,
@@ -46,9 +49,12 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
     PARAM_W,
     PARAM_X,
     PARAM_Y,
+    RESULT_H,
     RESULT_IMAGE_ID,
     RESULT_PLAYS_PER_IMAGE,
-    RESULT_PROCESSED_IMAGES,
+    RESULT_W,
+    RESULT_X,
+    RESULT_Y,
     STATE_BETS,
     STATE_CREATOR,
     STATE_DESCRIPTION,

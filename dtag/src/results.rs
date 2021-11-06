@@ -65,8 +65,20 @@ pub struct ImmutableGetResultsResults {
 }
 
 impl ImmutableGetResultsResults {
-    pub fn processed_images(&self) -> ImmutableTaggedImage {
-        ImmutableTaggedImage { obj_id: self.id, key_id: idx_map(IDX_RESULT_PROCESSED_IMAGES) }
+    pub fn h(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_H))
+    }
+
+    pub fn w(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_W))
+    }
+
+    pub fn x(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_X))
+    }
+
+    pub fn y(&self) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_Y))
     }
 }
 
@@ -76,7 +88,19 @@ pub struct MutableGetResultsResults {
 }
 
 impl MutableGetResultsResults {
-    pub fn processed_images(&self) -> MutableTaggedImage {
-        MutableTaggedImage { obj_id: self.id, key_id: idx_map(IDX_RESULT_PROCESSED_IMAGES) }
+    pub fn h(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_H))
+    }
+
+    pub fn w(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_W))
+    }
+
+    pub fn x(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_X))
+    }
+
+    pub fn y(&self) -> ScMutableInt64 {
+        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_Y))
     }
 }

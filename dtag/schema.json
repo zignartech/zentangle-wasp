@@ -46,8 +46,8 @@
 			"params": {
 				"x": "Int64 // x top-left position of the Tag TODO: This should be a constructor in the future",
 				"y": "Int64 // y top-left position of the Tag",
-				"w": "Int64 // width of the Tag",
-				"h": "Int64 // height of the Tag"
+				"h": "Int64 // height of the Tag",
+				"w": "Int64 // width of the Tag"
 			}
 		},
 		"endGame": {
@@ -67,7 +67,10 @@
 				"imageId": "Int32"
 			},
 			"results": {
-				"processedImages": "TaggedImage // the resulting images"
+				"x": "Int64 // x top-left position of the Tag TODO: This should be a constructor in the future",
+				"y": "Int64 // y top-left position of the Tag",
+				"h": "Int64 // height of the Tag",
+				"w": "Int64 // width of the Tag"
 			}
 		}
 	}

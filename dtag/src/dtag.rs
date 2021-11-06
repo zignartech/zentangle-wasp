@@ -200,28 +200,27 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
         }
 
         // We append the clusters coordinate to the centers vector (a vector of centers for every image)
-        let mut image_centers: Vec<TaggedImage> = Vec::new(); 
+        let mut centers_in_image: Vec<TaggedImage> = Vec::new(); 
         // TODO: We only have one cluster left, so a for loop is not really necessary until we have multi-tagging
-        for i in clusters {
-            let center = TaggedImage {
-                player: _f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
-                image_id: image,
-                x: i[0],
-                y: i[1],
-                h: i[2],
-                w: i[3]
-            };
-            image_centers.push(center);
-        }
-        centers.push(image_centers);
+      
+        let center = TaggedImage {
+            player: _f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
+            image_id: image,
+            x: clusters[0][0],
+            y: clusters[0][1],
+            h: clusters[0][2],
+            w: clusters[0][3]
+        };
+        centers_in_image.push(center);
+        centers.push(centers_in_image);
     } // finish the images iterator
 
     // The following line, sorts the centers vector by 'image_id'
-    centers.sort_by(|a, b| b[0].image_id.cmp(&a[0].image_id));
+    centers.sort_by(|b, a| b[0].image_id.cmp(&a[0].image_id));
     // update the 'processed_images' state variable with the final tagging data
-    for i in centers{
-        for j in i{
-            _f.state.processed_images().get_tagged_image(j.image_id).set_value(&j)
+    for centers_in_image in &centers{
+        for center in &*centers_in_image{
+            _f.state.processed_images().get_tagged_image(center.image_id).set_value(&center)
         }
     }
 
@@ -255,7 +254,7 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     // the accuracy of the tag and, for the moment, a total bet equal to zero)
     let mut valid_bets: Vec<Better> = Vec::new();
     // fill the 'valid_bets' with the bets. The bet amount will be filled later 
-    for valid_tag in valid_tags {
+    for valid_tag in &valid_tags {
         let tagged_image = _f.state.tagged_images().get_tagged_image(valid_tag.tagged_image_id).value();
         let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
         let cluster_center = _f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
@@ -327,10 +326,7 @@ pub fn func_end_game(_ctx: &ScFuncContext, _f: &EndGameContext) {
     _f.state.pending_plays().clear();
 
     _ctx.event(&format!(
-        "dtag.game.ended {0} {1} {2}",
-        _f.state.pending_plays().length().to_string(),
-        _f.state.tagged_images().length().to_string(),
-        _f.state.bets().length().to_string()
+        "dtag.game.ended",
     ));
 }
 
@@ -506,5 +502,8 @@ pub fn view_get_results(_ctx: &ScViewContext, _f: &GetResultsContext) {
     let image_id = _f.params.image_id().value();
     let tagged_image = _f.state.processed_images().get_tagged_image(image_id).value();
 
-    _f.results.processed_images().set_value(&tagged_image);
+    _f.results.x().set_value(tagged_image.x);
+    _f.results.x().set_value(tagged_image.y);
+    _f.results.x().set_value(tagged_image.h);
+    _f.results.x().set_value(tagged_image.w);
 }
