@@ -1,0 +1,236 @@
+:host ::ng-deep {
+  .p-datatable-responsive-table .p-datatable-tbody>tr>td .p-column-title {
+    display: none;
+  }
+}
+
+.icon-hover:hover {
+  color: #ff6347;
+  cursor: pointer;
+}
+
+.error {
+  border-color: #ff6347;
+}
+
+.customer-badge {
+  border-radius: 2px;
+  padding: 0.25em 0.5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.climate-badge {
+  border-radius: 2px;
+  padding: 0.8em 0.9rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: rgba(101, 186, 86, 1);
+  background-color: rgba(92, 205, 72, 0.2);
+}
+
+.status-FLOWERING {
+  background-color: #d2e8de;
+  color: #337255;
+}
+
+.status-PREPARING {
+  background-color: #fef8db;
+  color: #dcb81f;
+}
+
+.status-SOWING {
+  background-color: #e1f3f7;
+  color: #53b4c9;
+}
+
+.status-GERMINATING {
+  background-color: #e1ebf7;
+  color: #689cd8;
+}
+
+.status-VEGETATING {
+  background-color: #def5da;
+  color: #65ba56;
+}
+
+.status-RIPENING {
+  background-color: #d7e5e4;
+  color: #387d7a;
+}
+
+.status-HARVESTING {
+  background-color: #d7dad8;
+  color: #36443d;
+}
+
+.status-BUDDING {
+  background-color: #d4eee2;
+  color: #26a96c;
+}
+
+.status-INACTIVE {
+  background-color: #d7dad8;
+  color: #939393;
+}
+
+@media screen and (max-width: 40rem) {
+  :host ::ng-deep {
+    .p-datatable {
+      &.p-datatable-responsive-table {
+
+        .p-datatable-thead>tr>th,
+        .p-datatable-tfoot>tr>td {
+          display: none !important;
+        }
+
+        .p-datatable-tbody>tr>td {
+          text-align: left;
+          display: block;
+          width: 100%;
+          float: left;
+          clear: left;
+          border: 0 none;
+
+          .p-column-title {
+            padding: 0.4rem;
+            min-width: 30%;
+            display: inline-block;
+            margin: -0.4em 1em -0.4em -0.4rem;
+            font-weight: bold;
+          }
+
+          .p-datatable-responsive-table .p-datatable-tbody>tr>td .p-column-title {
+            display: none;
+          }
+        }
+
+        .icon-hover:hover {
+          color: #ff6347;
+          cursor: pointer;
+        }
+
+        .error {
+          border-color: #ff6347;
+        }
+
+       //scrollbar
+        .custombar1 {
+          overflow-y: scroll;
+          height: 540px;
+        }
+
+        .custombar1::-webkit-scroll,
+        .custombar1::-webkit-scrollbar {
+          width: 0.5025rem;
+          background-color: rgba(245, 245, 245, 1);
+        }
+
+        .custombar1::-webkit-scrollbar-thumb {
+          border-radius: 0.5rem;
+          background-color: rgba(196, 196, 196, 1);
+        }
+
+        .customer-badge {
+          border-radius: 2px;
+          padding: 0.25em 0.5rem;
+          text-transform: uppercase;
+          font-weight: 700;
+          font-size: 12px;
+          letter-spacing: 0.3px;
+        }
+
+        .climate-badge {
+          border-radius: 2px;
+          padding: 0.8em 0.9rem;
+          text-transform: uppercase;
+          font-weight: 700;
+          font-size: 12px;
+          letter-spacing: 0.3px;
+          color: rgba(101, 186, 86, 1);
+          background-color: rgba(92, 205, 72, 0.2);
+        }
+
+        .status-FLOWERING {
+          background-color: #d2e8de;
+          color: #337255;
+        }
+
+        .status-PREPARING {
+          background-color: #fef8db;
+          color: #dcb81f;
+        }
+
+        .status-SOWING {
+          background-color: #e1f3f7;
+          color: #53b4c9;
+        }
+
+        .status-GERMINATING {
+          background-color: #e1ebf7;
+          color: #689cd8;
+        }
+
+        .status-VEGETATING {
+          background-color: #def5da;
+          color: #65ba56;
+        }
+
+        .status-RIPENING {
+          background-color: #d7e5e4;
+          color: #387d7a;
+        }
+
+        .status-HARVESTING {
+          background-color: #d7dad8;
+          color: #36443d;
+        }
+
+        .status-BUDDING {
+          background-color: #d4eee2;
+          color: #26a96c;
+        }
+
+        .status-INACTIVE {
+          background-color: #d7dad8;
+          color: #939393;
+        }
+
+        .p-datatable-tbody>tr>td {
+          text-align: left;
+          display: block;
+          width: 100%;
+          float: left;
+          clear: left;
+          border: 0 none;
+
+          .p-column-title {
+            padding: 0.4rem;
+            min-width: 30%;
+            display: inline-block;
+            margin: -0.4em 1em -0.4em -0.4rem;
+            font-weight: bold;
+          }
+
+          &:last-child {
+            border-bottom: 1px solid var(--surface-d);
+          }
+        }
+      }
+    }
+  }
+
+  .p-breadcrumb {
+    background: transparent;
+    border: none;
+  }
+
+  .p-breadcrumb ul li .p-menuitem-link:focus {
+    box-shadow: none;
+  }
+}
+
