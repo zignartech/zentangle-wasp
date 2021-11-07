@@ -4,7 +4,7 @@
 
 ./wasp-cli chain deposit IOTA:10000
 
-./wasp-cli chain deploy-contract wasmtime test "test SC v1" test_bg.wasm
+./wasp-cli chain deploy-contract wasmtime dtag "DTag SC v" ./dtag/pkg/dtag_bg.wasm
 
 ./wasp-cli chain post-request dtag createGame string numberOfImages int32 2 string description string "esto es un test" -t IOTA:10000
 
@@ -12,12 +12,4 @@
 
 ./wasp-cli chain post-request dtag sendTags string x int 50 string y int 100 string h int 150 string w int 200
 
-./wasp-cli chain post-request automation2 issuerRequestTask string machineId agentid A/1HW9QeFNFaSxsjbmMN1myN1ZmZ5ks6vJLzpighC2V1qvU::00000000 string instruction string "test" string timeout int32 1000
-
-./wasp-cli chain call-view automation2 getTask string taskId int32 0 | ./wasp-cli decode string status string
-
-
-_f.state.pending_plays().clear(); no lo limpia!!
-
-
-93YHB5fupUmiYdo2f3TrWFSrLkRxW9wZ5MQCxgzbFziY
+-----------------------------------------------------------------------------------------

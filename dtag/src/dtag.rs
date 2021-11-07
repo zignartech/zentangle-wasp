@@ -9,7 +9,7 @@ use crate::structs::*;
 // Defining default configuration parameters
 
 // The default amount of players to tag an image for it to be considered processed
-const DEFAULT_TAGS_REQUIRED_PER_IMAGE: i16 = 10;
+const DEFAULT_TAGS_REQUIRED_PER_IMAGE: i32 = 10;
 // The distance required for two clusters of tags to remain separate and not metge into one
 const MIN_INTER_CLUSTER_DISTANCE: f64 = 100.0;
 // The percentage of players on an image that have to agree on a tag for it to be valid
@@ -22,7 +22,7 @@ const CONFIRMATION_PERCENTAGE: f32 = 0.6;
 // - 'numberOfImages', which must be an Int32 number, and
 // - 'description', which must be a String
 // It can also take a non-mandatory parameter:
-// - 'tagsRequiredPerImage', which must be an Int16
+// - 'tagsRequiredPerImage', which must be an Int32
 pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
 
     // No game can be in progress in order to be able to crate a new one
@@ -99,7 +99,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
     // retrieve some state variables
     let number_of_images = f.state.number_of_images().value();
-    let tags_req_per_image = f.state.tags_required_per_image().value() as i32;
+    let tags_req_per_image = f.state.tags_required_per_image().value();
 
     // For every image, we apply Aglomerative Hierarchical Clustering
     for image in 0..number_of_images {
@@ -118,7 +118,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
         // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
         let mut min_distance= [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
-
+        ctx.log(&format!("end.game.log.1 {0}", image));
         // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
         // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
         // case, 9999999.0 will not be overwritten).
@@ -144,7 +144,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 // the weight is equal to the number of point's that conform the cluster
                 let weight_1 = (clusters[index_1].len() - 4) as i64;
                 let weight_2 = (clusters[index_2].len() - 4) as i64;
-                
+                ctx.log(&format!("end.game.log.2"));
                 // Calculating the coordiantes of the new cluster. The more weight, 
                 // the more influence on the new coordinate it has. This way, the 
                 // coordinate represents the average of all points in the cluster
@@ -170,7 +170,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 clusters.push(new_cluster);
             }         
         } // finish Aglomerative Hierarchical Clustering Algorithm
-
+        ctx.log(&format!("end.game.log.3"));
         // We should be left with only one cluster (until multi-tagging is implemented). 
         // The ones that have fewer points get discarted.
         // Here we also store all the players that made correct taggs. They can be stored multiple times.
@@ -191,6 +191,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 check_min_one_tag = true;
             }
         }
+        ctx.log(&format!("end.game.log.4"));
         // We want to have one cluster per image, even if it is an empty cluster. This way,
        // it's easier to find processed images based on their id. TODO: With nested arrays and nested
         // constructors, this abomination would not be necessary. Also, this is a hackaton, so no time...
@@ -223,7 +224,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             f.state.processed_images().get_tagged_image(center.image_id).set_value(&center)
         }
     }
-
+    ctx.log(&format!("end.game.log.5"));
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
     let n_rewards = valid_tags.len() as i64;
@@ -249,7 +250,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             }
         }
     }
-    
+    ctx.log(&format!("end.game.log.6"));
     // 'valid_bets' stores all the bets placed, including zero value ones (with the player, 
     // the accuracy of the tag and, for the moment, a total bet equal to zero)
     let mut valid_bets: Vec<Better> = Vec::new();
@@ -257,9 +258,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     for valid_tag in &valid_tags {
         let tagged_image = f.state.tagged_images().get_tagged_image(valid_tag.tagged_image_id).value();
         let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
-        ctx.log(&format!("log9.2"));
         let cluster_center = f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
-        ctx.log(&format!("log9.3"));
         let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
         let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
         valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0));
@@ -358,7 +357,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
     'image: for i in 0..number_of_images {
-        if plays_per_image.get_int16(i).value() >= tags_required_per_image {
+        if plays_per_image.get_int32(i).value() >= tags_required_per_image {
             counter += 1;
             continue;
         }
@@ -375,14 +374,15 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // If no more images are available to tag, we dont accept the request and panic.
     ctx.require(counter < number_of_images, "Error: Sorry, no more images are available to tag");
 
-    // We choose an image randomly to assign to the player for tagging.
+    // We choose an image NOT randomly to assign to the player for tagging.
     // This loop checks if the image has been tagged the required amount of times, 
     // or if it has already been tagged by the player. If so, we choose another one.
     // Note that the loop is not infinite, as we have checked that there is at least an image available to tag.
-    let mut image_id: i32;
+    // It is not random for the moment, because the randomizer is broken.
+    let mut image_id: i32 = -1;
     'outer: loop {
-        image_id = ctx.utility().random((number_of_images-1) as i64) as i32;
-        if plays_per_image.get_int16(image_id).value() == tags_required_per_image { continue }
+        image_id += 1;//ctx.utility().random((number_of_images-1) as i64) as i32;
+        if plays_per_image.get_int32(image_id).value() == tags_required_per_image { continue }
         for i in image_id*tags_required_per_image as i32..(image_id+1)*tags_required_per_image as i32 {
             if  f.state.tagged_images().get_tagged_image(i).exists() { 
                 if f.state.tagged_images().get_tagged_image(i).value().player.address() == player.address() {
@@ -449,18 +449,22 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     // Get the image_id and the number of times a play has been made for this image.
     let image_id = bet.unwrap().value().image_id;
-    let plays_per_image: i16 = f.state.plays_per_image().get_int16(image_id).value();
+    let plays_per_image: i32 = f.state.plays_per_image().get_int32(image_id).value();
     ctx.log(&format!("send.tags.log3"));
     // We delete the bet from the pending plays by clearing the array and copying again, minus the bet of the player
     let mut vec_pending_plays: Vec<Bet> = Vec::new();
+    ctx.log(&format!("send.tags.log3.1"));
     for i in 0..pending_plays.length() {
-        vec_pending_plays[i as usize] = f.state.pending_plays().get_bet(i).value();
+        ctx.log(&format!("send.tags.log3.2 {0}", i));
+        vec_pending_plays.push(f.state.pending_plays().get_bet(i).value());
     }
+    ctx.log(&format!("send.tags.log3.3"));
     f.state.pending_plays().clear();
-
+    ctx.log(&format!("send.tags.log3.4"));
     for i in 0..pending_play_id {
         f.state.pending_plays().get_bet(i).set_value(&vec_pending_plays[i as usize]);
     }
+    ctx.log(&format!("send.tags.log3.5"));
     for i in pending_play_id+1..length {
         f.state.pending_plays().get_bet(i-1).set_value(&vec_pending_plays[i as usize]);
     }
@@ -486,20 +490,20 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     f.state.tagged_images().get_tagged_image(image_id + plays_per_image as i32).set_value(&tagged_image);
 
     // Add one to the number of times this image has been tagged
-    let playsfor_this_image: i16 = f.state.plays_per_image().get_int16(tagged_image.image_id).value();
-    f.state.plays_per_image().get_int16(tagged_image.image_id).set_value(playsfor_this_image + 1);
+    let playsfor_this_image: i32 = f.state.plays_per_image().get_int32(tagged_image.image_id).value();
+    f.state.plays_per_image().get_int32(tagged_image.image_id).set_value(playsfor_this_image + 1);
 
     ctx.event(&format!(
         "dtag.image.tagged {0} {1}",
         &tagged_image.player.address().to_string(),
-        f.state.plays_per_image().get_int16(tagged_image.image_id).value().to_string(),
+        f.state.plays_per_image().get_int32(tagged_image.image_id).value().to_string(),
     ));
 }
 
 pub fn view_get_plays_per_image(_ctx: &ScViewContext, f: &GetPlaysPerImageContext) {
 
     let image_id = f.params.image_id().value();
-    let plays = f.state.plays_per_image().get_int16(image_id).value();
+    let plays = f.state.plays_per_image().get_int32(image_id).value();
 
     f.results.plays_per_image().set_value(plays);
 }
@@ -509,8 +513,10 @@ pub fn view_get_results(_ctx: &ScViewContext, f: &GetResultsContext) {
     let image_id = f.params.image_id().value();
     let tagged_image = f.state.processed_images().get_tagged_image(image_id).value();
 
-    f.results.x().set_value(tagged_image.x);
-    f.results.x().set_value(tagged_image.y);
-    f.results.x().set_value(tagged_image.h);
-    f.results.x().set_value(tagged_image.w);
+    f.results.results().set_value(&format!(
+        "{0}/{1}/{2}/{3}",
+        tagged_image.x, 
+        tagged_image.y, 
+        tagged_image.h, 
+        tagged_image.w));
 }

@@ -22,10 +22,10 @@
 		"reward": "Int64 // current reward to split between players",
 		"description": "String // details on how should the images be tagged",
 		"creator": "AgentID // the creator of the game",
-		"tagsRequiredPerImage": "Int16 // Images have to be tagged by this amount of players to be ready",
+		"tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
 		"bets": "Bet[]",
 		"pendingPlays": "Bet[] // List of Plays that have been requested but not completed",
-		"playsPerImage": "Int16[] // counts how many times an image has been tagged",
+		"playsPerImage": "Int32[] // counts how many times an image has been tagged",
 		"taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
 		"processedImages": "TaggedImage[]"
 	},
@@ -34,7 +34,7 @@
 			"params": {
 				"numberOfImages": "Int32 // total number of images to tag",
 				"description": "String // details on how should the images be tagged",
-				"tagsRequiredPerImage":"Int16? // Images have to be tagged by this amount of players to be ready"
+				"tagsRequiredPerImage":"Int32? // Images have to be tagged by this amount of players to be ready"
 			}
 		},
 		"requestPlay": {
@@ -59,7 +59,7 @@
 				"imageId": "Int32"
 			},
 			"results": {
-				"playsPerImage": "Int16"
+				"playsPerImage": "Int32"
 			}
 		},
 		"getResults": {
@@ -67,10 +67,7 @@
 				"imageId": "Int32"
 			},
 			"results": {
-				"x": "Int64 // x top-left position of the Tag TODO: This should be a constructor in the future",
-				"y": "Int64 // y top-left position of the Tag",
-				"h": "Int64 // height of the Tag",
-				"w": "Int64 // width of the Tag"
+				"results": "String // x/y/h/w"
 			}
 		}
 	}

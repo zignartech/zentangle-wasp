@@ -43,8 +43,8 @@ pub struct ImmutableGetPlaysPerImageResults {
 }
 
 impl ImmutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ScImmutableInt16 {
-        ScImmutableInt16::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+    pub fn plays_per_image(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
     }
 }
 
@@ -54,8 +54,8 @@ pub struct MutableGetPlaysPerImageResults {
 }
 
 impl MutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ScMutableInt16 {
-        ScMutableInt16::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+    pub fn plays_per_image(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
     }
 }
 
@@ -65,20 +65,8 @@ pub struct ImmutableGetResultsResults {
 }
 
 impl ImmutableGetResultsResults {
-    pub fn h(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_H))
-    }
-
-    pub fn w(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_W))
-    }
-
-    pub fn x(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_X))
-    }
-
-    pub fn y(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_RESULT_Y))
+    pub fn results(&self) -> ScImmutableString {
+        ScImmutableString::new(self.id, idx_map(IDX_RESULT_RESULTS))
     }
 }
 
@@ -88,19 +76,7 @@ pub struct MutableGetResultsResults {
 }
 
 impl MutableGetResultsResults {
-    pub fn h(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_H))
-    }
-
-    pub fn w(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_W))
-    }
-
-    pub fn x(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_X))
-    }
-
-    pub fn y(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_RESULT_Y))
+    pub fn results(&self) -> ScMutableString {
+        ScMutableString::new(self.id, idx_map(IDX_RESULT_RESULTS))
     }
 }

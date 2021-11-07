@@ -24,12 +24,9 @@ pub const PARAM_W:                       &str = "w";
 pub const PARAM_X:                       &str = "x";
 pub const PARAM_Y:                       &str = "y";
 
-pub const RESULT_H:               &str = "h";
 pub const RESULT_IMAGE_ID:        &str = "imageId";
 pub const RESULT_PLAYS_PER_IMAGE: &str = "playsPerImage";
-pub const RESULT_W:               &str = "w";
-pub const RESULT_X:               &str = "x";
-pub const RESULT_Y:               &str = "y";
+pub const RESULT_RESULTS:         &str = "results";
 
 pub const STATE_BETS:                    &str = "bets";
 pub const STATE_CREATOR:                 &str = "creator";

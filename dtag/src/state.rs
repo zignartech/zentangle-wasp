@@ -29,17 +29,17 @@ impl ArrayOfImmutableBet {
     }
 }
 
-pub struct ArrayOfImmutableInt16 {
+pub struct ArrayOfImmutableInt32 {
     pub(crate) obj_id: i32,
 }
 
-impl ArrayOfImmutableInt16 {
+impl ArrayOfImmutableInt32 {
     pub fn length(&self) -> i32 {
         get_length(self.obj_id)
     }
 
-    pub fn get_int16(&self, index: i32) -> ScImmutableInt16 {
-        ScImmutableInt16::new(self.obj_id, Key32(index))
+    pub fn get_int32(&self, index: i32) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.obj_id, Key32(index))
     }
 }
 
@@ -85,9 +85,9 @@ impl ImmutabledtagState {
         ArrayOfImmutableBet { obj_id: arr_id }
     }
 
-    pub fn plays_per_image(&self) -> ArrayOfImmutableInt16 {
-        let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT16);
-        ArrayOfImmutableInt16 { obj_id: arr_id }
+    pub fn plays_per_image(&self) -> ArrayOfImmutableInt32 {
+        let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
+        ArrayOfImmutableInt32 { obj_id: arr_id }
     }
 
     pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
@@ -104,8 +104,8 @@ impl ImmutabledtagState {
         ArrayOfImmutableTaggedImage { obj_id: arr_id }
     }
 
-    pub fn tags_required_per_image(&self) -> ScImmutableInt16 {
-        ScImmutableInt16::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
     }
 }
 
@@ -127,11 +127,11 @@ impl ArrayOfMutableBet {
     }
 }
 
-pub struct ArrayOfMutableInt16 {
+pub struct ArrayOfMutableInt32 {
     pub(crate) obj_id: i32,
 }
 
-impl ArrayOfMutableInt16 {
+impl ArrayOfMutableInt32 {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
@@ -140,8 +140,8 @@ impl ArrayOfMutableInt16 {
         get_length(self.obj_id)
     }
 
-    pub fn get_int16(&self, index: i32) -> ScMutableInt16 {
-        ScMutableInt16::new(self.obj_id, Key32(index))
+    pub fn get_int32(&self, index: i32) -> ScMutableInt32 {
+        ScMutableInt32::new(self.obj_id, Key32(index))
     }
 }
 
@@ -191,9 +191,9 @@ impl MutabledtagState {
         ArrayOfMutableBet { obj_id: arr_id }
     }
 
-    pub fn plays_per_image(&self) -> ArrayOfMutableInt16 {
-        let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT16);
-        ArrayOfMutableInt16 { obj_id: arr_id }
+    pub fn plays_per_image(&self) -> ArrayOfMutableInt32 {
+        let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
+        ArrayOfMutableInt32 { obj_id: arr_id }
     }
 
     pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
@@ -210,7 +210,7 @@ impl MutabledtagState {
         ArrayOfMutableTaggedImage { obj_id: arr_id }
     }
 
-    pub fn tags_required_per_image(&self) -> ScMutableInt16 {
-        ScMutableInt16::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
     }
 }

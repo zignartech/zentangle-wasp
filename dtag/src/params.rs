@@ -28,8 +28,8 @@ impl ImmutableCreateGameParams {
         ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
     }
 
-    pub fn tags_required_per_image(&self) -> ScImmutableInt16 {
-        ScImmutableInt16::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
+        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
     }
 }
 
@@ -47,8 +47,8 @@ impl MutableCreateGameParams {
         ScMutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
     }
 
-    pub fn tags_required_per_image(&self) -> ScMutableInt16 {
-        ScMutableInt16::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScMutableInt32 {
+        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
     }
 }
 
