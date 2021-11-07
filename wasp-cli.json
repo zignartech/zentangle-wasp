@@ -1,7 +1,7 @@
 {
   "chain": "mychain",
   "chains": {
-    "mychain": "hyz27cSWtq1JFUtNBAcryv8PPiAeGpgAyXzwpTvecqXR"
+    "mychain": "t4pzduFNpkotADTLKB6r4XiG4V59WdEoNZvAJy3dcuXn"
   },
   "goshimmer": {
     "api": "https://api.goshimmer.sc.iota.org"
