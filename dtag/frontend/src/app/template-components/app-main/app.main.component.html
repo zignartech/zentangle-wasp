@@ -1,0 +1,24 @@
+<div
+  class="layout-wrapper"
+  [ngClass]="{
+    'layout-sidebar': app.menuMode === 'sidebar',
+    'layout-static': app.menuMode === 'sidebar' && sidebarStatic,
+    'layout-horizontal': app.menuMode === 'horizontal',
+    'layout-slim': app.menuMode === 'slim',
+    'layout-mobile-active': staticMenuMobileActive,
+    'p-input-filled': app.inputStyle === 'filled',
+    'p-ripple-disabled': !app.ripple
+  }"
+  [class]="'layout-menu-' + app.menuTheme + ' layout-topbar-' + app.topbarTheme"
+  (click)="onLayoutClick()"
+>
+  <app-topbar></app-topbar>
+
+  <div class="layout-main">
+    <div class="layout-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <div class="layout-mask modal-in"></div>
+</div>

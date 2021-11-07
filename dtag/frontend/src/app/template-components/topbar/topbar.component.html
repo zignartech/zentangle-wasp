@@ -1,0 +1,68 @@
+<div class="layout-topbar">
+  <div class="layout-topbar-wrapper">
+    <div class="layout-topbar-left">
+      <a tabindex="0" class="menu-button" (click)="appMain.onMenuButtonClick($event)">
+        <i class="pi pi-bars"></i>
+      </a>
+      <a tabindex="0" id="logo-link" class="layout-topbar-logo" (click)="appMain.onMenuButtonClick($event)">
+        <!-- <img [src]="'assets/layout/images/logo-' + (app.topbarTheme === 'dark' ? 'freya-white' : 'freya') + '.svg'" alt="freya-layout"/> -->
+      </a>
+    </div>
+
+    <app-menu></app-menu>
+
+    <div class="layout-topbar-right">
+      <ul class="layout-topbar-actions">
+        <li #searchItem class="topbar-item search-item" [ngClass]="{'active-topmenuitem': appMain.search}">
+          <a tabindex="0" (click)="appMain.onTopbarItemClick($event,searchItem)">
+            <i class="topbar-icon pi pi-search"></i>
+          </a>
+
+          <div class="search-input-wrapper">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input type="text" pInputText placeholder="Search..." (click)="appMain.searchClick = true;"/>
+                        </span>
+          </div>
+
+          <ul class="fadeInDown">
+            <div class="search-input-wrapper p-fluid" style="width: 100%">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <input type="text" pInputText placeholder="Search..." (click)="appMain.searchClick = true;"/>
+                            </span>
+            </div>
+          </ul>
+        </li>
+
+        <li #profile class="topbar-item user-profile" [ngClass]="{'active-topmenuitem fadeInDown': appMain.activeTopbarItem === profile}">
+          <a href="#" (click)="appMain.onTopbarItemClick($event,profile)">
+            <!-- <img src="assets/layout/images/avatar-profilemenu.png" alt="freya-layout"/> -->
+          </a>
+          <ul class="fadeInDown">
+            <li>
+              <a href="#">
+                <span>Profile</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <span>Settings</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <span>Messages</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <span>Notifications</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

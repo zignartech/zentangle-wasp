@@ -1,0 +1,209 @@
+:host ::ng-deep .breadcrumb {
+  border: transparent;
+  background: transparent;
+}
+
+.btn-icon, .btn-icon:hover {
+  background: transparent;
+  color: black;
+  border: transparent;
+}
+
+.txt-copy {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 17px;
+  text-align: left;
+}
+
+.card-address-seed {
+  font-weight: 400;
+  text-align: left;
+
+  .title {
+    //styleName: body;
+    font-size: 14px;
+    line-height: 19px;
+    color: rgb(55, 55, 55);
+  }
+
+  .content {
+    font-size: 12px;
+    line-height: 17px;
+    color: rgba(41, 50, 65, 0.8);
+  }
+}
+
+.card-title{
+  //styleName: Primary text bold;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: left;
+  padding-left: 0.8rem;
+  margin-top: 0.8rem;
+  display: inline-block;
+}
+
+:host ::ng-deep .card-image-title{
+  //styleName: Primary text;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: center;
+  color: rgba(41, 50, 65, 0.8);
+
+  &.tag{
+    background: #F5F5F5;
+    box-shadow: 0 10px 40px rgba(41, 50, 65, 0.06);
+  }
+}
+
+.player{
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .seed{
+    word-break: break-all;
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+    text-align: left;
+  }
+
+  .bet{
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: left;
+  }
+}
+
+.progress-indicator{
+  //styleName: Indicator;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+:host ::ng-deep{
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+  }
+}
+
+.sc-log {
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .title{
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+  }
+
+  .subtitle{
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .info{
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+  }
+
+  .bet{
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: left;
+  }
+}
+
+:host ::ng-deep .p-card-body{
+  padding: 0;
+  margin: 0;
+}
+
+.card-fund {
+  border: 1px solid #D8E3F5;
+  box-sizing: border-box;
+  border-radius: 10px;
+
+  span {
+    font-family: DM Sans, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 120%;
+    color: #9AADCE;
+  }
+
+  p {
+    font-family: Inter, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 140%;
+    text-align: center;
+    color: #9AADCE;
+    overflow-wrap: break-word;
+  }
+}
+
+.modal-input {
+  background: #FFFFFF;
+  /* Gray 300 */
+  border: 1px solid #D8E3F5;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+
+  span {
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 120%;
+    color: #9AADCE;
+  }
+
+  p {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 140%;
+    color: #9AADCE;
+
+    &.mi {
+      border-left: 1px solid #D8E3F5;
+      align-self: center;
+      padding-right: 1rem;
+      padding-left: 0.5rem;
+    }
+  }
+}

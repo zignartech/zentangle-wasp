@@ -1,0 +1,35 @@
+/* You can add global styles to this file, and also import other style files */
+$gutter: 1rem; //for primeflex grid system
+
+@import "~primeng/resources/primeng.min.css";
+@import "~primeflex/primeflex.scss";
+@import "~primeicons/primeicons.css";
+
+// To generate component styles in Freya, these two scss classes have to be imported upon build time
+// Any changes required for the look and feel of the application have to be implemented changing or
+// overriding variables in the sass directories.
+
+@import "../src/assets/sass/theme-light.scss";
+@import "../src/assets/sass/layout-light.scss";
+@import "../src/assets/sass/custom.scss";
+
+// Libraries
+@import '~swiper/swiper-bundle.min.css';
+@import "~cropperjs/dist/cropper.min.css";
+
+html, body{
+  height: 100%;
+  width: 100%;
+  font-family: Manrope;
+  font-style: normal;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+.w-100{
+  width: 100%;
+}
+
+.h-100{
+  height: 100%;
+}

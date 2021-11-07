@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "primeflex": "^3.1.0",
+    "primeicons": "^5.0.0",
+    "primeng": "^12.2.2"
+  }
+}
