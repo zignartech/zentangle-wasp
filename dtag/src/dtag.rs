@@ -118,7 +118,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
         // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
         let mut min_distance= [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
-        ctx.log(&format!("end.game.log.1 {0}", image));
+
         // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
         // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
         // case, 9999999.0 will not be overwritten).
@@ -144,7 +144,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 // the weight is equal to the number of point's that conform the cluster
                 let weight_1 = (clusters[index_1].len() - 4) as i64;
                 let weight_2 = (clusters[index_2].len() - 4) as i64;
-                ctx.log(&format!("end.game.log.2"));
+
                 // Calculating the coordiantes of the new cluster. The more weight, 
                 // the more influence on the new coordinate it has. This way, the 
                 // coordinate represents the average of all points in the cluster
@@ -170,7 +170,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 clusters.push(new_cluster);
             }         
         } // finish Aglomerative Hierarchical Clustering Algorithm
-        ctx.log(&format!("end.game.log.3"));
+
         // We should be left with only one cluster (until multi-tagging is implemented). 
         // The ones that have fewer points get discarted.
         // Here we also store all the players that made correct taggs. They can be stored multiple times.
@@ -191,7 +191,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 check_min_one_tag = true;
             }
         }
-        ctx.log(&format!("end.game.log.4"));
+
         // We want to have one cluster per image, even if it is an empty cluster. This way,
        // it's easier to find processed images based on their id. TODO: With nested arrays and nested
         // constructors, this abomination would not be necessary. Also, this is a hackaton, so no time...
@@ -224,7 +224,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             f.state.processed_images().get_tagged_image(center.image_id).set_value(&center)
         }
     }
-    ctx.log(&format!("end.game.log.5"));
+
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
     let n_rewards = valid_tags.len() as i64;
@@ -250,7 +250,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             }
         }
     }
-    ctx.log(&format!("end.game.log.6"));
+
     // 'valid_bets' stores all the bets placed, including zero value ones (with the player, 
     // the accuracy of the tag and, for the moment, a total bet equal to zero)
     let mut valid_bets: Vec<Better> = Vec::new();
@@ -450,25 +450,21 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     // Get the image_id and the number of times a play has been made for this image.
     let image_id = bet.unwrap().value().image_id;
     let plays_per_image: i32 = f.state.plays_per_image().get_int32(image_id).value();
-    ctx.log(&format!("send.tags.log3"));
+
     // We delete the bet from the pending plays by clearing the array and copying again, minus the bet of the player
     let mut vec_pending_plays: Vec<Bet> = Vec::new();
-    ctx.log(&format!("send.tags.log3.1"));
+
     for i in 0..pending_plays.length() {
-        ctx.log(&format!("send.tags.log3.2 {0}", i));
         vec_pending_plays.push(f.state.pending_plays().get_bet(i).value());
     }
-    ctx.log(&format!("send.tags.log3.3"));
     f.state.pending_plays().clear();
-    ctx.log(&format!("send.tags.log3.4"));
     for i in 0..pending_play_id {
         f.state.pending_plays().get_bet(i).set_value(&vec_pending_plays[i as usize]);
     }
-    ctx.log(&format!("send.tags.log3.5"));
     for i in pending_play_id+1..length {
         f.state.pending_plays().get_bet(i-1).set_value(&vec_pending_plays[i as usize]);
     }
-    ctx.log(&format!("send.tags.log4"));
+
     // If the image has all it's required plays, we panic. 
     // Note that the request has been removed from the pendingPlays list
     if plays_per_image >= f.state.tags_required_per_image().value() {
@@ -496,7 +492,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     ctx.event(&format!(
         "dtag.image.tagged {0} {1}",
         &tagged_image.player.address().to_string(),
-        f.state.plays_per_image().get_int32(tagged_image.image_id).value().to_string(),
+        f.state.plays_per_image().get_int32(tagged_image.image_id).value().to_string(), // nr of times the image has been tagged
     ));
 }
 
