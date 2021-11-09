@@ -293,7 +293,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     }
 
     // sort the 'top_betters' by the accuracy
-    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
+    betters_top.sort_by(|b, a| b.accuracy.partial_cmp(&a.accuracy).unwrap());
 
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
@@ -305,21 +305,21 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     let mut points: i64 = 0_i64;
     for i in 0..betters_top.len() {
         // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
-        points += ((betters_top.len()-i)*(betters_top.len()-i)) as i64;
+        points += (i*i) as i64 * betters_top[i].amount as i64;
     }
     let multiplier: f64 = (total_payout/points) as f64; 
 
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
-    // TODO: rounding errors could happen
-    for i in 0..betters_top.len()-1 {
+    // TODO: rounding errors could happen, but they get truncated, so no negative balance get's left on the contract
+    for i in 0..betters_top.len() {
         // Again, the prices take an exponential form, where the 'i' 
         // represents the position of the player given it's acuracy.
-        let payout = multiplier*((betters_top.len()-i)*(betters_top.len()-i)) as f64;
+        let payout = multiplier * (i*i) as f64 * betters_top[i].amount as f64;
         if payout < 1.0 { break; } // no need to coninue evaluating, as payout will only decrese with i
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
     }
-      
+    
     // We clear all the state variables, so a new game can begin
     f.state.bets().clear();
 	f.state.plays_per_image().clear();
