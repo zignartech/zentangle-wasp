@@ -1,40 +1,30 @@
-import { Component, OnInit } from '@angular/core';
-import {PrimeNGConfig} from "primeng/api";
-import {AppComponent} from "../../app.component";
-import {MenuService} from "../menu/menu.service";
+import { Component, ViewChild } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { PrimeNGConfig } from 'primeng/api';
+import { AppComponent } from '../../app.component';
+import { GameComponent } from '../../components/game/game.component';
+import { MenuService } from '../menu/menu.service';
 
 @Component({
   selector: 'app-app.main',
-  templateUrl: './app.main.component.html'
+  templateUrl: './app.main.component.html',
 })
 export class AppMainComponent {
   sidebarStatic!: boolean;
-
   sidebarActive = false;
-
   staticMenuMobileActive!: boolean;
-
   menuClick!: boolean;
-
   topbarItemClick!: boolean;
-
   activeTopbarItem: any;
-
   topbarMenuActive!: boolean;
-
   searchClick = false;
-
   search = false;
-
   rightPanelClick!: boolean;
-
   rightPanelActive!: boolean;
-
   configActive!: boolean;
-
   configClick!: boolean;
-
   menuHoverActive = false;
+  title = '';
 
   constructor(
     private menuService: MenuService,
@@ -194,5 +184,10 @@ export class AppMainComponent {
       );
     }
   }
-}
 
+  onRouterOutletActivate(component: any) {
+    if (component instanceof GameComponent) {
+      this.title = 'Game';
+    }
+  }
+}

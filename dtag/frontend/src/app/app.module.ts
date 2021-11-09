@@ -10,14 +10,14 @@ import {SwiperModule} from "swiper/angular";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { IcentivizedAITrainingComponent } from './components/icentivized-aitraining/icentivized-aitraining.component';
+import { GameComponent } from './components/game/game.component';
 import {PrimengComponentsModule} from "./template-components/primeng-components.module";
 import {TopbarComponent} from "./template-components/topbar/topbar.component";
 
 @NgModule({
   declarations: [
     AppComponent,
-    IcentivizedAITrainingComponent,
+    GameComponent,
   ],
   imports: [
     AppRoutingModule,

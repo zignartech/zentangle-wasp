@@ -33,3 +33,22 @@ html, body{
 .h-100{
   height: 100%;
 }
+
+.title-page {
+  //styleName: h4;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 27px;
+  padding-left: 3rem;
+}
+
+@media (max-width: 991px) {
+
+  .layout-topbar-left {
+    padding-right: 0 !important;
+  }
+
+  .title-page {
+    padding-left: 0 !important;
+  }
+}

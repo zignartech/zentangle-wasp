@@ -12,11 +12,11 @@
   [class]="'layout-menu-' + app.menuTheme + ' layout-topbar-' + app.topbarTheme"
   (click)="onLayoutClick()"
 >
-  <app-topbar></app-topbar>
+  <app-topbar [title]='title'></app-topbar>
 
   <div class="layout-main">
     <div class="layout-content">
-      <router-outlet></router-outlet>
+      <router-outlet (activate)="onRouterOutletActivate($event)"></router-outlet>
     </div>
   </div>
 

@@ -9,10 +9,10 @@ SwiperCore.use([Navigation, Pagination, EffectFade]);
 
 @Component({
   selector: 'app-icentivized-aitraining',
-  templateUrl: './icentivized-aitraining.component.html',
-  styleUrls: ['./icentivized-aitraining.component.scss']
+  templateUrl: './game.component.html',
+  styleUrls: ['./game.component.scss']
 })
-export class IcentivizedAITrainingComponent implements OnInit {
+export class GameComponent implements OnInit {
   @ViewChild('swiper', {static: false}) swiper?: SwiperComponent;
 
   itemsBreadcumb: MenuItem[] = [
@@ -72,7 +72,7 @@ export class IcentivizedAITrainingComponent implements OnInit {
       const index = this.swiper.swiperRef.realIndex;
       const slide = this.swiper.swiperRef.slides[index];
       const image = slide.querySelector('img')!;
-      this.croppers[index] = IcentivizedAITrainingComponent.createCropper(image);
+      this.croppers[index] = GameComponent.createCropper(image);
     }
   }
 
@@ -100,7 +100,7 @@ export class IcentivizedAITrainingComponent implements OnInit {
     this.showIncreaseBet = true;
   }
 
-  hideDIDDetailes() {
+  hideDIDDetails() {
     this.showDIDDetails = false;
   }
 

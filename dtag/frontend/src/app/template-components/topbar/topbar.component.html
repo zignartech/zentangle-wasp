@@ -5,13 +5,16 @@
         <i class="pi pi-bars"></i>
       </a>
       <a tabindex="0" id="logo-link" class="layout-topbar-logo" (click)="appMain.onMenuButtonClick($event)">
-        <!-- <img [src]="'assets/layout/images/logo-' + (app.topbarTheme === 'dark' ? 'freya-white' : 'freya') + '.svg'" alt="freya-layout"/> -->
+<!--         <img [src]="'assets/layout/images/logo-' + (app.topbarTheme === 'dark' ? 'freya-white' : 'freya') + '.svg'" alt="freya-layout"/>-->
+
       </a>
     </div>
 
     <app-menu></app-menu>
 
     <div class="layout-topbar-right">
+      <h1 class='title-page mt-auto' style=''>{{title}}</h1>
+
       <ul class="layout-topbar-actions">
         <li #searchItem class="topbar-item search-item" [ngClass]="{'active-topmenuitem': appMain.search}">
           <a tabindex="0" (click)="appMain.onTopbarItemClick($event,searchItem)">

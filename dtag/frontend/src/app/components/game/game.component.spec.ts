@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IcentivizedAITrainingComponent } from './icentivized-aitraining.component';
+import { GameComponent } from './game.component';
 
 describe('IcentivizedAITrainingComponent', () => {
-  let component: IcentivizedAITrainingComponent;
-  let fixture: ComponentFixture<IcentivizedAITrainingComponent>;
+  let component: GameComponent;
+  let fixture: ComponentFixture<GameComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ IcentivizedAITrainingComponent ]
+      declarations: [ GameComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IcentivizedAITrainingComponent);
+    fixture = TestBed.createComponent(GameComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

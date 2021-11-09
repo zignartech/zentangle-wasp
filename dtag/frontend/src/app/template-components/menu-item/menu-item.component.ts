@@ -1,10 +1,22 @@
-import {animate, state, style, transition, trigger} from "@angular/animations";
-import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {NavigationEnd, Router} from "@angular/router";
-import {Subscription} from "rxjs";
-import {filter} from "rxjs/operators";
-import {AppMainComponent} from "../app-main/app.main.component";
-import {MenuService} from "../menu/menu.service";
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { AppMainComponent } from '../app-main/app.main.component';
+import { MenuService } from '../menu/menu.service';
 
 @Component({
   /* tslint:disable:component-selector */
@@ -25,7 +37,7 @@ import {MenuService} from "../menu/menu.service";
       >
         <div
           class="layout-menuitem-icon"
-          [inlineSVG]="'/assets/icons/menu/' + item.icon"
+          [inlineSVG]="'/assets/icons/menu/{{item.icon}}'"
         ></div>
         <span class="layout-menuitem-text">{{ item.label }}</span>
         <i
