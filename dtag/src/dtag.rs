@@ -379,16 +379,16 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // or if it has already been tagged by the player. If so, we choose another one.
     // Note that the loop is not infinite, as we have checked that there is at least an image available to tag.
     // It is not random for the moment, because the randomizer is broken.
-    let mut image_id: i32 = -1;
+    let mut image_id: i32;
     'outer: loop {
-        image_id = ctx.utility().random((number_of_images-1) as i64) as i32;
+        image_id = ctx.random((number_of_images-1) as i64) as i32;
         if plays_per_image.get_int32(image_id).value() == tags_required_per_image { continue }
         for i in image_id*tags_required_per_image as i32..(image_id+1)*tags_required_per_image as i32 {
             if  f.state.tagged_images().get_tagged_image(i).exists() { 
                 if f.state.tagged_images().get_tagged_image(i).value().player.address() == player.address() {
                     continue 'outer
                 }
-            }  
+            }
         }
         break
     }

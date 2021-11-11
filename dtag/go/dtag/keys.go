@@ -18,9 +18,11 @@ const (
 	IdxParamW                    = 5
 	IdxParamX                    = 6
 	IdxParamY                    = 7
-	IdxResultImageId             = 8
-	IdxResultPlaysPerImage       = 9
-	IdxResultResults             = 10
+
+	IdxResultImageId       = 8
+	IdxResultPlaysPerImage = 9
+	IdxResultResults       = 10
+
 	IdxStateBets                 = 11
 	IdxStateCreator              = 12
 	IdxStateDescription          = 13

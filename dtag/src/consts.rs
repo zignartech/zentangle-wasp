@@ -5,52 +5,48 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-// @formatter:off
-
 #![allow(dead_code)]
 
 use wasmlib::*;
 
-pub const SC_NAME:        &str = "dtag";
-pub const SC_DESCRIPTION: &str = "Incentivized AI Training Casino";
-pub const HSC_NAME:       ScHname = ScHname(0xb56d6fe7);
+pub const SC_NAME        : &str = "dtag";
+pub const SC_DESCRIPTION : &str = "Incentivized AI Training Casino";
+pub const HSC_NAME       : ScHname = ScHname(0xb56d6fe7);
 
-pub const PARAM_DESCRIPTION:             &str = "description";
-pub const PARAM_H:                       &str = "h";
-pub const PARAM_IMAGE_ID:                &str = "imageId";
-pub const PARAM_NUMBER_OF_IMAGES:        &str = "numberOfImages";
-pub const PARAM_TAGS_REQUIRED_PER_IMAGE: &str = "tagsRequiredPerImage";
-pub const PARAM_W:                       &str = "w";
-pub const PARAM_X:                       &str = "x";
-pub const PARAM_Y:                       &str = "y";
+pub const PARAM_DESCRIPTION             : &str = "description";
+pub const PARAM_H                       : &str = "h";
+pub const PARAM_IMAGE_ID                : &str = "imageId";
+pub const PARAM_NUMBER_OF_IMAGES        : &str = "numberOfImages";
+pub const PARAM_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
+pub const PARAM_W                       : &str = "w";
+pub const PARAM_X                       : &str = "x";
+pub const PARAM_Y                       : &str = "y";
 
-pub const RESULT_IMAGE_ID:        &str = "imageId";
-pub const RESULT_PLAYS_PER_IMAGE: &str = "playsPerImage";
-pub const RESULT_RESULTS:         &str = "results";
+pub const RESULT_IMAGE_ID        : &str = "imageId";
+pub const RESULT_PLAYS_PER_IMAGE : &str = "playsPerImage";
+pub const RESULT_RESULTS         : &str = "results";
 
-pub const STATE_BETS:                    &str = "bets";
-pub const STATE_CREATOR:                 &str = "creator";
-pub const STATE_DESCRIPTION:             &str = "description";
-pub const STATE_NUMBER_OF_IMAGES:        &str = "numberOfImages";
-pub const STATE_PENDING_PLAYS:           &str = "pendingPlays";
-pub const STATE_PLAYS_PER_IMAGE:         &str = "playsPerImage";
-pub const STATE_PROCESSED_IMAGES:        &str = "processedImages";
-pub const STATE_REWARD:                  &str = "reward";
-pub const STATE_TAGGED_IMAGES:           &str = "taggedImages";
-pub const STATE_TAGS_REQUIRED_PER_IMAGE: &str = "tagsRequiredPerImage";
+pub const STATE_BETS                    : &str = "bets";
+pub const STATE_CREATOR                 : &str = "creator";
+pub const STATE_DESCRIPTION             : &str = "description";
+pub const STATE_NUMBER_OF_IMAGES        : &str = "numberOfImages";
+pub const STATE_PENDING_PLAYS           : &str = "pendingPlays";
+pub const STATE_PLAYS_PER_IMAGE         : &str = "playsPerImage";
+pub const STATE_PROCESSED_IMAGES        : &str = "processedImages";
+pub const STATE_REWARD                  : &str = "reward";
+pub const STATE_TAGGED_IMAGES           : &str = "taggedImages";
+pub const STATE_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
 
-pub const FUNC_CREATE_GAME:         &str = "createGame";
-pub const FUNC_END_GAME:            &str = "endGame";
-pub const FUNC_REQUEST_PLAY:        &str = "requestPlay";
-pub const FUNC_SEND_TAGS:           &str = "sendTags";
-pub const VIEW_GET_PLAYS_PER_IMAGE: &str = "getPlaysPerImage";
-pub const VIEW_GET_RESULTS:         &str = "getResults";
+pub const FUNC_CREATE_GAME         : &str = "createGame";
+pub const FUNC_END_GAME            : &str = "endGame";
+pub const FUNC_REQUEST_PLAY        : &str = "requestPlay";
+pub const FUNC_SEND_TAGS           : &str = "sendTags";
+pub const VIEW_GET_PLAYS_PER_IMAGE : &str = "getPlaysPerImage";
+pub const VIEW_GET_RESULTS         : &str = "getResults";
 
-pub const HFUNC_CREATE_GAME:         ScHname = ScHname(0x585dcce2);
-pub const HFUNC_END_GAME:            ScHname = ScHname(0xb2303ef2);
-pub const HFUNC_REQUEST_PLAY:        ScHname = ScHname(0x74f0bf82);
-pub const HFUNC_SEND_TAGS:           ScHname = ScHname(0xc31816cb);
-pub const HVIEW_GET_PLAYS_PER_IMAGE: ScHname = ScHname(0x749519e8);
-pub const HVIEW_GET_RESULTS:         ScHname = ScHname(0xc2ed9edb);
-
-// @formatter:on
+pub const HFUNC_CREATE_GAME         : ScHname = ScHname(0x585dcce2);
+pub const HFUNC_END_GAME            : ScHname = ScHname(0xb2303ef2);
+pub const HFUNC_REQUEST_PLAY        : ScHname = ScHname(0x74f0bf82);
+pub const HFUNC_SEND_TAGS           : ScHname = ScHname(0xc31816cb);
+pub const HVIEW_GET_PLAYS_PER_IMAGE : ScHname = ScHname(0x749519e8);
+pub const HVIEW_GET_RESULTS         : ScHname = ScHname(0xc2ed9edb);

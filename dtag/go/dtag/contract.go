@@ -10,12 +10,12 @@ package dtag
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 type CreateGameCall struct {
-	Func   *wasmlib.ScFunc
-	Params MutableCreateGameParams
+	Func    *wasmlib.ScFunc
+	Params  MutableCreateGameParams
 }
 
 type EndGameCall struct {
-	Func *wasmlib.ScFunc
+	Func    *wasmlib.ScFunc
 }
 
 type RequestPlayCall struct {
@@ -24,8 +24,8 @@ type RequestPlayCall struct {
 }
 
 type SendTagsCall struct {
-	Func   *wasmlib.ScFunc
-	Params MutableSendTagsParams
+	Func    *wasmlib.ScFunc
+	Params  MutableSendTagsParams
 }
 
 type GetPlaysPerImageCall struct {

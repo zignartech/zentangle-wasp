@@ -5,8 +5,6 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-// @formatter:off
-
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
@@ -32,12 +30,12 @@ mod dtag;
 #[no_mangle]
 fn on_load() {
     let exports = ScExports::new();
-    exports.add_func(FUNC_CREATE_GAME, func_create_game_thunk);
-    exports.add_func(FUNC_END_GAME, func_end_game_thunk);
-    exports.add_func(FUNC_REQUEST_PLAY, func_request_play_thunk);
-    exports.add_func(FUNC_SEND_TAGS, func_send_tags_thunk);
+    exports.add_func(FUNC_CREATE_GAME,         func_create_game_thunk);
+    exports.add_func(FUNC_END_GAME,            func_end_game_thunk);
+    exports.add_func(FUNC_REQUEST_PLAY,        func_request_play_thunk);
+    exports.add_func(FUNC_SEND_TAGS,           func_send_tags_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
-    exports.add_view(VIEW_GET_RESULTS, view_get_results_thunk);
+    exports.add_view(VIEW_GET_RESULTS,         view_get_results_thunk);
 
     unsafe {
         for i in 0..KEY_MAP_LEN {
@@ -47,129 +45,127 @@ fn on_load() {
 }
 
 pub struct CreateGameContext {
-    params: ImmutableCreateGameParams,
-    state:  MutabledtagState,
+	params: ImmutableCreateGameParams,
+	state: MutabledtagState,
 }
 
 fn func_create_game_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcCreateGame");
-    let f = CreateGameContext {
-        params: ImmutableCreateGameParams {
-            id: OBJ_ID_PARAMS,
-        },
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    ctx.require(f.params.description().exists(), "missing mandatory description");
-    ctx.require(f.params.number_of_images().exists(), "missing mandatory numberOfImages");
-    func_create_game(ctx, &f);
-    ctx.log("dtag.funcCreateGame ok");
+	ctx.log("dtag.funcCreateGame");
+	let f = CreateGameContext {
+		params: ImmutableCreateGameParams {
+			id: OBJ_ID_PARAMS,
+		},
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.description().exists(), "missing mandatory description");
+	ctx.require(f.params.number_of_images().exists(), "missing mandatory numberOfImages");
+	func_create_game(ctx, &f);
+	ctx.log("dtag.funcCreateGame ok");
 }
 
 pub struct EndGameContext {
-    state: MutabledtagState,
+	state: MutabledtagState,
 }
 
 fn func_end_game_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcEndGame");
-    let f = EndGameContext {
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    func_end_game(ctx, &f);
-    ctx.log("dtag.funcEndGame ok");
+	ctx.log("dtag.funcEndGame");
+	let f = EndGameContext {
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	func_end_game(ctx, &f);
+	ctx.log("dtag.funcEndGame ok");
 }
 
 pub struct RequestPlayContext {
-    results: MutableRequestPlayResults,
-    state:   MutabledtagState,
+	results: MutableRequestPlayResults,
+	state: MutabledtagState,
 }
 
 fn func_request_play_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcRequestPlay");
-    let f = RequestPlayContext {
-        results: MutableRequestPlayResults {
-            id: OBJ_ID_RESULTS,
-        },
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    func_request_play(ctx, &f);
-    ctx.log("dtag.funcRequestPlay ok");
+	ctx.log("dtag.funcRequestPlay");
+	let f = RequestPlayContext {
+		results: MutableRequestPlayResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	func_request_play(ctx, &f);
+	ctx.log("dtag.funcRequestPlay ok");
 }
 
 pub struct SendTagsContext {
-    params: ImmutableSendTagsParams,
-    state:  MutabledtagState,
+	params: ImmutableSendTagsParams,
+	state: MutabledtagState,
 }
 
 fn func_send_tags_thunk(ctx: &ScFuncContext) {
-    ctx.log("dtag.funcSendTags");
-    let f = SendTagsContext {
-        params: ImmutableSendTagsParams {
-            id: OBJ_ID_PARAMS,
-        },
-        state: MutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    ctx.require(f.params.h().exists(), "missing mandatory h");
-    ctx.require(f.params.w().exists(), "missing mandatory w");
-    ctx.require(f.params.x().exists(), "missing mandatory x");
-    ctx.require(f.params.y().exists(), "missing mandatory y");
-    func_send_tags(ctx, &f);
-    ctx.log("dtag.funcSendTags ok");
+	ctx.log("dtag.funcSendTags");
+	let f = SendTagsContext {
+		params: ImmutableSendTagsParams {
+			id: OBJ_ID_PARAMS,
+		},
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.h().exists(), "missing mandatory h");
+	ctx.require(f.params.w().exists(), "missing mandatory w");
+	ctx.require(f.params.x().exists(), "missing mandatory x");
+	ctx.require(f.params.y().exists(), "missing mandatory y");
+	func_send_tags(ctx, &f);
+	ctx.log("dtag.funcSendTags ok");
 }
 
 pub struct GetPlaysPerImageContext {
-    params:  ImmutableGetPlaysPerImageParams,
-    results: MutableGetPlaysPerImageResults,
-    state:   ImmutabledtagState,
+	params: ImmutableGetPlaysPerImageParams,
+	results: MutableGetPlaysPerImageResults,
+	state: ImmutabledtagState,
 }
 
 fn view_get_plays_per_image_thunk(ctx: &ScViewContext) {
-    ctx.log("dtag.viewGetPlaysPerImage");
-    let f = GetPlaysPerImageContext {
-        params: ImmutableGetPlaysPerImageParams {
-            id: OBJ_ID_PARAMS,
-        },
-        results: MutableGetPlaysPerImageResults {
-            id: OBJ_ID_RESULTS,
-        },
-        state: ImmutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
-    view_get_plays_per_image(ctx, &f);
-    ctx.log("dtag.viewGetPlaysPerImage ok");
+	ctx.log("dtag.viewGetPlaysPerImage");
+	let f = GetPlaysPerImageContext {
+		params: ImmutableGetPlaysPerImageParams {
+			id: OBJ_ID_PARAMS,
+		},
+		results: MutableGetPlaysPerImageResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: ImmutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
+	view_get_plays_per_image(ctx, &f);
+	ctx.log("dtag.viewGetPlaysPerImage ok");
 }
 
 pub struct GetResultsContext {
-    params:  ImmutableGetResultsParams,
-    results: MutableGetResultsResults,
-    state:   ImmutabledtagState,
+	params: ImmutableGetResultsParams,
+	results: MutableGetResultsResults,
+	state: ImmutabledtagState,
 }
 
 fn view_get_results_thunk(ctx: &ScViewContext) {
-    ctx.log("dtag.viewGetResults");
-    let f = GetResultsContext {
-        params: ImmutableGetResultsParams {
-            id: OBJ_ID_PARAMS,
-        },
-        results: MutableGetResultsResults {
-            id: OBJ_ID_RESULTS,
-        },
-        state: ImmutabledtagState {
-            id: OBJ_ID_STATE,
-        },
-    };
-    ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
-    view_get_results(ctx, &f);
-    ctx.log("dtag.viewGetResults ok");
+	ctx.log("dtag.viewGetResults");
+	let f = GetResultsContext {
+		params: ImmutableGetResultsParams {
+			id: OBJ_ID_PARAMS,
+		},
+		results: MutableGetResultsResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: ImmutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.image_id().exists(), "missing mandatory imageId");
+	view_get_results(ctx, &f);
+	ctx.log("dtag.viewGetResults ok");
 }
-
-// @formatter:on

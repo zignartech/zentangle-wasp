@@ -57,9 +57,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.106"
+version = "0.2.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a60553f9a9e039a333b4e9b20573b9e9b9c0bb3a11e201ccc48ef4283456d673"
+checksum = "fbe5e23404da5b4f555ef85ebed98fb4083e55a00c317800bc2a50ede9f3d219"
 
 [[package]]
 name = "log"
@@ -210,7 +210,7 @@ dependencies = [
 [[package]]
 name = "wasmlib"
 version = "0.1.0"
-source = "git+https://github.com/iotaledger/wasp?branch=develop#5a3a452307070ea2895e7c4da2f05989c662aad1"
+source = "git+https://github.com/iotaledger/wasp?branch=develop#a6aed6275b157d92b76c01ebcbef19fdb9f2a382"
 dependencies = [
  "console_error_panic_hook",
  "wasm-bindgen",

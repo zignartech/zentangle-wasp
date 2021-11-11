@@ -21,16 +21,16 @@ pub struct ImmutableCreateGameParams {
 
 impl ImmutableCreateGameParams {
     pub fn description(&self) -> ScImmutableString {
-        ScImmutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
-    }
+		ScImmutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
+	}
 
     pub fn number_of_images(&self) -> ScImmutableInt32 {
-        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
-    }
+		ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+	}
 
     pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
-        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
-    }
+		ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -40,16 +40,16 @@ pub struct MutableCreateGameParams {
 
 impl MutableCreateGameParams {
     pub fn description(&self) -> ScMutableString {
-        ScMutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
-    }
+		ScMutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
+	}
 
     pub fn number_of_images(&self) -> ScMutableInt32 {
-        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
-    }
+		ScMutableInt32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+	}
 
     pub fn tags_required_per_image(&self) -> ScMutableInt32 {
-        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
-    }
+		ScMutableInt32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -59,20 +59,20 @@ pub struct ImmutableSendTagsParams {
 
 impl ImmutableSendTagsParams {
     pub fn h(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_H))
-    }
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_H))
+	}
 
     pub fn w(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_W))
-    }
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_W))
+	}
 
     pub fn x(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_X))
-    }
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_X))
+	}
 
     pub fn y(&self) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
-    }
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -82,20 +82,20 @@ pub struct MutableSendTagsParams {
 
 impl MutableSendTagsParams {
     pub fn h(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_H))
-    }
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_H))
+	}
 
     pub fn w(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_W))
-    }
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_W))
+	}
 
     pub fn x(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_X))
-    }
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_X))
+	}
 
     pub fn y(&self) -> ScMutableInt64 {
-        ScMutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
-    }
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -105,8 +105,8 @@ pub struct ImmutableGetPlaysPerImageParams {
 
 impl ImmutableGetPlaysPerImageParams {
     pub fn image_id(&self) -> ScImmutableInt32 {
-        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
+		ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -116,8 +116,8 @@ pub struct MutableGetPlaysPerImageParams {
 
 impl MutableGetPlaysPerImageParams {
     pub fn image_id(&self) -> ScMutableInt32 {
-        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
+		ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -127,8 +127,8 @@ pub struct ImmutableGetResultsParams {
 
 impl ImmutableGetResultsParams {
     pub fn image_id(&self) -> ScImmutableInt32 {
-        ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
+		ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -138,6 +138,6 @@ pub struct MutableGetResultsParams {
 
 impl MutableGetResultsParams {
     pub fn image_id(&self) -> ScMutableInt32 {
-        ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
-    }
+		ScMutableInt32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+	}
 }

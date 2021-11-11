@@ -10,17 +10,17 @@ package dtag
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 type Bet struct {
-	Amount  int64
-	ImageId int32
-	Player  wasmlib.ScAgentID // player placing the bet
+	Amount  int64 
+	ImageId int32 
+	Player  wasmlib.ScAgentID  // player placing the bet
 }
 
 func NewBetFromBytes(bytes []byte) *Bet {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &Bet{}
-	data.Amount = decode.Int64()
+	data.Amount  = decode.Int64()
 	data.ImageId = decode.Int32()
-	data.Player = decode.AgentID()
+	data.Player  = decode.AgentID()
 	decode.Close()
 	return data
 }
@@ -64,23 +64,23 @@ func (o MutableBet) Value() *Bet {
 }
 
 type TaggedImage struct {
-	H       int64             // height of the Tag
-	ImageId int32
-	Player  wasmlib.ScAgentID // player that has tagged this image
-	W       int64             // width of the Tag
-	X       int64             // x top-left position of the Tag TODO: This should be a nested constructor in the future
-	Y       int64             // y top-left position of the Tag
+	H       int64  // height of the Tag
+	ImageId int32 
+	Player  wasmlib.ScAgentID  // player that has tagged this image
+	W       int64  // width of the Tag
+	X       int64  // x top-left position of the Tag TODO: This should be a nested constructor in the future
+	Y       int64  // y top-left position of the Tag
 }
 
 func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &TaggedImage{}
-	data.H = decode.Int64()
+	data.H       = decode.Int64()
 	data.ImageId = decode.Int32()
-	data.Player = decode.AgentID()
-	data.W = decode.Int64()
-	data.X = decode.Int64()
-	data.Y = decode.Int64()
+	data.Player  = decode.AgentID()
+	data.W       = decode.Int64()
+	data.X       = decode.Int64()
+	data.Y       = decode.Int64()
 	decode.Close()
 	return data
 }

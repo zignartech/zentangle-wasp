@@ -12,12 +12,12 @@ import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 func OnLoad() {
 	exports := wasmlib.NewScExports()
-	exports.AddFunc(FuncCreateGame, funcCreateGameThunk)
-	exports.AddFunc(FuncEndGame, funcEndGameThunk)
-	exports.AddFunc(FuncRequestPlay, funcRequestPlayThunk)
-	exports.AddFunc(FuncSendTags, funcSendTagsThunk)
+	exports.AddFunc(FuncCreateGame,       funcCreateGameThunk)
+	exports.AddFunc(FuncEndGame,          funcEndGameThunk)
+	exports.AddFunc(FuncRequestPlay,      funcRequestPlayThunk)
+	exports.AddFunc(FuncSendTags,         funcSendTagsThunk)
 	exports.AddView(ViewGetPlaysPerImage, viewGetPlaysPerImageThunk)
-	exports.AddView(ViewGetResults, viewGetResultsThunk)
+	exports.AddView(ViewGetResults,       viewGetResultsThunk)
 
 	for i, key := range keyMap {
 		idxMap[i] = key.KeyID()
@@ -25,8 +25,8 @@ func OnLoad() {
 }
 
 type CreateGameContext struct {
-	Params ImmutableCreateGameParams
-	State  MutabledtagState
+	Params  ImmutableCreateGameParams
+	State   MutabledtagState
 }
 
 func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
@@ -46,7 +46,7 @@ func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type EndGameContext struct {
-	State MutabledtagState
+	State   MutabledtagState
 }
 
 func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
@@ -80,8 +80,8 @@ func funcRequestPlayThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type SendTagsContext struct {
-	Params ImmutableSendTagsParams
-	State  MutabledtagState
+	Params  ImmutableSendTagsParams
+	State   MutabledtagState
 }
 
 func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {

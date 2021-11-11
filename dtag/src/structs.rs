@@ -5,34 +5,32 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-// @formatter:off
-
 #![allow(dead_code)]
 
 use wasmlib::*;
 use wasmlib::host::*;
 
 pub struct Bet {
-    pub amount:   i64,
-    pub image_id: i32,
-    pub player:   ScAgentID, // player placing the bet
+    pub amount   : i64, 
+    pub image_id : i32, 
+    pub player   : ScAgentID,  // player placing the bet
 }
 
 impl Bet {
     pub fn from_bytes(bytes: &[u8]) -> Bet {
         let mut decode = BytesDecoder::new(bytes);
         Bet {
-            amount: decode.int64(),
-            image_id: decode.int32(),
-            player: decode.agent_id(),
+            amount   : decode.int64(),
+            image_id : decode.int32(),
+            player   : decode.agent_id(),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
-        encode.int64(self.amount);
-        encode.int32(self.image_id);
-        encode.agent_id(&self.player);
+		encode.int64(self.amount);
+		encode.int32(self.image_id);
+		encode.agent_id(&self.player);
         return encode.data();
     }
 }
@@ -72,35 +70,35 @@ impl MutableBet {
 }
 
 pub struct TaggedImage {
-    pub h:        i64,       // height of the Tag
-    pub image_id: i32,
-    pub player:   ScAgentID, // player that has tagged this image
-    pub w:        i64,       // width of the Tag
-    pub x:        i64,       // x top-left position of the Tag TODO: This should be a nested constructor in the future
-    pub y:        i64,       // y top-left position of the Tag
+    pub h        : i64,  // height of the Tag
+    pub image_id : i32, 
+    pub player   : ScAgentID,  // player that has tagged this image
+    pub w        : i64,  // width of the Tag
+    pub x        : i64,  // x top-left position of the Tag TODO: This should be a nested constructor in the future
+    pub y        : i64,  // y top-left position of the Tag
 }
 
 impl TaggedImage {
     pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
         let mut decode = BytesDecoder::new(bytes);
         TaggedImage {
-            h: decode.int64(),
-            image_id: decode.int32(),
-            player: decode.agent_id(),
-            w: decode.int64(),
-            x: decode.int64(),
-            y: decode.int64(),
+            h        : decode.int64(),
+            image_id : decode.int32(),
+            player   : decode.agent_id(),
+            w        : decode.int64(),
+            x        : decode.int64(),
+            y        : decode.int64(),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
-        encode.int64(self.h);
-        encode.int32(self.image_id);
-        encode.agent_id(&self.player);
-        encode.int64(self.w);
-        encode.int64(self.x);
-        encode.int64(self.y);
+		encode.int64(self.h);
+		encode.int32(self.image_id);
+		encode.agent_id(&self.player);
+		encode.int64(self.w);
+		encode.int64(self.x);
+		encode.int64(self.y);
         return encode.data();
     }
 }
@@ -138,5 +136,3 @@ impl MutableTaggedImage {
         TaggedImage::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
     }
 }
-
-// @formatter:on

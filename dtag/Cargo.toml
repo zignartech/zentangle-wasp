@@ -1,6 +1,9 @@
+# Copyright 2020 IOTA Stiftung
+# SPDX-License-Identifier: Apache-2.0
+
 [package]
 name = "dtag"
-description = "Agricultural AI Training Casino"
+description = "Incentivized AI Training Casino"
 license = "Apache-2.0"
 version = "0.1.0"
 authors = ["John Doe <john@doe.org>"]

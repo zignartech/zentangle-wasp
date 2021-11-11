@@ -6,6 +6,7 @@
 // Change the json schema instead
 
 package dtag
+
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 type ImmutableCreateGameParams struct {

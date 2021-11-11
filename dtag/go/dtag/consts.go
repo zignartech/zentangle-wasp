@@ -16,33 +16,33 @@ const (
 )
 
 const (
-	ParamDescription          = wasmlib.Key("description")
-	ParamH                    = wasmlib.Key("h")
-	ParamImageId              = wasmlib.Key("imageId")
-	ParamNumberOfImages       = wasmlib.Key("numberOfImages")
-	ParamTagsRequiredPerImage = wasmlib.Key("tagsRequiredPerImage")
-	ParamW                    = wasmlib.Key("w")
-	ParamX                    = wasmlib.Key("x")
-	ParamY                    = wasmlib.Key("y")
+	ParamDescription          = "description"
+	ParamH                    = "h"
+	ParamImageId              = "imageId"
+	ParamNumberOfImages       = "numberOfImages"
+	ParamTagsRequiredPerImage = "tagsRequiredPerImage"
+	ParamW                    = "w"
+	ParamX                    = "x"
+	ParamY                    = "y"
 )
 
 const (
-	ResultImageId       = wasmlib.Key("imageId")
-	ResultPlaysPerImage = wasmlib.Key("playsPerImage")
-	ResultResults       = wasmlib.Key("results")
+	ResultImageId       = "imageId"
+	ResultPlaysPerImage = "playsPerImage"
+	ResultResults       = "results"
 )
 
 const (
-	StateBets                 = wasmlib.Key("bets")
-	StateCreator              = wasmlib.Key("creator")
-	StateDescription          = wasmlib.Key("description")
-	StateNumberOfImages       = wasmlib.Key("numberOfImages")
-	StatePendingPlays         = wasmlib.Key("pendingPlays")
-	StatePlaysPerImage        = wasmlib.Key("playsPerImage")
-	StateProcessedImages      = wasmlib.Key("processedImages")
-	StateReward               = wasmlib.Key("reward")
-	StateTaggedImages         = wasmlib.Key("taggedImages")
-	StateTagsRequiredPerImage = wasmlib.Key("tagsRequiredPerImage")
+	StateBets                 = "bets"
+	StateCreator              = "creator"
+	StateDescription          = "description"
+	StateNumberOfImages       = "numberOfImages"
+	StatePendingPlays         = "pendingPlays"
+	StatePlaysPerImage        = "playsPerImage"
+	StateProcessedImages      = "processedImages"
+	StateReward               = "reward"
+	StateTaggedImages         = "taggedImages"
+	StateTagsRequiredPerImage = "tagsRequiredPerImage"
 )
 
 const (
