@@ -381,7 +381,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // It is not random for the moment, because the randomizer is broken.
     let mut image_id: i32 = -1;
     'outer: loop {
-        image_id += 1;//ctx.utility().random((number_of_images-1) as i64) as i32;
+        image_id = ctx.utility().random((number_of_images-1) as i64) as i32;
         if plays_per_image.get_int32(image_id).value() == tags_required_per_image { continue }
         for i in image_id*tags_required_per_image as i32..(image_id+1)*tags_required_per_image as i32 {
             if  f.state.tagged_images().get_tagged_image(i).exists() { 
