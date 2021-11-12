@@ -35,7 +35,7 @@ export class GameComponent implements OnInit {
     resistance: false,
     fadeEffect: {
       // Add this
-      // crossFade: true,
+      crossFade: true,
     },
     navigation: true,
     // pagination: { clickabl },
@@ -71,8 +71,10 @@ export class GameComponent implements OnInit {
   removeCropper() {
     if (this.swiper) {
       const index = this.swiper.swiperRef.realIndex;
-      this.croppers[index]?.reset();
-      this.croppers[index]?.clear();
+      this.croppers[index]?.destroy();
+      this.croppers[index] = null;
+      // this.croppers[index]?.reset();
+      // this.croppers[index]?.clear();
     }
   }
 

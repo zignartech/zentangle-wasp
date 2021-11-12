@@ -9,7 +9,7 @@ import { AppMainComponent } from './template-components/app-main/app.main.compon
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/Game',
+    redirectTo: '/Home',
     pathMatch: 'full',
   },
   {
@@ -37,7 +37,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
