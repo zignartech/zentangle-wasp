@@ -13,53 +13,49 @@ func TestDeploy(t *testing.T) {
 	require.NoError(t, ctx.ContractExists(dtag.ScName))
 }
 
-func TestCreateGame(t *testing.T) {
+func TestPlay(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
 
+	// create game
 	f := dtag.ScFuncs.CreateGame(ctx)
 	f.Params.Description().SetValue("Esto es un test")
-	f.Params.NumberOfImages().SetValue(5)
+	f.Params.NumberOfImages().SetValue(4)
 	f.Params.TagsRequiredPerImage().SetValue(4)
 	f.Func.TransferIotas(10000).Post()
 	require.NoError(t, ctx.Err)
+
+	//make plays
+	RequestPlay(t, ctx)
+	SendTags(t, ctx, 50, 100, 150, 200)
+	RequestPlay(t, ctx)
+	SendTags(t, ctx, 50, 100, 150, 200)
+	RequestPlay(t, ctx)
+	SendTags(t, ctx, 50, 100, 150, 200)
+	RequestPlay(t, ctx)
+	SendTags(t, ctx, 50, 100, 150, 200)
+
+	// End game
+	v := dtag.ScFuncs.EndGame(ctx)
+	v.Func.TransferIotas(1).Post()
+	require.NoError(t, ctx.Err)
 }
 
-func RequestPlay(t *testing.T) {
-	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
+func RequestPlay(t *testing.T, _ctx *wasmsolo.SoloContext) {
+	ctx := _ctx
 
 	f := dtag.ScFuncs.RequestPlay(ctx)
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
 
-func SendTags(t *testing.T, x int64, y int64, h int64, w int64) {
-	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
+func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int64, w int64) {
+	ctx := _ctx
 
 	f := dtag.ScFuncs.SendTags(ctx)
 	f.Params.X().SetValue(x)
 	f.Params.Y().SetValue(y)
 	f.Params.H().SetValue(h)
 	f.Params.W().SetValue(w)
-	f.Func.TransferIotas(1).Post()
-	require.NoError(t, ctx.Err)
-}
-
-func TestPlay(t *testing.T) {
-
-	RequestPlay(t)
-	SendTags(t, 50, 100, 150, 200)
-	RequestPlay(t)
-	SendTags(t, 50, 100, 150, 200)
-	RequestPlay(t)
-	SendTags(t, 50, 100, 150, 200)
-	RequestPlay(t)
-	SendTags(t, 50, 100, 150, 200)
-}
-
-func TestEndGame(t *testing.T) {
-	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
-
-	f := dtag.ScFuncs.EndGame(ctx)
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
