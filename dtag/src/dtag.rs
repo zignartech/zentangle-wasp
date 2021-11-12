@@ -119,7 +119,6 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
     // For every image, we apply Aglomerative Hierarchical Clustering
     for image in 0..number_of_images {
-        ctx.log(&format!("end.log.1 {}", image));
         let mut clusters:Vec<Vec<i64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
         let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
                                           // the game could end before images are tagged with the required amount 
@@ -132,7 +131,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             clusters.push(cluster);
             playsfor_this_image +=1;
         }
-        ctx.log(&format!("end.log.2"));
+
         // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
         let mut min_distance= [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
 
@@ -150,7 +149,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                     }
                 }
             }
-            ctx.log(&format!("end.log.3"));
+
             // If the four dimentional distance is greter than 100, then we dont merge the clusters.
             // Points that are this far away are considered different final clusters
             if min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
@@ -186,13 +185,11 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 clusters.remove(index_1);
                 clusters.push(new_cluster);
             }
-            ctx.log(&format!("end.log.4")); 
         } // finish Aglomerative Hierarchical Clustering Algorithm
 
         // We should be left with only one cluster (until multi-tagging is implemented). 
         // The ones that have fewer points get discarted.
         // Here we also store all the players that made correct taggs. They can be stored multiple times.
-        ctx.log(&format!("end.log.5"));
         let length = clusters.len();
         let mut check_min_one_tag = false; // this is expĺained below the for loop
         for i in 0..length {
@@ -210,7 +207,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 check_min_one_tag = true;
             }
         }
-        ctx.log(&format!("end.log.6"));
+
         // We want to have one cluster per image, even if it is an empty cluster. This way,
        // it's easier to find processed images based on their id. TODO: With nested arrays and nested
         // constructors, this abomination would not be necessary. Also, this is a hackaton, so no time...
@@ -234,7 +231,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         centers_in_image.push(center);
         centers.push(centers_in_image);
     } // finish the images iterator
-    ctx.log(&format!("end.log.7"));
+
     // The following line, sorts the centers vector by 'image_id'
     centers.sort_by(|b, a| b[0].image_id.cmp(&a[0].image_id));
     // update the 'processed_images' state variable with the final tagging data
@@ -252,7 +249,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         // Transfer the reward to players who tagged correctly
         ctx.transfer_to_address(&valid_tag.player.address(), transfers);
     }
-    ctx.log(&format!("end.log.8"));
+
     // Now, we set the winners and the rewards for the correct tags
     // The winners vector is an ordered list of the winners, from better to worse tagger.
     struct Better {
@@ -282,7 +279,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
         valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0));
     }
-    ctx.log(&format!("end.log.9"));
+
     // We now have a list with all the betters that made a valid tag, but they are repeated.
     // Next, we make a new list, with no repeated players, and with their best accuracy!
     let mut betters_top: Vec<Better> = Vec::new();
@@ -299,7 +296,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         }
         betters_top.push(valid_bet);
     }
-    ctx.log(&format!("end.log.10"));
+
     // Next, we calculate the total amount of iotas betted by the players in the 'betters_top' list
     'bet: for i in 0..f.state.bets().length() {
         let bet = f.state.bets().get_bet(i).value();
@@ -310,16 +307,16 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             }
         }
     }
-    ctx.log(&format!("end.log.11"));
+
     // sort the 'top_betters' by the accuracy
     betters_top.sort_by(|b, a| b.accuracy.partial_cmp(&a.accuracy).unwrap());
-    ctx.log(&format!("end.log.11.1"));
+
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
     for bet in &betters_top {
         total_payout += bet.amount;
     }
-    ctx.log(&format!("end.log.11.2"));
+
     // 'points' represents by how much the betting money has to be divided.
     // We have to fit the amount betted to the sum of all the prices 
     let mut points: i64 = 0_i64;
@@ -327,16 +324,13 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
         points += (i*i) as i64 * betters_top[i-1].amount as i64;
     }
-    ctx.log(&format!("end.log.11.3"));
     let multiplier: f64 = total_payout as f64 / points as f64; 
-    ctx.log(&format!("end.log.12"));
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
     // TODO: rounding errors could happen, but they get truncated, so no negative balance get's left on the contract
     for i in 0..betters_top.len() {
         // Again, the prices take an exponential form, where the 'i' 
         // represents the position of the player given it's acuracy.
         let payout = multiplier * (i*i) as f64 * betters_top[i].amount as f64;
-        ctx.log(&format!("end.log.13 {}", multiplier));
         if payout < 1.0 { break; } // no need to coninue evaluating, as payout will only decrese with i
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
@@ -379,7 +373,6 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
     'image: for i in 0..number_of_images {
-        ctx.log(&format!("i: {0}, counter: {1}", i.to_string(), counter.to_string() ));
         if plays_per_image.get_int32(i).value() >= tags_required_per_image {
             counter += 1;
             continue;
