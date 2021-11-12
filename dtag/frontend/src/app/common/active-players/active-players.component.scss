@@ -1,0 +1,21 @@
+.player {
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .seed {
+    word-break: break-all;
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+    text-align: left;
+  }
+
+  .bet {
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: left;
+  }
+}

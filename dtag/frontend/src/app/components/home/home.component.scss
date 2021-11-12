@@ -1,0 +1,81 @@
+.dtag-game, .the-problem, .our-solution, .like-game, .open-library, .donate, .interesting-charts {
+  .content {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 17px;
+    text-align: justify;
+  }
+}
+
+.donation-address {
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 11px;
+  color: rgba(147, 147, 147, 1);
+}
+
+.donation-address-content {
+  background: #F5F5F5;
+  border-radius: 5px;
+  span {
+    word-break: break-all;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: rgba(147, 147, 147, 1);
+  }
+}
+
+.sc-log {
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .title{
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+  }
+
+  .subtitle{
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .info{
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+  }
+
+  .bet{
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: left;
+  }
+}
+
+.donor {
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .seed {
+    word-break: break-all;
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600 !important;
+    line-height: 19px;
+    text-align: left;
+  }
+
+  .info {
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400 !important;
+    line-height: 16px;
+  }
+}

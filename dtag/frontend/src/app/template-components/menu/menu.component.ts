@@ -14,9 +14,19 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {
     this.model = [
       {
-        label: 'Start',
+        label: 'Home',
         icon: 'start.svg',
-        routerLink: ['/Start'],
+        routerLink: ['/Home'],
+      },
+      {
+        label: 'Start as Player',
+        icon: 'start player.svg',
+        routerLink: ['/Start-Player'],
+      },
+      {
+        label: 'Start as Researcher',
+        icon: 'start researcher.svg',
+        routerLink: ['/Start-Researcher'],
       },
       {
         label: 'Game',

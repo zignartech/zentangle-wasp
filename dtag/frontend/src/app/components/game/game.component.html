@@ -2,86 +2,82 @@
 
 <div class='grid '>
   <div class='col-12 md:col-6 lg:col-3'>
-    <p-card class='card-address-seed block'>
-      <div class='px-3'>
+    <div class='card card-address-seed block'>
+      <div class='flex justify-content-between'>
         <span class='block title'>My Descentralized ID</span>
-        <span class='flex'>
-          <span class='txt-copy' style='word-break: break-all'>
-            NULL
-          </span>
-        </span>
-
-        <span class='block title pt-3'>Human</span>
-        <span class='flex'>
-          <span class='txt-copy' style='word-break: break-all'>
-            NULL
-          </span>
-        </span>
-        <button pButton class='p-button-outlined mx-auto block mt-2 p-button-sm' (click)='btnShowDIDDetails()' label='DID Details'></button>
-      </div>
-    </p-card>
-
-    <span class='d-block my-5'>&nbsp;</span>
-    <p-card class='block overflow-y-scroll' [ngStyle]='{"max-height": "50%"}'>
-      <ng-template pTemplate="header">
-        <h1 class='card-title'>Players</h1>
-        <div class='flex p-3 m-3 player'>
-          <div class='mr-3'>
-            <i class="pi pi-user"></i>
-            <span class='block text-center'>1</span>
-          </div>
-          <div>
-            <span class='seed'>1GbcBTd2zigKt7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</span>
-            <span class='bet block'>Bet: 10Mi</span>
-          </div>
+        <div (click)='showDisclose = true;'>
+          <i class="fas fa-user-circle" style='color: var(--primary-color)'></i>
         </div>
-      </ng-template>
-    </p-card>
+      </div>
+      <span class='flex'>
+          <span class='txt-copy' style='word-break: break-all'>
+            did:iota:4rq5eZXno8BLHWahubu6cXTcNVMPW3Dk5rLFR6n8dTro
+          </span>
+        </span>
+      <span class='block title pt-3'>Human</span>
+      <span class='flex'>
+          <span class='txt-copy' style='word-break: break-all'>
+            Yes
+          </span>
+        </span>
+    </div>
+
+    <div class='card block overflow-y-auto' [ngStyle]='{"max-height": "50%"}'>
+      <h1 class='card-title'>Players</h1>
+      <div class='flex p-3 mb-3 player'>
+        <div class='mr-3'>
+          <i class="pi pi-user"></i>
+          <span class='block text-center'>1</span>
+        </div>
+        <div>
+          <span class='seed'>1GbcBTd2zigKt7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</span>
+          <span class='bet block'>Bet: 10Mi</span>
+        </div>
+      </div>
+    </div>
   </div>
   <div class='col-12 md:col-6 lg:col-6'>
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class='flex justify-content-between'>
-          <div>
-            <h1 class='card-title'>Round objective</h1>
-            <span class="block pl-3" style='font-size: 12px'>Tagg the bee in the image as accurately as possible</span>
-          </div>
-          <div class='mt-3 mr-4'>
-            <button pButton pRipple type="button" label="Sample" icon='pi pi-info-circle' iconPos='left'
-                    class="p-button-outlined p-button-primary" (click)='btnSampleClick()'></button>
-          </div>
+    <div class='card'>
+      <div class='flex justify-content-between'>
+        <div>
+          <h1 class='card-title'>Objective</h1>
+          <span class="block" style='font-size: 12px'>Tag the bee in the image as accurately as possible considering legs, wings and antenna.</span>
         </div>
-      </ng-template>
-    </p-card>
-    <span class='d-block my-5'>&nbsp;</span>
-    <p-card>
-      <ng-template pTemplate="header">
-        <h1 class='card-title'>Progress</h1>
-        <div class='mx-5'>
-          <p-timeline [value]="events" layout='horizontal'>
-            <ng-template pTemplate="marker" let-event>
-              <span class="custom-marker p-shadow-2">
-                <div *ngIf='event.status === "filled"'
-                     style='width: 16px; height: 16px; background: rgb(38, 169, 108); border-radius: 100%'></div>
-                <div *ngIf='event.status === "current"'
-                     style='width: 16px; height: 16px; border: 1px solid rgb(38, 169, 108); border-radius: 100%'></div>
-                <div *ngIf='event.status === "disabled"'
-                     style='width: 16px; height: 16px; background: rgb(207, 207, 207); border-radius: 100%'></div>
-              </span>
-            </ng-template>
-            <ng-template pTemplate="content" let-event>
-              <span class='progress-indicator'>{{event.label}}</span>
-            </ng-template>
-          </p-timeline>
+        <div class='mt-3 ml-2'>
+          <button pButton pRipple type="button" label="Sample" icon='pi pi-info-circle' iconPos='left'
+                  class="p-button-outlined p-button-primary" (click)='btnSampleClick()'></button>
         </div>
-      </ng-template>
-    </p-card>
-    <span class='d-block my-5'>&nbsp;</span>
-    <p-card>
-      <ng-template pTemplate="header"></ng-template>
+      </div>
+    </div>
+    <div class='card round'>
+      <div class='flex justify-content-between'>
+        <h1 class='card-title'>Round</h1>
+        <button class='p-button-outlined p-button-primary' pButton label='Exit' icon='fas fa-walking'></button>
+      </div>
+      <div class='grid mt-1'>
+        <div class='col-6 sm:col-4 md:col-3 lg:col-3'>
+          <span class='round-title'>Round Players</span>
+          <span class='round-info'>5</span>
+        </div>
+        <div class='col-6 sm:col-4 md:col-3 lg:col-3'>
+          <span class='round-title'>Number of Images</span>
+          <span class='round-info'>13</span>
+        </div>
+        <div class='col-6 sm:col-4 md:col-3 lg:col-3'>
+          <span class='round-title'>Round Progress</span>
+          <span class='round-info'>63%</span>
+        </div>
+        <div class='col-6 sm:col-4 md:col-3 lg:col-3'>
+          <span class='round-title'>My Tagged Images</span>
+          <span class='round-info'>3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class='card'>
       <div class='flex justify-content-between px-3'>
         <div>
-          <h2 class='card-title p-0 m-0'>Round Funds at Stake</h2>
+          <h2 class='card-title p-0 m-0'>Funds at Stake</h2>
           <span class='card-image-title block'>2,000,000 i</span>
         </div>
         <div>
@@ -90,21 +86,27 @@
         </div>
         <div>
           <h2 class='card-title p-0 m-0'>Your Bet</h2>
-          <p-tag styleClass="block card-image-title tag" severity="warning" value="{{totalBet}} | i" [rounded]="true"></p-tag>
+          <p-tag styleClass="block card-image-title tag" severity="warning" value="{{totalBet}} | i"
+                 [rounded]="true"></p-tag>
         </div>
         <div>
-          <button pButton label="Increase" icon="pi pi-arrow-up" class="p-button-sm" (click)='btnIncreaseBetClick()'></button>
+          <button pButton label="Increase" icon="pi pi-arrow-up" class="p-button-sm"
+                  (click)='btnIncreaseBetClick()'></button>
         </div>
       </div>
       <span class='card-title'>Tagging</span>
-      <div class='flex justify-content-between px-3'>
-        <div>
-          <button pButton icon="pi pi-trash" class='btn-icon m-0 p-0'
-                  style='float: right; color: var(--primary-color)' (click)='removeCropper()'></button>
-          <button pButton icon="pi pi-image" class='btn-icon m-0 p-0'
-                  style='float: right; color: var(--primary-color)' (click)='showCropper()'></button>
+      <div class='flex justify-content-between mt-1'>
+        <div class='flex' style='gap: 10px'>
+          <button pButton icon="pi pi-trash" class='btn-icon m-0 py-0 w-auto'
+                  style='float: right; color: rgba(255, 99, 71, 1);' (click)='removeCropper()'></button>
+          <button pButton icon="pi pi-image" class='btn-icon m-0 p-0 w-auto mr-3'
+                  style='float: right; color: rgba(104, 168, 216, 1);' (click)='showCropper()'></button>
         </div>
-        <span style='font-size: 12px;color: rgba(41, 50, 65, 0.8)'>Use a rectangle to tagg the object</span>
+        <div>
+          <span style='font-size: 12px;color: rgba(41, 50, 65, 0.8)'>
+            Click the <span class='txt-blue'>blue icon</span> to tagg the object and click on
+            <span class='txt-blue'>Fix Tag</span> button to confirm.</span>
+        </div>
       </div>
 
       <swiper #swiper [config]="configSwiper" class='mt-3'>
@@ -116,46 +118,45 @@
         </ng-template>
         <div class="swiper-pagination"></div>
       </swiper>
-    </p-card>
+      <button pButton pRipple class='p-button p-button-sm p-button-outlined block mx-auto button-fix-tag mt-4'>Fix Tag</button>
+    </div>
   </div>
   <div class='col-12 md:col-6 lg:col-3'>
-    <p-card>
-      <ng-template pTemplate="header">
-        <h1 class='card-title text-center w-100 mb-1 pl-0'>Your balance</h1>
-        <span class='block text-center' style='font-size: 24px;line-height: 33px;color: rgba(41, 50, 65, 0.8);'>400, 000 I</span>
+    <div class='card'>
+      <h1 class='card-title text-center w-100 mb-1 pl-0'>Your balance</h1>
+      <span class='block text-center'
+            style='font-size: 24px;line-height: 33px;color: rgba(41, 50, 65, 0.8);'>400, 000 i</span>
 
-        <span class='block title px-3' style='font-size: 14px'>Your Address</span>
-        <span class='flex px-3'>
+      <span class='block title' style='font-size: 14px'>Your Address</span>
+      <span class='flex'>
           <span class='txt-copy pt-1' style='word-break: break-all'>
             6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4
           </span>
           <button pButton icon="pi pi-copy" class='btn-icon m-0 p-0' style='float: right' iconPos="right"
                   cdkCopyToClipboard='6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4'></button>
         </span>
-      </ng-template>
-    </p-card>
-    <span>&nbsp;</span>
-    <p-card>
-      <ng-template pTemplate="header">
-        <h1 class='card-title'>Logs</h1>
+    </div>
 
-        <div class='p-3 m-3 sc-log'>
-          <div style='float: right'>
-            <span class='block subtitle'>2021/11/06</span>
-            <span class='block subtitle'>9:14:51PM</span>
-          </div>
-          <div class='mr-3'>
-            <span class='block title'>Smart Contract</span>
-            <span class='block subtitle'>Researcher Request: 17</span>
-            <span class='block info' style='word-break: break-all'>1GbcBTd2zigKt7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</span>
-          </div>
+    <div class='card'>
+      <h1 class='card-title'>Logs</h1>
+
+      <div class='p-3 sc-log'>
+        <div style='float: right'>
+          <span class='block subtitle'>2021/11/06</span>
+          <span class='block subtitle'>9:14:51PM</span>
         </div>
-      </ng-template>
-    </p-card>
+        <div class='mr-3'>
+          <span class='block title'>Smart Contract</span>
+          <span class='block subtitle'>Researcher Request: 17</span>
+          <span class='block info' style='word-break: break-all'>1GbcBTd2zigKt7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<p-dialog [(visible)]="showSample" [draggable]='false' [resizable]='false' [blockScroll]='true' [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}" (onHide)='hideSample()'>
+<p-dialog [(visible)]="showSample" [draggable]='false' [resizable]='false' [blockScroll]='true'
+          [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}" (onHide)='hideSample()'>
   <ng-template pTemplate="header">
     <h1 class='card-title'>Sample</h1>
   </ng-template>
@@ -176,7 +177,8 @@
 </p-dialog>
 
 <p-dialog [(visible)]="showIncreaseBet" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
-          [style]="{width: '40vw'}" [draggable]="false" [blockScroll]="true" (onHide)="hideIncreaseBet()" [baseZIndex]="10000">
+          [style]="{width: '40vw'}" [draggable]="false" [blockScroll]="true" (onHide)="hideIncreaseBet()"
+          [baseZIndex]="10000">
   <ng-template pTemplate="header">
     <h1 class='card-title'>Increase Bet</h1>
   </ng-template>
@@ -210,28 +212,110 @@
       <p class="mi h-100">i</p>
     </div>
   </div>
-  <button pButton pRipple label='Confirm' (click)='confirmIncreaseBet()' class='p-button-primary mb-3 mx-auto block'></button>
+  <button pButton pRipple label='Confirm' (click)='confirmIncreaseBet()'
+          class='p-button-primary mb-3 mx-auto block'></button>
+  <ng-template pTemplate='footer'></ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="showDIDDetails" [draggable]='false' [resizable]='false' [blockScroll]='true' (onHide)='hideDIDDetails()'>
+<p-dialog [(visible)]="showDIDDetails" [draggable]='false' [resizable]='false' [blockScroll]='true'
+          (onHide)='hideDIDDetails()' [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+          [style]="{width: '40vw'}">
   <ng-template pTemplate="header">
     <h1 class='card-title'>DID Details</h1>
   </ng-template>
-  <span class='block title px-3' style='font-size: 14px'>Seed</span>
-  <span class='flex px-3'>
-          <span class='txt-copy pt-1' style='word-break: break-all'>
-            6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4
-          </span>
-          <button pButton icon="pi pi-copy" class='btn-icon m-0 p-0' style='float: right' iconPos="right"
-                  cdkCopyToClipboard='6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4'></button>
-        </span>
+  <span class='did-details-subtitle'>Your Decentralized Identity (DID) has been created and now it is stored in the tangle. Please copy your encrypted DID Stronhold file and and store it, so only you have access to it. Also copy your Public Key to share your DID when convenient.</span>
+  <div class='did-details'>
+    <div class="w-100">
+      <label>Seed</label>
+      <div class='flex align-items-center'>
+        <div class='did-input px-3 py-2 mr-2 flex'>
+          <span>Stronghold file</span>
+        </div>
+        <div>
+          <i class="fas fa-cloud-download-alt" style='color: var(--primary-color)'></i>
+        </div>
+      </div>
+    </div>
+    <div class='w-100 mt-2'>
+      <label>DID</label>
+      <div class='flex align-items-center'>
+        <div class='did-input px-3 py-2 mr-2 flex'>
+          <span style='word-break: break-all;'>did:iota:4rq5eZXno8BLHWahubu6cXTcNVMPW3Dk5rLFR6n8dTro</span>
+        </div>
+        <div>
+          <img src='/assets/icons/account_three.svg' alt=''>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate='footer'></ng-template>
+</p-dialog>
 
-  <span class='block title px-3' style='font-size: 14px'>Address</span>
-  <span class='flex px-3 mb-4'>
-          <span class='txt-copy pt-1' style='word-break: break-all'>
-            6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4
-          </span>
-          <button pButton icon="pi pi-copy" class='btn-icon m-0 p-0' style='float: right' iconPos="right"
-                  cdkCopyToClipboard='6Gf4ea7Zsx2KZ2XFCsX8T9dgDTpxxeKFNnEJmYgrMBB4'></button>
-        </span>
+<p-dialog [(visible)]='showDisclose' [draggable]='false' [resizable]='false' [blockScroll]='true'
+          (onHide)='showDisclose = false;' [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+          [style]="{width: '60vw'}">
+  <ng-template pTemplate='header'>
+    <h1 class='card-title'>What to Disclose</h1>
+  </ng-template>
+  <ng-template pTemplate='content'>
+    <span class='disclose-subtitle'>Based on your public DID key, Dtag retrives details of your identity only with your consent. Please confirm what information you want to share with Dtag for this session. </span>
+    <div class='grid mt-1'>
+      <div class="col-12 md:col-6">
+        <label>First Name</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="Alice" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <label>Discord Handle</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="wen21#3255" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <label>Last Name</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="Wen" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <label>Telephone</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="+1.987.897.4321" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <label>Nickname</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="wenwenwen21" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+      <div class="col-12 md:col-6">
+        <label>Email</label>
+        <div class='flex'>
+          <input type="text" pInputText placeholder="wenwenwen21@dtag.wen" class='mr-2' readonly>
+          <p-checkbox></p-checkbox>
+        </div>
+      </div>
+    </div>
+    <div class='disclose-subtitle'>Additionally, the following information is also going to be shared temporarily with
+      DTag.
+    </div>
+    <span class='verifiable-credential-title'>Verifiable Credential</span>
+    <div class='verifiable-credential-container p-2'>
+      <span>Turing Test Result: Human</span>
+      <span>Token: 7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</span>
+      <span>Date and Time: 2021/11/08 - 10:30 AM</span>
+      <span>Socket: 204.211.142.12:4052</span>
+      <span>DID: did:iota:4rq5eZXno8BLHWahubu6cXTcNVMPW3Dk5rLFR6n8dTro</span>
+    </div>
+    <button class='p-button p-button-primary block mx-auto mt-3' pButton (click)='submitDisclose()'
+            label='Submit'></button>
+  </ng-template>
+  <ng-template pTemplate='footer'></ng-template>
 </p-dialog>

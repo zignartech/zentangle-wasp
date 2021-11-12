@@ -3,6 +3,9 @@ import { RouterOutlet } from '@angular/router';
 import { PrimeNGConfig } from 'primeng/api';
 import { AppComponent } from '../../app.component';
 import { GameComponent } from '../../components/game/game.component';
+import { HomeComponent } from '../../components/home/home.component';
+import { StartPlayerComponent } from '../../components/start-player/start-player.component';
+import { StartResearcherComponent } from '../../components/start-researcher/start-researcher.component';
 import { MenuService } from '../menu/menu.service';
 
 @Component({
@@ -188,6 +191,12 @@ export class AppMainComponent {
   onRouterOutletActivate(component: any) {
     if (component instanceof GameComponent) {
       this.title = 'Game';
+    } else if (component instanceof HomeComponent) {
+      this.title = 'DTag';
+    } else if (component instanceof StartPlayerComponent) {
+      this.title = 'Start as Player';
+    } else if (component instanceof StartResearcherComponent) {
+      this.title = 'Start as Researcher';
     }
   }
 }

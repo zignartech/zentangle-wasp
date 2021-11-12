@@ -1,0 +1,94 @@
+<p-breadcrumb [model]="itemsBreadcumb" styleClass='breadcrumb'></p-breadcrumb>
+
+<div class='grid '>
+  <div class='col-12 md:col-6 lg:col-3'>
+    <div class='card card-address-seed block'>
+      <div class='flex justify-content-between'>
+        <span class='block title'>My Descentralized ID</span>
+        <div>
+          <i class="fas fa-user-circle" style=''></i>
+        </div>
+      </div>
+      <span class='flex'>
+          <span class='txt-copy' style='word-break: break-all'>
+            NULL
+          </span>
+        </span>
+      <span class='block title pt-3'>Human</span>
+      <span class='flex'>
+          <span class='txt-copy' style='word-break: break-all'>
+            NULL
+          </span>
+      </span>
+      <div class='flex mt-2' style='gap: 1rem'>
+        <button pButton pRipple label='Create DID' class='p-button p-button-sm p-button-outlined'></button>
+        <button pButton pRipple label='Sign in' class='p-button p-button-sm p-button-outlined'></button>
+      </div>
+    </div>
+    <app-active-players maxHeight='80%'></app-active-players>
+  </div>
+  <div class='col-12 md:col-6 lg:col-6'>
+    <div class='card how-to-start'>
+      <h1 class='card-title'>How to Start</h1>
+      <span class='content'>
+        To play, first create an identity, second validate you are a human, and third request funds for your wallet. Your bet can only be increased during the game. The adjudicator of each round is an IOTA based Smart Contract. These are dev-net tokens and hold no value.
+      </span>
+    </div>
+    <div class='card how-to-play'>
+      <h1 class='card-title'>How to Play</h1>
+      <span class='content'>
+        The rounds are created and funded by a researcher. Pay close attention to the round objective, and check the guide provided by the researcher. Your bet is automatically placed by the Smart Contract depending on your best chance to win against other players.
+      </span>
+    </div>
+
+    <div class='card'>
+      <div class='flex justify-content-between px-3'>
+        <div>
+          <h2 class='card-title p-0 m-0'>Round Funds at Stake</h2>
+          <span class='block card-image-subtitle'>1,500,000 i</span>
+        </div>
+        <div>
+          <h2 class='card-title p-0 m-0'>Round Players</h2>
+          <span class='card-image-subtitle block'>5 People</span>
+        </div>
+        <div>
+          <h2 class='card-title p-0 m-0'>Your Bet</h2>
+          <p-tag class="block card-title tag text-right" styleClass='w-100 tag' severity="warning" value="0 | i"
+                 [rounded]="true"></p-tag>
+        </div>
+        <div>
+          <button pButton label="Start" class="p-button-sm p-button" icon='fas fa-play' iconPos='left'></button>
+        </div>
+      </div>
+      <span class='powered-by' style='font-weight: 600'>Powered By</span>
+      <div>
+        <img src='/assets/images/Start%20As%20Player/Powered%20By.png' style='max-width: 100%;' alt=''>
+      </div>
+    </div>
+  </div>
+  <div class='col-12 md:col-6 lg:col-3'>
+    <div class='card your-balance'>
+      <h1 class='card-title'>Your Balance</h1>
+      <h3 class='balance my-0'>O i</h3>
+      <span class='content mt-2'>
+        These are dev-net tokens and hold no value.
+      </span>
+      <button pButton pRipple label='Request Funds' class='p-button p-button-sm p-button-outlined mt-3 mx-auto block'></button>
+    </div>
+
+    <div class='card block overflow-y-auto' [ngStyle]='{"max-height": "60%"}'>
+      <h1 class='card-title'>Logs</h1>
+      <div class='p-3 log'>
+        <div style='float: right' class='pl-1 pb-1'>
+          <div class='log-info'>2021/11/06</div>
+          <div class='log-info'>9:14:51PM</div>
+        </div>
+        <div class='mr-3'>
+          <div class='log-title'>Smart Contract Chain</div>
+          <div class='log-info py-1'>Total Played Funds: 100Mi</div>
+          <div class='log-address'>1GbcBTd2zigKt7XSLcHZfHW2k5We96wJtp7jf4DFdetA6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

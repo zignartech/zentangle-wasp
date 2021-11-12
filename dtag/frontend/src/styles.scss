@@ -16,21 +16,25 @@ $gutter: 1rem; //for primeflex grid system
 // Libraries
 @import '~swiper/swiper-bundle.min.css';
 @import "~cropperjs/dist/cropper.min.css";
+@import "~@fortawesome/fontawesome-free/css/all.css";
 
-html, body{
+html, body {
   height: 100%;
   width: 100%;
-  font-family: Manrope;
+}
+
+html, body, span:not([class*="pi"]):not([class*="cropper"]) {
+  font-family: Manrope !important;
   font-style: normal;
   font-weight: normal;
   letter-spacing: 0;
 }
 
-.w-100{
+.w-100 {
   width: 100%;
 }
 
-.h-100{
+.h-100 {
   height: 100%;
 }
 
@@ -43,7 +47,6 @@ html, body{
 }
 
 @media (max-width: 991px) {
-
   .layout-topbar-left {
     padding-right: 0 !important;
   }
@@ -51,4 +54,55 @@ html, body{
   .title-page {
     padding-left: 0 !important;
   }
+}
+
+.breadcrumb {
+  border: transparent;
+  background: transparent;
+}
+
+.card-title {
+  //styleName: Primary text bold;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: left;
+  display: inline-block;
+}
+
+.player {
+  background: #F7F7F8;
+  border-radius: 8px;
+
+  .seed {
+    word-break: break-all;
+    //styleName: Primary text;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 19px;
+    text-align: left;
+  }
+
+  .bet {
+    //styleName: Indicator;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: left;
+  }
+}
+
+.txt-blue {
+  color: rgba(104, 168, 216, 1) !important;
+}
+
+.layout-content {
+  padding-top: 0;
+}
+
+.txt-copy {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 17px;
+  text-align: left;
 }
