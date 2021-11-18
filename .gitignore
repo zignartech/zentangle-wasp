@@ -22,3 +22,4 @@ wasp-cli.json
 node_modules
 goshimmer.log
 /*.sh
+dtag/target/.rustc_info.json
