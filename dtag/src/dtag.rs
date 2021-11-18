@@ -534,3 +534,50 @@ pub fn view_get_results(_ctx: &ScViewContext, f: &GetResultsContext) {
         tagged_image.h, 
         tagged_image.w));
 }
+
+pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
+
+    struct Bet {
+        player: ScAgentID,
+        amount: i64
+    }
+
+    let mut player_bets: Vec<Bet> = Vec::new();
+    'bet: for i in 0..f.state.bets().length() {
+        let bet = f.state.bets().get_bet(i).value();
+        for player_bet in 0..player_bets.len() {
+            if player_bets[player_bet].player == bet.player {
+                player_bets[player_bet].amount += bet.amount;
+                continue 'bet;
+            }
+        }
+        let new_player_bet = Bet{
+            player: bet.player,
+            amount: bet.amount
+        };
+        player_bets.push(new_player_bet);
+    }
+
+    let mut output: String = "{\n\"players\": [\n".to_string();
+
+    let mut player_bet_strings: Vec<String> = Vec::new();
+    for player_bet in player_bets {
+        let mut player_bet_string: String = "".to_string();
+        player_bet_string.push_str("{\n");
+        player_bet_string.push_str(&json::stringify("amount"));
+        player_bet_string.push_str(": ");
+        player_bet_string.push_str(&json::stringify(player_bet.amount));
+        player_bet_string.push_str(",\n");
+        player_bet_string.push_str(&json::stringify("address"));
+        player_bet_string.push_str(": ");
+        player_bet_string.push_str(&json::stringify(player_bet.player.address().to_string()));
+        player_bet_string.push_str("\n}");
+        player_bet_strings.push(player_bet_string);
+    }
+    output.push_str(&player_bet_strings.join(",\n"));
+    output.push_str("\n]\n}");
+
+    ctx.log(&output);
+
+    f.results.player_bets().set_value(&output);
+}

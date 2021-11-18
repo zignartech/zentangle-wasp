@@ -34,6 +34,7 @@ fn on_load() {
     exports.add_func(FUNC_END_GAME,            func_end_game_thunk);
     exports.add_func(FUNC_REQUEST_PLAY,        func_request_play_thunk);
     exports.add_func(FUNC_SEND_TAGS,           func_send_tags_thunk);
+    exports.add_view(VIEW_GET_PLAYER_BETS,     view_get_player_bets_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
     exports.add_view(VIEW_GET_RESULTS,         view_get_results_thunk);
 
@@ -120,6 +121,25 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 	ctx.require(f.params.y().exists(), "missing mandatory y");
 	func_send_tags(ctx, &f);
 	ctx.log("dtag.funcSendTags ok");
+}
+
+pub struct GetPlayerBetsContext {
+	results: MutableGetPlayerBetsResults,
+	state: ImmutabledtagState,
+}
+
+fn view_get_player_bets_thunk(ctx: &ScViewContext) {
+	ctx.log("dtag.viewGetPlayerBets");
+	let f = GetPlayerBetsContext {
+		results: MutableGetPlayerBetsResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: ImmutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	view_get_player_bets(ctx, &f);
+	ctx.log("dtag.viewGetPlayerBets ok");
 }
 
 pub struct GetPlaysPerImageContext {

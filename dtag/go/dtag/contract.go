@@ -28,6 +28,11 @@ type SendTagsCall struct {
 	Params  MutableSendTagsParams
 }
 
+type GetPlayerBetsCall struct {
+	Func    *wasmlib.ScView
+	Results ImmutableGetPlayerBetsResults
+}
+
 type GetPlaysPerImageCall struct {
 	Func    *wasmlib.ScView
 	Params  MutableGetPlaysPerImageParams
@@ -63,6 +68,12 @@ func (sc Funcs) RequestPlay(ctx wasmlib.ScFuncCallContext) *RequestPlayCall {
 func (sc Funcs) SendTags(ctx wasmlib.ScFuncCallContext) *SendTagsCall {
 	f := &SendTagsCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSendTags)}
 	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
+}
+
+func (sc Funcs) GetPlayerBets(ctx wasmlib.ScViewCallContext) *GetPlayerBetsCall {
+	f := &GetPlayerBetsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlayerBets)}
+	f.Func.SetPtrs(nil, &f.Results.id)
 	return f
 }
 

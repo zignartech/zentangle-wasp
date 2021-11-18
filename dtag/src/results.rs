@@ -38,6 +38,28 @@ impl MutableRequestPlayResults {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableGetPlayerBetsResults {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetPlayerBetsResults {
+    pub fn player_bets(&self) -> ScImmutableString {
+		ScImmutableString::new(self.id, idx_map(IDX_RESULT_PLAYER_BETS))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetPlayerBetsResults {
+    pub(crate) id: i32,
+}
+
+impl MutableGetPlayerBetsResults {
+    pub fn player_bets(&self) -> ScMutableString {
+		ScMutableString::new(self.id, idx_map(IDX_RESULT_PLAYER_BETS))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableGetPlaysPerImageResults {
     pub(crate) id: i32,
 }

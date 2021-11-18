@@ -23,6 +23,7 @@ pub const PARAM_X                       : &str = "x";
 pub const PARAM_Y                       : &str = "y";
 
 pub const RESULT_IMAGE_ID        : &str = "imageId";
+pub const RESULT_PLAYER_BETS     : &str = "playerBets";
 pub const RESULT_PLAYS_PER_IMAGE : &str = "playsPerImage";
 pub const RESULT_RESULTS         : &str = "results";
 
@@ -41,6 +42,7 @@ pub const FUNC_CREATE_GAME         : &str = "createGame";
 pub const FUNC_END_GAME            : &str = "endGame";
 pub const FUNC_REQUEST_PLAY        : &str = "requestPlay";
 pub const FUNC_SEND_TAGS           : &str = "sendTags";
+pub const VIEW_GET_PLAYER_BETS     : &str = "getPlayerBets";
 pub const VIEW_GET_PLAYS_PER_IMAGE : &str = "getPlaysPerImage";
 pub const VIEW_GET_RESULTS         : &str = "getResults";
 
@@ -48,5 +50,6 @@ pub const HFUNC_CREATE_GAME         : ScHname = ScHname(0x585dcce2);
 pub const HFUNC_END_GAME            : ScHname = ScHname(0xb2303ef2);
 pub const HFUNC_REQUEST_PLAY        : ScHname = ScHname(0x74f0bf82);
 pub const HFUNC_SEND_TAGS           : ScHname = ScHname(0xc31816cb);
+pub const HVIEW_GET_PLAYER_BETS     : ScHname = ScHname(0x842b0ef5);
 pub const HVIEW_GET_PLAYS_PER_IMAGE : ScHname = ScHname(0x749519e8);
 pub const HVIEW_GET_RESULTS         : ScHname = ScHname(0xc2ed9edb);

@@ -21,21 +21,22 @@ pub(crate) const IDX_PARAM_X                       : usize = 6;
 pub(crate) const IDX_PARAM_Y                       : usize = 7;
 
 pub(crate) const IDX_RESULT_IMAGE_ID        : usize = 8;
-pub(crate) const IDX_RESULT_PLAYS_PER_IMAGE : usize = 9;
-pub(crate) const IDX_RESULT_RESULTS         : usize = 10;
+pub(crate) const IDX_RESULT_PLAYER_BETS     : usize = 9;
+pub(crate) const IDX_RESULT_PLAYS_PER_IMAGE : usize = 10;
+pub(crate) const IDX_RESULT_RESULTS         : usize = 11;
 
-pub(crate) const IDX_STATE_BETS                    : usize = 11;
-pub(crate) const IDX_STATE_CREATOR                 : usize = 12;
-pub(crate) const IDX_STATE_DESCRIPTION             : usize = 13;
-pub(crate) const IDX_STATE_NUMBER_OF_IMAGES        : usize = 14;
-pub(crate) const IDX_STATE_PENDING_PLAYS           : usize = 15;
-pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 16;
-pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 17;
-pub(crate) const IDX_STATE_REWARD                  : usize = 18;
-pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 19;
-pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 20;
+pub(crate) const IDX_STATE_BETS                    : usize = 12;
+pub(crate) const IDX_STATE_CREATOR                 : usize = 13;
+pub(crate) const IDX_STATE_DESCRIPTION             : usize = 14;
+pub(crate) const IDX_STATE_NUMBER_OF_IMAGES        : usize = 15;
+pub(crate) const IDX_STATE_PENDING_PLAYS           : usize = 16;
+pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 17;
+pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 18;
+pub(crate) const IDX_STATE_REWARD                  : usize = 19;
+pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 20;
+pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 21;
 
-pub const KEY_MAP_LEN: usize = 21;
+pub const KEY_MAP_LEN: usize = 22;
 
 pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	PARAM_DESCRIPTION,
@@ -47,6 +48,7 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	PARAM_X,
 	PARAM_Y,
 	RESULT_IMAGE_ID,
+	RESULT_PLAYER_BETS,
 	RESULT_PLAYS_PER_IMAGE,
 	RESULT_RESULTS,
 	STATE_BETS,

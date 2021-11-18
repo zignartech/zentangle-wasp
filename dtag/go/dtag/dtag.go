@@ -22,3 +22,6 @@ func viewGetPlaysPerImage(ctx wasmlib.ScViewContext, f *GetPlaysPerImageContext)
 
 func viewGetResults(ctx wasmlib.ScViewContext, f *GetResultsContext) {
 }
+
+func viewGetPlayerBets(ctx wasmlib.ScViewContext, f *GetPlayerBetsContext) {
+}

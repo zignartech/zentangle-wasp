@@ -16,6 +16,7 @@ func OnLoad() {
 	exports.AddFunc(FuncEndGame,          funcEndGameThunk)
 	exports.AddFunc(FuncRequestPlay,      funcRequestPlayThunk)
 	exports.AddFunc(FuncSendTags,         funcSendTagsThunk)
+	exports.AddView(ViewGetPlayerBets,    viewGetPlayerBetsThunk)
 	exports.AddView(ViewGetPlaysPerImage, viewGetPlaysPerImageThunk)
 	exports.AddView(ViewGetResults,       viewGetResultsThunk)
 
@@ -100,6 +101,25 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Require(f.Params.Y().Exists(), "missing mandatory y")
 	funcSendTags(ctx, f)
 	ctx.Log("dtag.funcSendTags ok")
+}
+
+type GetPlayerBetsContext struct {
+	Results MutableGetPlayerBetsResults
+	State   ImmutabledtagState
+}
+
+func viewGetPlayerBetsThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("dtag.viewGetPlayerBets")
+	f := &GetPlayerBetsContext{
+		Results: MutableGetPlayerBetsResults{
+			id: wasmlib.OBJ_ID_RESULTS,
+		},
+		State: ImmutabledtagState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	viewGetPlayerBets(ctx, f)
+	ctx.Log("dtag.viewGetPlayerBets ok")
 }
 
 type GetPlaysPerImageContext struct {

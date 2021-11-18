@@ -69,6 +69,11 @@
 			"results": {
 				"results": "String // x/y/h/w"
 			}
+		},
+		"getPlayerBets": { 
+			"results": {
+				"playerBets": "String // a json with all players and their bets"
+			}
 		}
 	}
 }

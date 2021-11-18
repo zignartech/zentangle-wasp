@@ -28,6 +28,7 @@ const (
 
 const (
 	ResultImageId       = "imageId"
+	ResultPlayerBets    = "playerBets"
 	ResultPlaysPerImage = "playsPerImage"
 	ResultResults       = "results"
 )
@@ -50,6 +51,7 @@ const (
 	FuncEndGame          = "endGame"
 	FuncRequestPlay      = "requestPlay"
 	FuncSendTags         = "sendTags"
+	ViewGetPlayerBets    = "getPlayerBets"
 	ViewGetPlaysPerImage = "getPlaysPerImage"
 	ViewGetResults       = "getResults"
 )
@@ -59,6 +61,7 @@ const (
 	HFuncEndGame          = wasmlib.ScHname(0xb2303ef2)
 	HFuncRequestPlay      = wasmlib.ScHname(0x74f0bf82)
 	HFuncSendTags         = wasmlib.ScHname(0xc31816cb)
+	HViewGetPlayerBets    = wasmlib.ScHname(0x842b0ef5)
 	HViewGetPlaysPerImage = wasmlib.ScHname(0x749519e8)
 	HViewGetResults       = wasmlib.ScHname(0xc2ed9edb)
 )

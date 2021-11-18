@@ -20,22 +20,23 @@ const (
 	IdxParamY                    = 7
 
 	IdxResultImageId       = 8
-	IdxResultPlaysPerImage = 9
-	IdxResultResults       = 10
+	IdxResultPlayerBets    = 9
+	IdxResultPlaysPerImage = 10
+	IdxResultResults       = 11
 
-	IdxStateBets                 = 11
-	IdxStateCreator              = 12
-	IdxStateDescription          = 13
-	IdxStateNumberOfImages       = 14
-	IdxStatePendingPlays         = 15
-	IdxStatePlaysPerImage        = 16
-	IdxStateProcessedImages      = 17
-	IdxStateReward               = 18
-	IdxStateTaggedImages         = 19
-	IdxStateTagsRequiredPerImage = 20
+	IdxStateBets                 = 12
+	IdxStateCreator              = 13
+	IdxStateDescription          = 14
+	IdxStateNumberOfImages       = 15
+	IdxStatePendingPlays         = 16
+	IdxStatePlaysPerImage        = 17
+	IdxStateProcessedImages      = 18
+	IdxStateReward               = 19
+	IdxStateTaggedImages         = 20
+	IdxStateTagsRequiredPerImage = 21
 )
 
-const keyMapLen = 21
+const keyMapLen = 22
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamDescription,
@@ -47,6 +48,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	ParamX,
 	ParamY,
 	ResultImageId,
+	ResultPlayerBets,
 	ResultPlaysPerImage,
 	ResultResults,
 	StateBets,
