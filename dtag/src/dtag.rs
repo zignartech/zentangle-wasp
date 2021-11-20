@@ -514,25 +514,29 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     ));
 }
 
-pub fn view_get_plays_per_image(_ctx: &ScViewContext, f: &GetPlaysPerImageContext) {
+pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext) {
 
     let image_id = f.params.image_id().value();
     let plays = f.state.plays_per_image().get_int32(image_id).value();
 
+    ctx.log(&format!("PLAYS PER IMAGE: {0}", plays.to_string()));
     f.results.plays_per_image().set_value(plays);
 }
 
-pub fn view_get_results(_ctx: &ScViewContext, f: &GetResultsContext) {
+pub fn view_get_results(ctx: &ScViewContext, f: &GetResultsContext) {
 
     let image_id = f.params.image_id().value();
     let tagged_image = f.state.processed_images().get_tagged_image(image_id).value();
 
-    f.results.results().set_value(&format!(
+    let results = &format!(
         "{0}/{1}/{2}/{3}",
         tagged_image.x, 
         tagged_image.y, 
         tagged_image.h, 
-        tagged_image.w));
+        tagged_image.w);
+    
+    ctx.log(results);
+    f.results.results().set_value(results);
 }
 
 pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
@@ -577,7 +581,7 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
     output.push_str(&player_bet_strings.join(",\n"));
     output.push_str("\n]\n}");
 
-    ctx.log(&output);
+    ctx.log(&format!("{0}", output));
 
     f.results.player_bets().set_value(&output);
 }
