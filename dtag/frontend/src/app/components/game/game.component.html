@@ -2,6 +2,7 @@
 
 <div class='grid '>
   <div class='col-12 md:col-6 lg:col-3'>
+<!--    TODO: Integrar app-did-->
     <div class='card card-address-seed block'>
       <div class='flex justify-content-between'>
         <span class='block title'>My Descentralized ID</span>
@@ -241,6 +242,7 @@
   <ng-template pTemplate='footer'></ng-template>
 </p-dialog>
 
+<!--TODO: Borrar esto-->
 <p-dialog [(visible)]="showDIDDetails" [draggable]='false' [resizable]='false' [blockScroll]='true'
           (onHide)='hideDIDDetails()' [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
           [style]="{width: '40vw'}">

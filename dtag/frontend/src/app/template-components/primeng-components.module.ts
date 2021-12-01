@@ -13,6 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
+import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -64,6 +65,7 @@ import { TopbarComponent } from './topbar/topbar.component';
     ConfirmPopupModule,
     DialogModule,
     DividerModule,
+    FileUploadModule,
     InputNumberModule,
     InputTextModule,
     InputTextareaModule,

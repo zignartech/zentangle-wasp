@@ -5,13 +5,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -192,7 +186,7 @@ export class MenuItemComponent implements OnInit, OnDestroy {
   constructor(
     public appMain: AppMainComponent,
     public router: Router,
-    private cd: ChangeDetectorRef,
+    // private cd: ChangeDetectorRef,
     private menuService: MenuService,
   ) {
     this.menuSourceSubscription = this.menuService.menuSource$.subscribe(

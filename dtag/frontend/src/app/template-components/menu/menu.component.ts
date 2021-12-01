@@ -4,7 +4,6 @@ import { AppMainComponent } from '../app-main/app.main.component';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
   model!: any[];
@@ -36,7 +35,7 @@ export class MenuComponent implements OnInit {
       {
         label: 'Round Setup',
         icon: 'round setup.svg',
-        routerLink: ['/Round-Setup'],
+        routerLink: ['/Setup'],
       },
       {
         label: 'Round Report',

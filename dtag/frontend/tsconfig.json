@@ -19,7 +19,12 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "strictFunctionTypes": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

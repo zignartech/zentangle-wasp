@@ -106,3 +106,39 @@ html, body, span:not([class*="pi"]):not([class*="cropper"]) {
   line-height: 17px;
   text-align: left;
 }
+
+.f-primary-text {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 19px;
+  color: rgba(41, 50, 65, 0.8);
+  word-break: break-all;
+}
+
+.f-h3 {
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 33px;
+  color: rgba(41, 50, 65, 0.8);
+}
+
+.f-description-text {
+  color: #939393;
+}
+
+.f-primary-text-bold {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 19px;
+  color: #000000;
+}
+
+.f-body-text {
+  //styleName: body;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 19px;
+  letter-spacing: 0;
+  color: #383737;
+}

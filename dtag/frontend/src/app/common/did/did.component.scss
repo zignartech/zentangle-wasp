@@ -1,0 +1,40 @@
+.title {
+  font-size: 14px;
+  line-height: 19px;
+  color: #383737;
+}
+
+.content {
+  font-size: 12px;
+  line-height: 17px;
+  color: rgba(41, 50, 65, 0.8);
+}
+
+.did-details-subtitle {
+  font-size: 12px;
+  line-height: 17px;
+  text-align: justify;
+  color: #383737;
+}
+
+.did-details {
+  //styleName: Indicator;
+  .did-input {
+    background: #F5F5F5;
+    width: 100%;
+    border-radius: 5px;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .label {
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 120%;
+    color: #939393;
+  }
+}

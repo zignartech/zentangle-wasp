@@ -1,9 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
 import { PrimeNGConfig } from 'primeng/api';
 import { AppComponent } from '../../app.component';
 import { GameComponent } from '../../components/game/game.component';
 import { HomeComponent } from '../../components/home/home.component';
+import { RoundSetupComponent } from '../../components/round-setup/round-setup.component';
 import { StartPlayerComponent } from '../../components/start-player/start-player.component';
 import { StartResearcherComponent } from '../../components/start-researcher/start-researcher.component';
 import { MenuService } from '../menu/menu.service';
@@ -188,7 +188,7 @@ export class AppMainComponent {
     }
   }
 
-  onRouterOutletActivate(component: any) {
+  onRouterOutletActivate(component: any): void {
     if (component instanceof GameComponent) {
       this.title = 'Game';
     } else if (component instanceof HomeComponent) {
@@ -197,6 +197,8 @@ export class AppMainComponent {
       this.title = 'Start as Player';
     } else if (component instanceof StartResearcherComponent) {
       this.title = 'Start as Researcher';
+    } else if (component instanceof RoundSetupComponent) {
+      this.title = 'Round Setup';
     }
   }
 }
