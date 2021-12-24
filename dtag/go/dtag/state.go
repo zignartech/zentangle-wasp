@@ -66,6 +66,10 @@ func (s ImmutabledtagState) NumberOfImages() wasmlib.ScImmutableInt32 {
 	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxStateNumberOfImages])
 }
 
+func (s ImmutabledtagState) Owner() wasmlib.ScImmutableAgentID {
+	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxStateOwner])
+}
+
 func (s ImmutabledtagState) PendingPlays() ArrayOfImmutableBet {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfImmutableBet{objID: arrID}
@@ -161,6 +165,10 @@ func (s MutabledtagState) Description() wasmlib.ScMutableString {
 
 func (s MutabledtagState) NumberOfImages() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxStateNumberOfImages])
+}
+
+func (s MutabledtagState) Owner() wasmlib.ScMutableAgentID {
+	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxStateOwner])
 }
 
 func (s MutabledtagState) PendingPlays() ArrayOfMutableBet {

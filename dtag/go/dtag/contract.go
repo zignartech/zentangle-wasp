@@ -18,6 +18,11 @@ type EndGameCall struct {
 	Func    *wasmlib.ScFunc
 }
 
+type InitCall struct {
+	Func    *wasmlib.ScInitFunc
+	Params  MutableInitParams
+}
+
 type RequestPlayCall struct {
 	Func    *wasmlib.ScFunc
 	Results ImmutableRequestPlayResults
@@ -26,6 +31,20 @@ type RequestPlayCall struct {
 type SendTagsCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutableSendTagsParams
+}
+
+type SetOwnerCall struct {
+	Func    *wasmlib.ScFunc
+	Params  MutableSetOwnerParams
+}
+
+type WithdrawCall struct {
+	Func    *wasmlib.ScFunc
+}
+
+type GetOwnerCall struct {
+	Func    *wasmlib.ScView
+	Results ImmutableGetOwnerResults
 }
 
 type GetPlayerBetsCall struct {
@@ -59,6 +78,12 @@ func (sc Funcs) EndGame(ctx wasmlib.ScFuncCallContext) *EndGameCall {
 	return &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
 }
 
+func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
+	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit, keyMap[:], idxMap[:])}
+	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
+}
+
 func (sc Funcs) RequestPlay(ctx wasmlib.ScFuncCallContext) *RequestPlayCall {
 	f := &RequestPlayCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncRequestPlay)}
 	f.Func.SetPtrs(nil, &f.Results.id)
@@ -68,6 +93,22 @@ func (sc Funcs) RequestPlay(ctx wasmlib.ScFuncCallContext) *RequestPlayCall {
 func (sc Funcs) SendTags(ctx wasmlib.ScFuncCallContext) *SendTagsCall {
 	f := &SendTagsCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSendTags)}
 	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
+}
+
+func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
+	f := &SetOwnerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetOwner)}
+	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
+}
+
+func (sc Funcs) Withdraw(ctx wasmlib.ScFuncCallContext) *WithdrawCall {
+	return &WithdrawCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncWithdraw)}
+}
+
+func (sc Funcs) GetOwner(ctx wasmlib.ScViewCallContext) *GetOwnerCall {
+	f := &GetOwnerCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetOwner)}
+	f.Func.SetPtrs(nil, &f.Results.id)
 	return f
 }
 

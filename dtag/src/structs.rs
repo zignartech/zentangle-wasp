@@ -70,6 +70,7 @@ impl MutableBet {
 }
 
 pub struct TaggedImage {
+    pub boost    : i32,  // if the tag will be boosted or not
     pub h        : i64,  // height of the Tag
     pub image_id : i32, 
     pub player   : ScAgentID,  // player that has tagged this image
@@ -82,6 +83,7 @@ impl TaggedImage {
     pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
         let mut decode = BytesDecoder::new(bytes);
         TaggedImage {
+            boost    : decode.int32(),
             h        : decode.int64(),
             image_id : decode.int32(),
             player   : decode.agent_id(),
@@ -93,6 +95,7 @@ impl TaggedImage {
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
+		encode.int32(self.boost);
 		encode.int64(self.h);
 		encode.int32(self.image_id);
 		encode.agent_id(&self.player);

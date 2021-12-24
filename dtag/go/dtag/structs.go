@@ -64,6 +64,7 @@ func (o MutableBet) Value() *Bet {
 }
 
 type TaggedImage struct {
+	Boost   int32  // if the tag will be boosted or not
 	H       int64  // height of the Tag
 	ImageId int32 
 	Player  wasmlib.ScAgentID  // player that has tagged this image
@@ -75,6 +76,7 @@ type TaggedImage struct {
 func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &TaggedImage{}
+	data.Boost   = decode.Int32()
 	data.H       = decode.Int64()
 	data.ImageId = decode.Int32()
 	data.Player  = decode.AgentID()
@@ -87,6 +89,7 @@ func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
 
 func (o *TaggedImage) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
+		Int32(o.Boost).
 		Int64(o.H).
 		Int32(o.ImageId).
 		AgentID(o.Player).

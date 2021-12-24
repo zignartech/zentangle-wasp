@@ -10,44 +10,51 @@ package dtag
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 const (
-	IdxParamDescription          = 0
-	IdxParamH                    = 1
-	IdxParamImageId              = 2
-	IdxParamNumberOfImages       = 3
-	IdxParamTagsRequiredPerImage = 4
-	IdxParamW                    = 5
-	IdxParamX                    = 6
-	IdxParamY                    = 7
+	IdxParamBoost                = 0
+	IdxParamDescription          = 1
+	IdxParamH                    = 2
+	IdxParamImageId              = 3
+	IdxParamNumberOfImages       = 4
+	IdxParamOwner                = 5
+	IdxParamTagsRequiredPerImage = 6
+	IdxParamW                    = 7
+	IdxParamX                    = 8
+	IdxParamY                    = 9
 
-	IdxResultImageId       = 8
-	IdxResultPlayerBets    = 9
-	IdxResultPlaysPerImage = 10
-	IdxResultResults       = 11
+	IdxResultImageId       = 10
+	IdxResultOwner         = 11
+	IdxResultPlayerBets    = 12
+	IdxResultPlaysPerImage = 13
+	IdxResultResults       = 14
 
-	IdxStateBets                 = 12
-	IdxStateCreator              = 13
-	IdxStateDescription          = 14
-	IdxStateNumberOfImages       = 15
-	IdxStatePendingPlays         = 16
-	IdxStatePlaysPerImage        = 17
-	IdxStateProcessedImages      = 18
-	IdxStateReward               = 19
-	IdxStateTaggedImages         = 20
-	IdxStateTagsRequiredPerImage = 21
+	IdxStateBets                 = 15
+	IdxStateCreator              = 16
+	IdxStateDescription          = 17
+	IdxStateNumberOfImages       = 18
+	IdxStateOwner                = 19
+	IdxStatePendingPlays         = 20
+	IdxStatePlaysPerImage        = 21
+	IdxStateProcessedImages      = 22
+	IdxStateReward               = 23
+	IdxStateTaggedImages         = 24
+	IdxStateTagsRequiredPerImage = 25
 )
 
-const keyMapLen = 22
+const keyMapLen = 26
 
 var keyMap = [keyMapLen]wasmlib.Key{
+	ParamBoost,
 	ParamDescription,
 	ParamH,
 	ParamImageId,
 	ParamNumberOfImages,
+	ParamOwner,
 	ParamTagsRequiredPerImage,
 	ParamW,
 	ParamX,
 	ParamY,
 	ResultImageId,
+	ResultOwner,
 	ResultPlayerBets,
 	ResultPlaysPerImage,
 	ResultResults,
@@ -55,6 +62,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StateCreator,
 	StateDescription,
 	StateNumberOfImages,
+	StateOwner,
 	StatePendingPlays,
 	StatePlaysPerImage,
 	StateProcessedImages,

@@ -15,6 +15,20 @@ const MIN_INTER_CLUSTER_DISTANCE: f64 = 100.0;
 // The percentage of players on an image that have to agree on a tag for it to be valid
 const CONFIRMATION_PERCENTAGE: f32 = 0.6;
 
+// This functions sets an owner of the smart contract, to which remaining funds can be sent to
+pub fn func_init(ctx: &ScFuncContext, f: &InitContext) {
+    if f.params.owner().exists() {
+        f.state.owner().set_value(&f.params.owner().value());
+        return;
+    }
+    f.state.owner().set_value(&ctx.contract_creator());
+}
+
+// Smart contract ownership can be transfered
+pub fn func_set_owner(_ctx: &ScFuncContext, f: &SetOwnerContext) {
+    f.state.owner().set_value(&f.params.owner().value());
+}
+
 // 'createGame' is used for a researcher to start a game for players to tag images, wich can then be used
 // for training an Artificial Intelligence (Deep Learning). It requires the researcher to place a reward for
 // the players efforts. If the players tag correctly an image, based on other plays, it gets rewarded.
@@ -53,6 +67,7 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
     // Now, we have to initialize the taggedimages and the playsPerImage with default values.
     let default_tagged_image = TaggedImage {
         image_id: -1,
+        boost: 1,
         player: ctx.account_id(),
         x: -1,
         y: -1,
@@ -107,7 +122,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
     struct ValidTag {
         player: ScAgentID,
-        tagged_image_id: i32
+        tagged_image_id: i32,
     }
 
     let mut valid_tags: Vec<ValidTag> = Vec::new();      // stores the player and imageId of all valid tags
@@ -138,7 +153,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
         // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
         // case, 9999999.0 will not be overwritten).
-        while min_distance[0] <= MIN_INTER_CLUSTER_DISTANCE {
+        while min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
             // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
             min_distance[0]= 9999999.0;
             for x in 0..clusters.len() {
@@ -149,9 +164,8 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                     }
                 }
             }
-
-            // If the four dimentional distance is greter than 100, then we dont merge the clusters.
-            // Points that are this far away are considered different final clusters
+            // If the four dimentional distance is greater than MIN_INTER_CLUSTER_DISTANCE, then we dont merge the clusters.
+            // Clusters that are this far apart are considered different final clusters
             if min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
 
                 // define the indexes of the clusters one and two to be merged
@@ -195,7 +209,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         for i in 0..length {
             let id = length-i-1; // this way it's a backwards iterator and we dont change the id's as we remove them.
             if clusters[id].len() -4 < (playsfor_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize {
-                clusters.remove(i);
+                clusters.remove(id);
             } else { // here we push the players that tagged correctly to the reward-list
                 for j in 4..clusters[id].len() {
                     let vaid_tag = ValidTag{
@@ -210,7 +224,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
         // We want to have one cluster per image, even if it is an empty cluster. This way,
        // it's easier to find processed images based on their id. TODO: With nested arrays and nested
-        // constructors, this abomination would not be necessary. Also, this is a hackaton, so no time...
+        // constructors, this abomination would not be necessary.
         if !check_min_one_tag {
             let cluster = vec![-1, -1, -1, -1];
             clusters.push(cluster);
@@ -223,6 +237,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         let center = TaggedImage {
             player: f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
             image_id: image,
+            boost: 1, // this is only the default value, same as player, and can cahnge later
             x: clusters[0][0],
             y: clusters[0][1],
             h: clusters[0][2],
@@ -255,14 +270,16 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     struct Better {
         accuracy: f64,
         player: ScAgentID,
-        amount: i64
+        amount: i64,
+        boost: i32
     }
     impl Better {
-        pub fn new(accuracy: f64, player: ScAgentID, amount:i64) -> Self {
+        pub fn new(accuracy: f64, player: ScAgentID, amount:i64, boost:i32) -> Self {
             Better {
                 accuracy,
                 player,
-                amount
+                amount,
+                boost
             }
         }
     }
@@ -277,7 +294,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         let cluster_center = f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
         let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
         let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
-        valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0));
+        valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0, tagged_image.boost));
     }
 
     // We now have a list with all the betters that made a valid tag, but they are repeated.
@@ -289,19 +306,20 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
                 // replace the accuracy for the player's best one
                 if valid_bet.accuracy > betters_top[better].accuracy{
                     betters_top[better].accuracy = valid_bet.accuracy;
+                    betters_top[better].boost = valid_bet.boost;
                 }
-                // ship to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
+                // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
                 continue 'all;
             }
         }
         betters_top.push(valid_bet);
     }
 
-    // Next, we calculate the total amount of iotas betted by the players in the 'betters_top' list
+    // Next, we calculate the amount of iotas betted by each player in the 'betters_top' list
     'bet: for i in 0..f.state.bets().length() {
         let bet = f.state.bets().get_bet(i).value();
         for better in 0..betters_top.len() {
-            if bet.player == betters_top[better].player {
+            if betters_top[better].player == bet.player {
                 betters_top[better].amount += bet.amount;
                 continue 'bet;
             }
@@ -309,7 +327,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     }
 
     // sort the 'top_betters' by the accuracy
-    betters_top.sort_by(|b, a| b.accuracy.partial_cmp(&a.accuracy).unwrap());
+    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
 
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
@@ -320,9 +338,10 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // 'points' represents by how much the betting money has to be divided.
     // We have to fit the amount betted to the sum of all the prices 
     let mut points: i64 = 0_i64;
-    for i in 1..betters_top.len()+1 {
+    for i in 0..betters_top.len() {
         // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
-        points += (i*i) as i64 * betters_top[i-1].amount as i64;
+        // Tags that were boosted and resulted to be the players best tag, recieve a 2x or 3x boost.
+        points += ((i+1)*(i+1)) as i64 * betters_top[i].amount * betters_top[i].boost as i64;
     }
     let multiplier: f64 = total_payout as f64 / points as f64; 
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
@@ -330,10 +349,19 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     for i in 0..betters_top.len() {
         // Again, the prices take an exponential form, where the 'i' 
         // represents the position of the player given it's acuracy.
-        let payout = multiplier * (i*i) as f64 * betters_top[i].amount as f64;
-        if payout < 1.0 { break; } // no need to coninue evaluating, as payout will only decrese with i
+        let payout = multiplier * ((i+1)*(i+1)) as f64 * betters_top[i].amount as f64 * betters_top[i].boost as f64;
+        if payout < 1.0 { continue; }
+        // payout may incurr in rounding errors. This errors are truncations, so no negative balance should exist.
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
+        ctx.log(&format!(
+            "{ } PAID { } IOTAS TO { }. Accuracy: { } Boost: { }", 
+            i.to_string(),
+            (payout as i64).to_string(), 
+            betters_top[i].player.address().to_string(), 
+            betters_top[i].accuracy.to_string(),
+            betters_top[i].boost.to_string()
+        ));
     }
     
     // We clear all the state variables, so a new game can begin
@@ -450,8 +478,19 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let pending_plays: ArrayOfMutableBet = f.state.pending_plays();
     let tags_req_per_image = f.state.tags_required_per_image().value();
     let length = pending_plays.length();
+    let mut boost: i32 = 1;
     let mut bet: Option<MutableBet> = None;
     let mut pending_play_id: i32 = 0;
+
+    if f.params.boost().exists() {
+        boost = f.params.boost().value();
+    }
+
+    if boost != 1 && boost != 2 && boost !=3 {
+        ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
+    }
+
+    //TODO: check if boost is allowed for this player
 
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
@@ -493,6 +532,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let tagged_image = TaggedImage {
         image_id: image_id,
         player: ctx.caller(),
+        boost: boost,
         x: f.params.x().value(),
         y: f.params.y().value(),
         h: f.params.h().value(),
@@ -512,6 +552,30 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         &tagged_image.player.address().to_string(),
         f.state.plays_per_image().get_int32(tagged_image.image_id).value().to_string(), // nr of times the image has been tagged
     ));
+}
+
+// This function is used for a the owner of the smart contract to withdraw any
+// remaining balance in the smart contract. Players can place bets that stay in
+// the smart contract if it's tags are all invalid. Also, any incurring fees also
+// stay in the smart contract. This function sends this funds to the owner, to pay
+// for it's efforts if you will.
+// The 'withdraw' function takes no parameters
+pub fn func_withdraw(ctx: &ScFuncContext, f: &WithdrawContext) {
+    
+    // No game can be in progress in order to be able withdraw the remaining balance
+    ctx.require(f.state.reward().value() == 0_i64, "Error: Game in progress"); 
+
+    // Send any remainig funds to the owner
+    let color = &ctx.balances().colors().get_color(0).value();
+    ctx.log(&format!("COLOR 0: {}", color.to_string()));
+    let balance = ctx.balances().balance(color);
+
+    let transfers: ScTransfers = ScTransfers::iotas(balance as i64);
+    ctx.transfer_to_address(&f.state.owner().value().address(), transfers);
+}
+
+pub fn view_get_owner(_ctx: &ScViewContext, f: &GetOwnerContext) {
+    f.results.owner().set_value(&f.state.owner().value());
 }
 
 pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext) {

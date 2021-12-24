@@ -24,6 +24,11 @@ pub struct EndGameCall {
 	pub func: ScFunc,
 }
 
+pub struct InitCall {
+	pub func: ScInitFunc,
+	pub params: MutableInitParams,
+}
+
 pub struct RequestPlayCall {
 	pub func: ScFunc,
 	pub results: ImmutableRequestPlayResults,
@@ -32,6 +37,20 @@ pub struct RequestPlayCall {
 pub struct SendTagsCall {
 	pub func: ScFunc,
 	pub params: MutableSendTagsParams,
+}
+
+pub struct SetOwnerCall {
+	pub func: ScFunc,
+	pub params: MutableSetOwnerParams,
+}
+
+pub struct WithdrawCall {
+	pub func: ScFunc,
+}
+
+pub struct GetOwnerCall {
+	pub func: ScView,
+	pub results: ImmutableGetOwnerResults,
 }
 
 pub struct GetPlayerBetsCall {
@@ -70,6 +89,15 @@ impl ScFuncs {
         }
     }
 
+    pub fn init(_ctx: & dyn ScFuncCallContext) -> InitCall {
+        let mut f = InitCall {
+            func: ScInitFunc::new(HSC_NAME, HFUNC_INIT),
+            params: MutableInitParams { id: 0 },
+        };
+        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f
+    }
+
     pub fn request_play(_ctx: & dyn ScFuncCallContext) -> RequestPlayCall {
         let mut f = RequestPlayCall {
             func: ScFunc::new(HSC_NAME, HFUNC_REQUEST_PLAY),
@@ -85,6 +113,30 @@ impl ScFuncs {
             params: MutableSendTagsParams { id: 0 },
         };
         f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f
+    }
+
+    pub fn set_owner(_ctx: & dyn ScFuncCallContext) -> SetOwnerCall {
+        let mut f = SetOwnerCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_SET_OWNER),
+            params: MutableSetOwnerParams { id: 0 },
+        };
+        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f
+    }
+
+    pub fn withdraw(_ctx: & dyn ScFuncCallContext) -> WithdrawCall {
+        WithdrawCall {
+            func: ScFunc::new(HSC_NAME, HFUNC_WITHDRAW),
+        }
+    }
+
+    pub fn get_owner(_ctx: & dyn ScViewCallContext) -> GetOwnerCall {
+        let mut f = GetOwnerCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_OWNER),
+            results: ImmutableGetOwnerResults { id: 0 },
+        };
+        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
         f
     }
 

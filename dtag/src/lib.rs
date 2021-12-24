@@ -32,8 +32,12 @@ fn on_load() {
     let exports = ScExports::new();
     exports.add_func(FUNC_CREATE_GAME,         func_create_game_thunk);
     exports.add_func(FUNC_END_GAME,            func_end_game_thunk);
+    exports.add_func(FUNC_INIT,                func_init_thunk);
     exports.add_func(FUNC_REQUEST_PLAY,        func_request_play_thunk);
     exports.add_func(FUNC_SEND_TAGS,           func_send_tags_thunk);
+    exports.add_func(FUNC_SET_OWNER,           func_set_owner_thunk);
+    exports.add_func(FUNC_WITHDRAW,            func_withdraw_thunk);
+    exports.add_view(VIEW_GET_OWNER,           view_get_owner_thunk);
     exports.add_view(VIEW_GET_PLAYER_BETS,     view_get_player_bets_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
     exports.add_view(VIEW_GET_RESULTS,         view_get_results_thunk);
@@ -81,6 +85,25 @@ fn func_end_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("dtag.funcEndGame ok");
 }
 
+pub struct InitContext {
+	params: ImmutableInitParams,
+	state: MutabledtagState,
+}
+
+fn func_init_thunk(ctx: &ScFuncContext) {
+	ctx.log("dtag.funcInit");
+	let f = InitContext {
+		params: ImmutableInitParams {
+			id: OBJ_ID_PARAMS,
+		},
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	func_init(ctx, &f);
+	ctx.log("dtag.funcInit ok");
+}
+
 pub struct RequestPlayContext {
 	results: MutableRequestPlayResults,
 	state: MutabledtagState,
@@ -121,6 +144,72 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 	ctx.require(f.params.y().exists(), "missing mandatory y");
 	func_send_tags(ctx, &f);
 	ctx.log("dtag.funcSendTags ok");
+}
+
+pub struct SetOwnerContext {
+	params: ImmutableSetOwnerParams,
+	state: MutabledtagState,
+}
+
+fn func_set_owner_thunk(ctx: &ScFuncContext) {
+	ctx.log("dtag.funcSetOwner");
+
+	// current owner of this smart contract
+	let access = ctx.state().get_agent_id("owner");
+	ctx.require(access.exists(), "access not set: owner");
+	ctx.require(ctx.caller() == access.value(), "no permission");
+
+	let f = SetOwnerContext {
+		params: ImmutableSetOwnerParams {
+			id: OBJ_ID_PARAMS,
+		},
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.owner().exists(), "missing mandatory owner");
+	func_set_owner(ctx, &f);
+	ctx.log("dtag.funcSetOwner ok");
+}
+
+pub struct WithdrawContext {
+	state: MutabledtagState,
+}
+
+fn func_withdraw_thunk(ctx: &ScFuncContext) {
+	ctx.log("dtag.funcWithdraw");
+
+	// current owner of this smart contract
+	let access = ctx.state().get_agent_id("owner");
+	ctx.require(access.exists(), "access not set: owner");
+	ctx.require(ctx.caller() == access.value(), "no permission");
+
+	let f = WithdrawContext {
+		state: MutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	func_withdraw(ctx, &f);
+	ctx.log("dtag.funcWithdraw ok");
+}
+
+pub struct GetOwnerContext {
+	results: MutableGetOwnerResults,
+	state: ImmutabledtagState,
+}
+
+fn view_get_owner_thunk(ctx: &ScViewContext) {
+	ctx.log("dtag.viewGetOwner");
+	let f = GetOwnerContext {
+		results: MutableGetOwnerResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: ImmutabledtagState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	view_get_owner(ctx, &f);
+	ctx.log("dtag.viewGetOwner ok");
 }
 
 pub struct GetPlayerBetsContext {

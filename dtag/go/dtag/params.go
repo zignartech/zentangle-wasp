@@ -41,8 +41,28 @@ func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamTagsRequiredPerImage])
 }
 
+type ImmutableInitParams struct {
+	id int32
+}
+
+func (s ImmutableInitParams) Owner() wasmlib.ScImmutableAgentID {
+	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+}
+
+type MutableInitParams struct {
+	id int32
+}
+
+func (s MutableInitParams) Owner() wasmlib.ScMutableAgentID {
+	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+}
+
 type ImmutableSendTagsParams struct {
 	id int32
+}
+
+func (s ImmutableSendTagsParams) Boost() wasmlib.ScImmutableInt32 {
+	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxParamBoost])
 }
 
 func (s ImmutableSendTagsParams) H() wasmlib.ScImmutableInt64 {
@@ -65,6 +85,10 @@ type MutableSendTagsParams struct {
 	id int32
 }
 
+func (s MutableSendTagsParams) Boost() wasmlib.ScMutableInt32 {
+	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamBoost])
+}
+
 func (s MutableSendTagsParams) H() wasmlib.ScMutableInt64 {
 	return wasmlib.NewScMutableInt64(s.id, idxMap[IdxParamH])
 }
@@ -79,6 +103,22 @@ func (s MutableSendTagsParams) X() wasmlib.ScMutableInt64 {
 
 func (s MutableSendTagsParams) Y() wasmlib.ScMutableInt64 {
 	return wasmlib.NewScMutableInt64(s.id, idxMap[IdxParamY])
+}
+
+type ImmutableSetOwnerParams struct {
+	id int32
+}
+
+func (s ImmutableSetOwnerParams) Owner() wasmlib.ScImmutableAgentID {
+	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+}
+
+type MutableSetOwnerParams struct {
+	id int32
+}
+
+func (s MutableSetOwnerParams) Owner() wasmlib.ScMutableAgentID {
+	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
 }
 
 type ImmutableGetPlaysPerImageParams struct {

@@ -25,6 +25,22 @@ func (s MutableRequestPlayResults) ImageId() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxResultImageId])
 }
 
+type ImmutableGetOwnerResults struct {
+	id int32
+}
+
+func (s ImmutableGetOwnerResults) Owner() wasmlib.ScImmutableAgentID {
+	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxResultOwner])
+}
+
+type MutableGetOwnerResults struct {
+	id int32
+}
+
+func (s MutableGetOwnerResults) Owner() wasmlib.ScMutableAgentID {
+	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxResultOwner])
+}
+
 type ImmutableGetPlayerBetsResults struct {
 	id int32
 }

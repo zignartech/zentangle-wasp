@@ -4,7 +4,7 @@
 
 ./wasp-cli chain deposit IOTA:10000
 
-./wasp-cli chain deploy-contract wasmtime dtag "DTag SC v" ./dtag/pkg/dtag_bg.wasm
+./wasp-cli chain deploy-contract wasmtime dtag "DTag SC v" ./dtag_bg.wasm
 
 ./wasp-cli chain post-request dtag createGame string numberOfImages int32 2 string description string "esto es un test" -t IOTA:10000
 

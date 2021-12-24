@@ -80,6 +80,10 @@ impl ImmutabledtagState {
 		ScImmutableInt32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
 	}
 
+    pub fn owner(&self) -> ScImmutableAgentID {
+		ScImmutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
+	}
+
     pub fn pending_plays(&self) -> ArrayOfImmutableBet {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfImmutableBet { obj_id: arr_id }
@@ -184,6 +188,10 @@ impl MutabledtagState {
 
     pub fn number_of_images(&self) -> ScMutableInt32 {
 		ScMutableInt32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
+	}
+
+    pub fn owner(&self) -> ScMutableAgentID {
+		ScMutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
 	}
 
     pub fn pending_plays(&self) -> ArrayOfMutableBet {

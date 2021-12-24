@@ -14,8 +14,12 @@ func OnLoad() {
 	exports := wasmlib.NewScExports()
 	exports.AddFunc(FuncCreateGame,       funcCreateGameThunk)
 	exports.AddFunc(FuncEndGame,          funcEndGameThunk)
+	exports.AddFunc(FuncInit,             funcInitThunk)
 	exports.AddFunc(FuncRequestPlay,      funcRequestPlayThunk)
 	exports.AddFunc(FuncSendTags,         funcSendTagsThunk)
+	exports.AddFunc(FuncSetOwner,         funcSetOwnerThunk)
+	exports.AddFunc(FuncWithdraw,         funcWithdrawThunk)
+	exports.AddView(ViewGetOwner,         viewGetOwnerThunk)
 	exports.AddView(ViewGetPlayerBets,    viewGetPlayerBetsThunk)
 	exports.AddView(ViewGetPlaysPerImage, viewGetPlaysPerImageThunk)
 	exports.AddView(ViewGetResults,       viewGetResultsThunk)
@@ -61,6 +65,25 @@ func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("dtag.funcEndGame ok")
 }
 
+type InitContext struct {
+	Params  ImmutableInitParams
+	State   MutabledtagState
+}
+
+func funcInitThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("dtag.funcInit")
+	f := &InitContext{
+		Params: ImmutableInitParams{
+			id: wasmlib.OBJ_ID_PARAMS,
+		},
+		State: MutabledtagState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	funcInit(ctx, f)
+	ctx.Log("dtag.funcInit ok")
+}
+
 type RequestPlayContext struct {
 	Results MutableRequestPlayResults
 	State   MutabledtagState
@@ -101,6 +124,66 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Require(f.Params.Y().Exists(), "missing mandatory y")
 	funcSendTags(ctx, f)
 	ctx.Log("dtag.funcSendTags ok")
+}
+
+type SetOwnerContext struct {
+	Params  ImmutableSetOwnerParams
+	State   MutabledtagState
+}
+
+func funcSetOwnerThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("dtag.funcSetOwner")
+
+	// current owner of this smart contract
+	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	ctx.Require(access.Exists(), "access not set: owner")
+	ctx.Require(ctx.Caller() == access.Value(), "no permission")
+
+	f := &SetOwnerContext{
+		Params: ImmutableSetOwnerParams{
+			id: wasmlib.OBJ_ID_PARAMS,
+		},
+		State: MutabledtagState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	ctx.Require(f.Params.Owner().Exists(), "missing mandatory owner")
+	funcSetOwner(ctx, f)
+	ctx.Log("dtag.funcSetOwner ok")
+}
+
+type WithdrawContext struct {
+	State   MutabledtagState
+}
+
+func funcWithdrawThunk(ctx wasmlib.ScFuncContext) {
+	ctx.Log("dtag.funcWithdraw")
+	f := &WithdrawContext{
+		State: MutabledtagState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	funcWithdraw(ctx, f)
+	ctx.Log("dtag.funcWithdraw ok")
+}
+
+type GetOwnerContext struct {
+	Results MutableGetOwnerResults
+	State   ImmutabledtagState
+}
+
+func viewGetOwnerThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("dtag.viewGetOwner")
+	f := &GetOwnerContext{
+		Results: MutableGetOwnerResults{
+			id: wasmlib.OBJ_ID_RESULTS,
+		},
+		State: ImmutabledtagState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	viewGetOwner(ctx, f)
+	ctx.Log("dtag.viewGetOwner ok")
 }
 
 type GetPlayerBetsContext struct {
