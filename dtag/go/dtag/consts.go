@@ -48,6 +48,7 @@ const (
 	StateReward               = "reward"
 	StateTaggedImages         = "taggedImages"
 	StateTagsRequiredPerImage = "tagsRequiredPerImage"
+	StateValidTags            = "validTags"
 )
 
 const (

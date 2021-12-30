@@ -38,9 +38,10 @@ const (
 	IdxStateReward               = 23
 	IdxStateTaggedImages         = 24
 	IdxStateTagsRequiredPerImage = 25
+	IdxStateValidTags            = 26
 )
 
-const keyMapLen = 26
+const keyMapLen = 27
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamBoost,
@@ -69,6 +70,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StateReward,
 	StateTaggedImages,
 	StateTagsRequiredPerImage,
+	StateValidTags,
 }
 
 var idxMap [keyMapLen]wasmlib.Key32

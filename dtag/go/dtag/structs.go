@@ -69,7 +69,7 @@ type TaggedImage struct {
 	ImageId int32 
 	Player  wasmlib.ScAgentID  // player that has tagged this image
 	W       int64  // width of the Tag
-	X       int64  // x top-left position of the Tag TODO: This should be a nested constructor in the future
+	X       int64  // x top-left position of the Tag
 	Y       int64  // y top-left position of the Tag
 }
 
@@ -127,4 +127,55 @@ func (o MutableTaggedImage) SetValue(value *TaggedImage) {
 
 func (o MutableTaggedImage) Value() *TaggedImage {
 	return NewTaggedImageFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+}
+
+type ValidTag struct {
+	Player      wasmlib.ScAgentID  // player placing the bet
+	TaggedImage int32 
+}
+
+func NewValidTagFromBytes(bytes []byte) *ValidTag {
+	decode := wasmlib.NewBytesDecoder(bytes)
+	data := &ValidTag{}
+	data.Player      = decode.AgentID()
+	data.TaggedImage = decode.Int32()
+	decode.Close()
+	return data
+}
+
+func (o *ValidTag) Bytes() []byte {
+	return wasmlib.NewBytesEncoder().
+		AgentID(o.Player).
+		Int32(o.TaggedImage).
+		Data()
+}
+
+type ImmutableValidTag struct {
+	objID int32
+	keyID wasmlib.Key32
+}
+
+func (o ImmutableValidTag) Exists() bool {
+	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
+func (o ImmutableValidTag) Value() *ValidTag {
+	return NewValidTagFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+}
+
+type MutableValidTag struct {
+	objID int32
+	keyID wasmlib.Key32
+}
+
+func (o MutableValidTag) Exists() bool {
+	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
+func (o MutableValidTag) SetValue(value *ValidTag) {
+	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+}
+
+func (o MutableValidTag) Value() *ValidTag {
+	return NewValidTagFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
 }

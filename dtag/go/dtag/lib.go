@@ -118,6 +118,7 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 			id: wasmlib.OBJ_ID_STATE,
 		},
 	}
+	ctx.Require(f.Params.Boost().Exists(), "missing mandatory boost")
 	ctx.Require(f.Params.H().Exists(), "missing mandatory h")
 	ctx.Require(f.Params.W().Exists(), "missing mandatory w")
 	ctx.Require(f.Params.X().Exists(), "missing mandatory x")
@@ -158,6 +159,12 @@ type WithdrawContext struct {
 
 func funcWithdrawThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("dtag.funcWithdraw")
+
+	// current owner of this smart contract
+	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	ctx.Require(access.Exists(), "access not set: owner")
+	ctx.Require(ctx.Caller() == access.Value(), "no permission")
+
 	f := &WithdrawContext{
 		State: MutabledtagState{
 			id: wasmlib.OBJ_ID_STATE,

@@ -138,6 +138,7 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 			id: OBJ_ID_STATE,
 		},
 	};
+	ctx.require(f.params.boost().exists(), "missing mandatory boost");
 	ctx.require(f.params.h().exists(), "missing mandatory h");
 	ctx.require(f.params.w().exists(), "missing mandatory w");
 	ctx.require(f.params.x().exists(), "missing mandatory x");

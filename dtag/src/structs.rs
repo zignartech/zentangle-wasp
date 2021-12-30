@@ -75,7 +75,7 @@ pub struct TaggedImage {
     pub image_id : i32, 
     pub player   : ScAgentID,  // player that has tagged this image
     pub w        : i64,  // width of the Tag
-    pub x        : i64,  // x top-left position of the Tag TODO: This should be a nested constructor in the future
+    pub x        : i64,  // x top-left position of the Tag
     pub y        : i64,  // y top-left position of the Tag
 }
 
@@ -137,5 +137,61 @@ impl MutableTaggedImage {
 
     pub fn value(&self) -> TaggedImage {
         TaggedImage::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    }
+}
+
+pub struct ValidTag {
+    pub player       : ScAgentID,  // player placing the bet
+    pub tagged_image : i32, 
+}
+
+impl ValidTag {
+    pub fn from_bytes(bytes: &[u8]) -> ValidTag {
+        let mut decode = BytesDecoder::new(bytes);
+        ValidTag {
+            player       : decode.agent_id(),
+            tagged_image : decode.int32(),
+        }
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut encode = BytesEncoder::new();
+		encode.agent_id(&self.player);
+		encode.int32(self.tagged_image);
+        return encode.data();
+    }
+}
+
+pub struct ImmutableValidTag {
+    pub(crate) obj_id: i32,
+    pub(crate) key_id: Key32,
+}
+
+impl ImmutableValidTag {
+    pub fn exists(&self) -> bool {
+        exists(self.obj_id, self.key_id, TYPE_BYTES)
+    }
+
+    pub fn value(&self) -> ValidTag {
+        ValidTag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    }
+}
+
+pub struct MutableValidTag {
+    pub(crate) obj_id: i32,
+    pub(crate) key_id: Key32,
+}
+
+impl MutableValidTag {
+    pub fn exists(&self) -> bool {
+        exists(self.obj_id, self.key_id, TYPE_BYTES)
+    }
+
+    pub fn set_value(&self, value: &ValidTag) {
+        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+    }
+
+    pub fn value(&self) -> ValidTag {
+        ValidTag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
     }
 }

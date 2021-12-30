@@ -5,16 +5,20 @@
 		"TaggedImage": {
 			"imageId": "Int32",
 			"player": "AgentID // player that has tagged this image",
-			"boost":"Int32 // if the tag will be boosted or not",
-			"x": "Int64 // x top-left position of the Tag TODO: This should be a nested constructor in the future",
+			"boost": "Int32 // if the tag will be boosted or not",
+			"x": "Int64 // x top-left position of the Tag",
 			"y": "Int64 // y top-left position of the Tag",
-			"w": "Int64 // width of the Tag",
-			"h": "Int64 // height of the Tag"
+			"h": "Int64 // height of the Tag",
+			"w": "Int64 // width of the Tag"
 		},
 		"Bet": {
 			"amount": "Int64",
 			"player": "AgentID // player placing the bet",
 			"imageId": "Int32"
+		},
+		"ValidTag": {
+			"player": "AgentID // player placing the bet",
+			"taggedImage": "Int32"
 		}
 	},
 	"typedefs": {},
@@ -29,6 +33,7 @@
 		"pendingPlays": "Bet[] // List of Plays that have been requested but not completed",
 		"playsPerImage": "Int32[] // counts how many times an image has been tagged",
 		"taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
+		"validTags": " ValidTag[] // stores the player and imageId of all valid tags",
 		"processedImages": "TaggedImage[]"
 	},
 	"funcs": {
@@ -60,11 +65,11 @@
 		},
 		"sendTags": {
 			"params": {
-				"x": "Int64 // x top-left position of the Tag TODO: This should be a constructor in the future",
+				"x": "Int64 // x top-left position of the Tag",
 				"y": "Int64 // y top-left position of the Tag",
 				"h": "Int64 // height of the Tag",
 				"w": "Int64 // width of the Tag",
-				"boost": "Int32? // if the tag will be boosted or not"
+				"boost": "Int32 // if the tag will be boosted or not"
 			}
 		},
 		"endGame": {

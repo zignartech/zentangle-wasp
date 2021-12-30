@@ -15,9 +15,9 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
-	number_of_images := int32(10)
+	number_of_images := int32(30)
 	const number_of_players = 30
-	const tags_required_per_image = 10
+	const tags_required_per_image = 2
 
 	// create game
 	creator := ctx.NewSoloAgent()
@@ -64,7 +64,7 @@ func TestPlay2(t *testing.T) {
 
 	getResults := dtag.ScFuncs.GetResults(ctx)
 	for i := 0; int32(i) < number_of_images; i++ {
-		getResults.Params.ImageId().SetValue(0)
+		getResults.Params.ImageId().SetValue(int32(i))
 		getResults.Func.Call()
 	}
 }

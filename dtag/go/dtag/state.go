@@ -45,6 +45,18 @@ func (a ArrayOfImmutableTaggedImage) GetTaggedImage(index int32) ImmutableTagged
 	return ImmutableTaggedImage{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
+type ArrayOfImmutableValidTag struct {
+	objID int32
+}
+
+func (a ArrayOfImmutableValidTag) Length() int32 {
+	return wasmlib.GetLength(a.objID)
+}
+
+func (a ArrayOfImmutableValidTag) GetValidTag(index int32) ImmutableValidTag {
+	return ImmutableValidTag{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
 type ImmutabledtagState struct {
 	id int32
 }
@@ -98,6 +110,11 @@ func (s ImmutabledtagState) TagsRequiredPerImage() wasmlib.ScImmutableInt32 {
 	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxStateTagsRequiredPerImage])
 }
 
+func (s ImmutabledtagState) ValidTags() ArrayOfImmutableValidTag {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateValidTags], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfImmutableValidTag{objID: arrID}
+}
+
 type ArrayOfMutableBet struct {
 	objID int32
 }
@@ -144,6 +161,22 @@ func (a ArrayOfMutableTaggedImage) Length() int32 {
 
 func (a ArrayOfMutableTaggedImage) GetTaggedImage(index int32) MutableTaggedImage {
 	return MutableTaggedImage{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
+type ArrayOfMutableValidTag struct {
+	objID int32
+}
+
+func (a ArrayOfMutableValidTag) Clear() {
+	wasmlib.Clear(a.objID)
+}
+
+func (a ArrayOfMutableValidTag) Length() int32 {
+	return wasmlib.GetLength(a.objID)
+}
+
+func (a ArrayOfMutableValidTag) GetValidTag(index int32) MutableValidTag {
+	return MutableValidTag{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
 type MutabledtagState struct {
@@ -197,4 +230,9 @@ func (s MutabledtagState) TaggedImages() ArrayOfMutableTaggedImage {
 
 func (s MutabledtagState) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxStateTagsRequiredPerImage])
+}
+
+func (s MutabledtagState) ValidTags() ArrayOfMutableValidTag {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateValidTags], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfMutableValidTag{objID: arrID}
 }

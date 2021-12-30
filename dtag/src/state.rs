@@ -57,6 +57,20 @@ impl ArrayOfImmutableTaggedImage {
 	}
 }
 
+pub struct ArrayOfImmutableValidTag {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfImmutableValidTag {
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_valid_tag(&self, index: i32) -> ImmutableValidTag {
+		ImmutableValidTag { obj_id: self.obj_id, key_id: Key32(index) }
+	}
+}
+
 #[derive(Clone, Copy)]
 pub struct ImmutabledtagState {
     pub(crate) id: i32,
@@ -110,6 +124,11 @@ impl ImmutabledtagState {
 
     pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
 		ScImmutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+	}
+
+    pub fn valid_tags(&self) -> ArrayOfImmutableValidTag {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_VALID_TAGS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfImmutableValidTag { obj_id: arr_id }
 	}
 }
 
@@ -167,6 +186,24 @@ impl ArrayOfMutableTaggedImage {
 	}
 }
 
+pub struct ArrayOfMutableValidTag {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfMutableValidTag {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_valid_tag(&self, index: i32) -> MutableValidTag {
+		MutableValidTag { obj_id: self.obj_id, key_id: Key32(index) }
+	}
+}
+
 #[derive(Clone, Copy)]
 pub struct MutabledtagState {
     pub(crate) id: i32,
@@ -220,5 +257,10 @@ impl MutabledtagState {
 
     pub fn tags_required_per_image(&self) -> ScMutableInt32 {
 		ScMutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+	}
+
+    pub fn valid_tags(&self) -> ArrayOfMutableValidTag {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_VALID_TAGS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfMutableValidTag { obj_id: arr_id }
 	}
 }

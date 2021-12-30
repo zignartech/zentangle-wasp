@@ -39,8 +39,9 @@ pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 22;
 pub(crate) const IDX_STATE_REWARD                  : usize = 23;
 pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 24;
 pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 25;
+pub(crate) const IDX_STATE_VALID_TAGS              : usize = 26;
 
-pub const KEY_MAP_LEN: usize = 26;
+pub const KEY_MAP_LEN: usize = 27;
 
 pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	PARAM_BOOST,
@@ -69,6 +70,7 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	STATE_REWARD,
 	STATE_TAGGED_IMAGES,
 	STATE_TAGS_REQUIRED_PER_IMAGE,
+	STATE_VALID_TAGS,
 ];
 
 pub static mut IDX_MAP: [Key32; KEY_MAP_LEN] = [Key32(0); KEY_MAP_LEN];

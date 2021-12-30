@@ -10,10 +10,11 @@ use crate::structs::*;
 
 // The default amount of players to tag an image for it to be considered processed
 const DEFAULT_TAGS_REQUIRED_PER_IMAGE: i32 = 10;
-// The distance required for two clusters of tags to remain separate and not metge into one
+// The distance required for two clusters of tags to remain separate and not merge into one
 const MIN_INTER_CLUSTER_DISTANCE: f64 = 100.0;
 // The percentage of players on an image that have to agree on a tag for it to be valid
 const CONFIRMATION_PERCENTAGE: f32 = 0.6;
+
 
 // This functions sets an owner of the smart contract, to which remaining funds can be sent to
 pub fn func_init(ctx: &ScFuncContext, f: &InitContext) {
@@ -111,224 +112,45 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     ctx.require(f.state.reward().value() != 0_i64,
     "Error: No game in progress");
 
-    // We will need this function later to calculate distances between points in four dimentions (x, y, h, w)
-    fn euclidean_distance(a: Vec<i64>, b: Vec<i64>) -> f64 {
-        (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
-    }
-
-    // Iterate across all the images, and save: 
-    // - the centers of the clusters for every image
-    // - the players realted to the valid tags
-
-    struct ValidTag {
-        player: ScAgentID,
-        tagged_image_id: i32,
-    }
-
-    let mut valid_tags: Vec<ValidTag> = Vec::new();      // stores the player and imageId of all valid tags
     let mut centers: Vec<Vec<TaggedImage>> = Vec::new(); // stores the center of the clusters for all images
 
-    // retrieve some state variables
     let number_of_images = f.state.number_of_images().value();
-    let tags_req_per_image = f.state.tags_required_per_image().value();
 
     // For every image, we apply Aglomerative Hierarchical Clustering
     for image in 0..number_of_images {
-        let mut clusters:Vec<Vec<i64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
-        let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
-                                          // the game could end before images are tagged with the required amount 
-                                          // it will be used to calculate the amount of players needed to agree for a valid tag
-        for i in image*tags_req_per_image..(image+1)*tags_req_per_image {  // I'm forced to do this is because there are no nested arrays in schema yet    
-            if f.state.tagged_images().get_tagged_image(i).value().image_id == -1 {break}
-            let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
-            // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
-            let cluster = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w, i as i64];
-            clusters.push(cluster);
-            playsfor_this_image +=1;
-        }
-
-        // every tag starts as a different cluster. We merge them until they are more than 100 pixels⁴ apart.
-        let mut min_distance= [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
-
-        // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
-        // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
-        // case, 9999999.0 will not be overwritten).
-        while min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
-            // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
-            min_distance[0]= 9999999.0;
-            for x in 0..clusters.len() {
-                for y in x+1..clusters.len() { // this way we dont evaluete a pair twice, nor a cluster against itself
-                    let distance = euclidean_distance(clusters[x].clone(), clusters[y].clone());
-                    if distance < min_distance[0] {
-                        min_distance = [distance, x as f64, y as f64];
-                    }
-                }
-            }
-            // If the four dimentional distance is greater than MIN_INTER_CLUSTER_DISTANCE, then we dont merge the clusters.
-            // Clusters that are this far apart are considered different final clusters
-            if min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
-
-                // define the indexes of the clusters one and two to be merged
-                let index_1 = min_distance[1] as usize;
-                let index_2 = min_distance[2] as usize;
-                // the weight is equal to the number of point's that conform the cluster
-                let weight_1 = (clusters[index_1].len() - 4) as i64;
-                let weight_2 = (clusters[index_2].len() - 4) as i64;
-
-                // Calculating the coordiantes of the new cluster. The more weight, 
-                // the more influence on the new coordinate it has. This way, the 
-                // coordinate represents the average of all points in the cluster
-                // TODO: Divisions inside a loop are not cool. Maybe we can improve this somehow?
-                let mut new_cluster = vec![
-                    (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)/(weight_1 + weight_2),
-                    (clusters[index_1][1] * weight_1 + clusters[index_2][1] * weight_2)/(weight_1 + weight_2),
-                    (clusters[index_1][2] * weight_1 + clusters[index_2][2] * weight_2)/(weight_1 + weight_2),
-                    (clusters[index_1][3] * weight_1 + clusters[index_2][3] * weight_2)/(weight_1 + weight_2)
-                ];
-                // Push the point's inside both clusters to the new cluster
-                for i in 0..weight_1 {
-                    new_cluster.push(clusters[index_1][i as usize + 4]);
-                }
-                for i in 0..weight_2 {
-                    new_cluster.push(clusters[index_2][i as usize + 4]);
-                }
-
-                // Remove the old clusters and replace with the new one. Note that inxex_2 > index_1.
-                // When removing index_2 first, we don't alter index_1.
-                clusters.remove(index_2);
-                clusters.remove(index_1);
-                clusters.push(new_cluster);
-            }
-        } // finish Aglomerative Hierarchical Clustering Algorithm
-
-        // We should be left with only one cluster (until multi-tagging is implemented). 
-        // The ones that have fewer points get discarted.
-        // Here we also store all the players that made correct taggs. They can be stored multiple times.
-        let length = clusters.len();
-        let mut check_min_one_tag = false; // this is expĺained below the for loop
-        for i in 0..length {
-            let id = length-i-1; // this way it's a backwards iterator and we dont change the id's as we remove them.
-            if clusters[id].len() -4 < (playsfor_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize {
-                clusters.remove(id);
-            } else { // here we push the players that tagged correctly to the reward-list
-                for j in 4..clusters[id].len() {
-                    let vaid_tag = ValidTag{
-                        player: f.state.tagged_images().get_tagged_image(clusters[id][j] as i32).value().player,
-                        tagged_image_id: clusters[id][j] as i32
-                    };
-                    valid_tags.push(vaid_tag);
-                }
-                check_min_one_tag = true;
-            }
-        }
-
-        // We want to have one cluster per image, even if it is an empty cluster. This way,
-       // it's easier to find processed images based on their id. TODO: With nested arrays and nested
-        // constructors, this abomination would not be necessary.
-        if !check_min_one_tag {
-            let cluster = vec![-1, -1, -1, -1];
-            clusters.push(cluster);
-        }
+        
+        let center = find_image_center(f, image);
 
         // We append the clusters coordinate to the centers vector (a vector of centers for every image)
+        // TODO: For the moment, there is only one cluster_center per image, as only one tag is possible per player
         let mut centers_in_image: Vec<TaggedImage> = Vec::new(); 
-        // TODO: We only have one cluster left, so a for loop is not really necessary until we have multi-tagging
-      
-        let center = TaggedImage {
-            player: f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
-            image_id: image,
-            boost: 1, // this is only the default value, same as player, and can cahnge later
-            x: clusters[0][0],
-            y: clusters[0][1],
-            h: clusters[0][2],
-            w: clusters[0][3]
-        };
         centers_in_image.push(center);
-        centers.push(centers_in_image);
-    } // finish the images iterator
 
+        centers.push(centers_in_image);
+    }
     // The following line, sorts the centers vector by 'image_id'
     centers.sort_by(|b, a| b[0].image_id.cmp(&a[0].image_id));
     // update the 'processed_images' state variable with the final tagging data
     for centers_in_image in &centers{
-        for center in &*centers_in_image{
+        for center in centers_in_image{
             f.state.processed_images().get_tagged_image(center.image_id).set_value(&center)
         }
     }
 
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
-    let n_rewards = valid_tags.len() as i64;
+    let n_rewards = f.state.valid_tags().length() as i64;
     let transfers: ScTransfers = ScTransfers::iotas(f.state.reward().value()/n_rewards);
-    for valid_tag in &valid_tags {
+    for i in 0..f.state.valid_tags().length() {
         // Transfer the reward to players who tagged correctly
-        ctx.transfer_to_address(&valid_tag.player.address(), transfers);
+        let address = f.state.valid_tags().get_valid_tag(i).value().player.address();
+        ctx.transfer_to_address(&address, transfers);
     }
 
     // Now, we set the winners and the rewards for the correct tags
-    // The winners vector is an ordered list of the winners, from better to worse tagger.
-    struct Better {
-        accuracy: f64,
-        player: ScAgentID,
-        amount: i64,
-        boost: i32
-    }
-    impl Better {
-        pub fn new(accuracy: f64, player: ScAgentID, amount:i64, boost:i32) -> Self {
-            Better {
-                accuracy,
-                player,
-                amount,
-                boost
-            }
-        }
-    }
-
-    // 'valid_bets' stores all the bets placed, including zero value ones (with the player, 
-    // the accuracy of the tag and, for the moment, a total bet equal to zero)
-    let mut valid_bets: Vec<Better> = Vec::new();
-    // fill the 'valid_bets' with the bets. The bet amount will be filled later 
-    for valid_tag in &valid_tags {
-        let tagged_image = f.state.tagged_images().get_tagged_image(valid_tag.tagged_image_id).value();
-        let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
-        let cluster_center = f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
-        let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
-        let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
-        valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0, tagged_image.boost));
-    }
-
-    // We now have a list with all the betters that made a valid tag, but they are repeated.
-    // Next, we make a new list, with no repeated players, and with their best accuracy!
-    let mut betters_top: Vec<Better> = Vec::new();
-    'all: for valid_bet in valid_bets {
-        for better in 0..betters_top.len() {
-            if valid_bet.player == betters_top[better].player {
-                // replace the accuracy for the player's best one
-                if valid_bet.accuracy > betters_top[better].accuracy{
-                    betters_top[better].accuracy = valid_bet.accuracy;
-                    betters_top[better].boost = valid_bet.boost;
-                }
-                // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
-                continue 'all;
-            }
-        }
-        betters_top.push(valid_bet);
-    }
-
-    // Next, we calculate the amount of iotas betted by each player in the 'betters_top' list
-    'bet: for i in 0..f.state.bets().length() {
-        let bet = f.state.bets().get_bet(i).value();
-        for better in 0..betters_top.len() {
-            if betters_top[better].player == bet.player {
-                betters_top[better].amount += bet.amount;
-                continue 'bet;
-            }
-        }
-    }
-
-    // sort the 'top_betters' by the accuracy
-    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
-
+    // The betters_top vector is an ordered list of the winners, from better 
+    // to worse tagger acording to their best accuracy in the round.
+    let betters_top: Vec<Better> = do_players_ranking(f);
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
     for bet in &betters_top {
@@ -345,13 +167,12 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     }
     let multiplier: f64 = total_payout as f64 / points as f64; 
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
-    // TODO: rounding errors could happen, but they get truncated, so no negative balance get's left on the contract
     for i in 0..betters_top.len() {
-        // Again, the prices take an exponential form, where the 'i' 
-        // represents the position of the player given it's acuracy.
+        // Again, the prices take an exponential form, where 'i' 
+        // represents the position of the player given it's acuracy (higher is better)
         let payout = multiplier * ((i+1)*(i+1)) as f64 * betters_top[i].amount as f64 * betters_top[i].boost as f64;
         if payout < 1.0 { continue; }
-        // payout may incurr in rounding errors. This errors are truncations, so no negative balance should exist.
+        // payout may incurr in rounding errors. This errors are truncations, so no negative balance exists.
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
         ctx.log(&format!(
@@ -477,24 +298,20 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     let pending_plays: ArrayOfMutableBet = f.state.pending_plays();
     let tags_req_per_image = f.state.tags_required_per_image().value();
-    let length = pending_plays.length();
-    let mut boost: i32 = 1;
+    let pending_plays_length = pending_plays.length();
     let mut bet: Option<MutableBet> = None;
     let mut pending_play_id: i32 = 0;
 
-    if f.params.boost().exists() {
-        boost = f.params.boost().value();
-    }
+    //TODO: check if boost is allowed for this player
+    let boost = f.params.boost().value();
 
     if boost != 1 && boost != 2 && boost !=3 {
         ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
     }
 
-    //TODO: check if boost is allowed for this player
-
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
-    for i in 0..length {
+    for i in 0..pending_plays_length {
         if pending_plays.get_bet(i).value().player.address() == ctx.caller().address() {
             bet = Some(pending_plays.get_bet(i));
             pending_play_id = i;
@@ -518,7 +335,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     for i in 0..pending_play_id {
         f.state.pending_plays().get_bet(i).set_value(&vec_pending_plays[i as usize]);
     }
-    for i in pending_play_id+1..length {
+    for i in pending_play_id+1..pending_plays_length {
         f.state.pending_plays().get_bet(i-1).set_value(&vec_pending_plays[i as usize]);
     }
 
@@ -648,4 +465,203 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
     ctx.log(&format!("{0}", output));
 
     f.results.player_bets().set_value(&output);
+}
+
+// This struct refers to a player regarding it's best accuracy play,
+// the total amount betted and the boost of it's best accuracy play
+struct Better {
+    accuracy: f64,
+    player: ScAgentID,
+    amount: i64,
+    boost: i32
+}
+
+impl Better {
+    pub fn new(accuracy: f64, player: ScAgentID, amount:i64, boost:i32) -> Self {
+        Better {
+            accuracy,
+            player,
+            amount,
+            boost
+        }
+    }
+}
+
+// An internal function that calculates distance between points in four dimentions (x, y, h, w)
+fn euclidean_distance(a: Vec<i64>, b: Vec<i64>) -> f64 {
+    (((a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1]) + (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3])) as f64).sqrt()
+}
+
+// An internal function that takes many clusters and merges them using the Aglomerative Hierarchical Clustering
+// algorithm and MIN_INTER_CLUSTER_DISTANCE as a parameter to prevent merging clusters too far apart from each other
+fn clustering(mut clusters: Vec<Vec<i64>>) -> Vec<Vec<i64>> {
+    let mut min_distance= [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
+
+    // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
+    // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
+    // case, 9999999.0 will not be overwritten).
+    while min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
+        // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
+        min_distance[0]= 9999999.0;
+        for x in 0..clusters.len() {
+            for y in x+1..clusters.len() { // this way we dont evaluete a pair twice, nor a cluster against itself
+                let distance = euclidean_distance(clusters[x].clone(), clusters[y].clone());
+                if distance < min_distance[0] {
+                    min_distance = [distance, x as f64, y as f64];
+                }
+            }
+        }
+        // If the four dimentional distance is greater than MIN_INTER_CLUSTER_DISTANCE, then we dont merge the clusters.
+        // Clusters that are this far apart are considered different final clusters
+        if min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
+
+            // define the indexes of the clusters one and two to be merged
+            let index_1 = min_distance[1] as usize;
+            let index_2 = min_distance[2] as usize;
+            // the weight is equal to the number of point's that conform the cluster
+            let weight_1 = (clusters[index_1].len() - 4) as i64;
+            let weight_2 = (clusters[index_2].len() - 4) as i64;
+
+            // Calculating the coordiantes of the new cluster. The more weight, 
+            // the more influence on the new coordinate it has. This way, the 
+            // coordinate represents the average of all points in the cluster
+            // TODO: Divisions inside a loop are not cool. Maybe we can improve this somehow?
+            let mut new_cluster = vec![
+                (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)/(weight_1 + weight_2),
+                (clusters[index_1][1] * weight_1 + clusters[index_2][1] * weight_2)/(weight_1 + weight_2),
+                (clusters[index_1][2] * weight_1 + clusters[index_2][2] * weight_2)/(weight_1 + weight_2),
+                (clusters[index_1][3] * weight_1 + clusters[index_2][3] * weight_2)/(weight_1 + weight_2)
+            ];
+            // Push the point's inside both clusters to the new cluster
+            for i in 0..weight_1 {
+                new_cluster.push(clusters[index_1][i as usize + 4]);
+            }
+            for i in 0..weight_2 {
+                new_cluster.push(clusters[index_2][i as usize + 4]);
+            }
+
+            // Remove the old clusters and replace with the new one. Note that inxex_2 > index_1.
+            // When removing index_2 first, we don't alter index_1.
+            clusters.remove(index_2);
+            clusters.remove(index_1);
+            clusters.push(new_cluster);
+        }
+    }
+
+    return clusters;
+}
+
+// An internal function to calculate the average position of a tag (center) inside an image.
+fn find_image_center(f: &EndGameContext, image:i32) -> TaggedImage {
+    let tags_req_per_image = f.state.tags_required_per_image().value();
+
+    let mut clusters:Vec<Vec<i64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
+    let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
+                                        // the game could end before images are tagged with the required amount
+                                        // it will be used to calculate the amount of players needed to agree for a valid tag
+    for i in image*tags_req_per_image..(image+1)*tags_req_per_image {  // I'm forced to do this is because there are no nested arrays in schema yet    
+        if f.state.tagged_images().get_tagged_image(i).value().image_id == -1 {break}
+        let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
+        // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
+        let cluster = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w, i as i64];
+        clusters.push(cluster);
+        playsfor_this_image +=1;
+    }
+
+    // every tag starts as a different cluster. We merge them until they are at least 
+    // MIN_INTER_CLUSTER_DISTANCE pixels⁴ apart or there is only one cluster for the image.
+    clusters = clustering(clusters);
+
+    // We should be left with only one cluster (until multi-tagging is implemented). 
+    // The ones that have fewer points get discarted.
+    // Here we also store all the players that made correct taggs. They can be stored multiple times.
+    let length = clusters.len(); // clusters.len() will be changing, so we want to fix it here 
+    for i in 0..length {
+        let id = length-i-1; // this way it's a backwards iterator and we dont change the id's as we remove them.
+        if clusters[id].len() -4 < (playsfor_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize {
+            clusters.remove(id);
+        } 
+        else { // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
+            for j in 4..clusters[id].len() {
+                let vaid_tag = ValidTag{
+                    player: f.state.tagged_images().get_tagged_image(clusters[id][j] as i32).value().player,
+                    tagged_image: clusters[id][j] as i32
+                };
+                f.state.valid_tags().get_valid_tag(f.state.valid_tags().length()).set_value(&vaid_tag);
+            }
+        }
+    }
+
+    // We want to have one cluster per image, even if it is an empty cluster. This way,
+    // it's easier to find processed images based on their id. TODO: With nested arrays and nested
+    // constructors, this would not be necessary.
+    if clusters.len() == 0 {
+        let cluster = vec![-1, -1, -1, -1];
+        clusters.push(cluster);
+    }
+
+    let center = TaggedImage {
+        player: f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
+        image_id: image,
+        boost: 1, // this is only the default value, same as player, and can cahnge later
+        x: clusters[0][0],
+        y: clusters[0][1],
+        h: clusters[0][2],
+        w: clusters[0][3]
+    };
+
+    return center;
+}
+
+// An internal function to generate a ranking of players based on their best bet.
+// It uses the accuracy to calculate how good a bet is and the ranking is so that
+// the best players are higher up in the returning vector.
+fn do_players_ranking(f: &EndGameContext) -> Vec<Better> {
+    // 'valid_bets' stores all the bets placed, including zero value ones (with the player, 
+    // the accuracy of the tag and, for the moment, a total bet equal to zero)
+    let mut valid_bets: Vec<Better> = Vec::new();
+    // fill the 'valid_bets' with the bets. The bet amount will be filled later 
+    for i in 0..f.state.valid_tags().length() {
+        let valid_tag = f.state.valid_tags().get_valid_tag(i).value();
+        let tagged_image = f.state.tagged_images().get_tagged_image(valid_tag.tagged_image).value();
+        let tagged_image_point = vec![tagged_image.x, tagged_image.y, tagged_image.h, tagged_image.w];
+        let cluster_center = f.state.processed_images().get_tagged_image(tagged_image.image_id).value();
+        let cluster_center_point = vec![cluster_center.x, cluster_center.y, cluster_center.h, cluster_center.w];
+        let distance_to_cluster_center = euclidean_distance(tagged_image_point, cluster_center_point);
+        valid_bets.push(Better::new(distance_to_cluster_center, tagged_image.player, 0, tagged_image.boost));
+    }
+
+    // Next, we make a list with all the betters that made a valid tag, leaving their best one
+    // and calculating how much they betted in total
+    let mut betters_top: Vec<Better> = Vec::new();
+    'all: for valid_bet in valid_bets {
+        for better in 0..betters_top.len() {
+            if valid_bet.player == betters_top[better].player {
+                // replace the accuracy for the player's best one
+                if valid_bet.accuracy > betters_top[better].accuracy{
+                    betters_top[better].accuracy = valid_bet.accuracy;
+                    betters_top[better].boost = valid_bet.boost;
+                }
+                // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
+                continue 'all;
+            }
+        }
+        betters_top.push(valid_bet);
+    }
+
+    // Here we calculate the amount of iotas betted by each player in the 'betters_top' list
+    'bet: for i in 0..f.state.bets().length() {
+        let bet = f.state.bets().get_bet(i).value();
+        for better in 0..betters_top.len() {
+            if betters_top[better].player == bet.player {
+                betters_top[better].amount += bet.amount;
+                continue 'bet;
+            }
+        }
+    }
+
+    // sort the 'top_betters' by accuracy
+    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
+
+    return betters_top;
 }

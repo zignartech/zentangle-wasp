@@ -41,6 +41,7 @@ pub const STATE_PROCESSED_IMAGES        : &str = "processedImages";
 pub const STATE_REWARD                  : &str = "reward";
 pub const STATE_TAGGED_IMAGES           : &str = "taggedImages";
 pub const STATE_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
+pub const STATE_VALID_TAGS              : &str = "validTags";
 
 pub const FUNC_CREATE_GAME         : &str = "createGame";
 pub const FUNC_END_GAME            : &str = "endGame";
