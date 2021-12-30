@@ -36,11 +36,11 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 
 		SendTags := dtag.ScFuncs.SendTags(ctx.Sign(player[i]))
-		SendTags.Params.X().SetValue(50 + int64(i))
-		SendTags.Params.Y().SetValue(100 + int64(i))
-		SendTags.Params.H().SetValue(150 + int64(i))
-		SendTags.Params.W().SetValue(200 + int64(i))
-		SendTags.Params.Boost().SetValue(1 + (int32(i) % 3))
+		SendTags.Params.X().SetValue(string(50 + int64(i)))
+		SendTags.Params.Y().SetValue(string(100 + int64(i)))
+		SendTags.Params.H().SetValue(string(150 + int64(i)))
+		SendTags.Params.W().SetValue(string(200 + int64(i)))
+		SendTags.Params.Boost().SetValue(string(1 + (int32(i) % 3)))
 
 		for j := 0; int32(j) < (tags_required_per_image * number_of_images / number_of_players); j++ {
 			RequestPlay.Func.TransferIotas(1000 + int64(i)).Post()
@@ -111,10 +111,10 @@ func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int6
 	ctx := _ctx
 
 	f := dtag.ScFuncs.SendTags(ctx)
-	f.Params.X().SetValue(x)
-	f.Params.Y().SetValue(y)
-	f.Params.H().SetValue(h)
-	f.Params.W().SetValue(w)
+	f.Params.X().SetValue(string(x))
+	f.Params.Y().SetValue(string(y))
+	f.Params.H().SetValue(string(h))
+	f.Params.W().SetValue(string(w))
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
