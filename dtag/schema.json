@@ -5,11 +5,11 @@
 		"TaggedImage": {
 			"imageId": "Int32",
 			"player": "AgentID // player that has tagged this image",
-			"boost":"String // if the tags will be boosted or not",
-			"x": "String // x top-left positions of the Tags",
-			"y": "String // y top-left positions of the Tags",
-			"w": "String // widths of the Tags",
-			"h": "String // heights of the Tags"
+			"boost": "Int32 // if the tag will be boosted or not",
+			"x": "Int64 // x top-left position of the Tag",
+			"y": "Int64 // y top-left position of the Tag",
+			"h": "Int64 // height of the Tag",
+			"w": "Int64 // width of the Tag"
 		},
 		"Bet": {
 			"amount": "Int64",
@@ -18,8 +18,7 @@
 		},
 		"ValidTag": {
 			"player": "AgentID // player placing the bet",
-			"taggedImage": "Int32",
-			"playTagId": "Int32 // Identifier to distinguish different tags in the same play"
+			"taggedImage": "Int32"
 		}
 	},
 	"typedefs": {},
@@ -66,11 +65,11 @@
 		},
 		"sendTags": {
 			"params": {
-				"x": "String // x top-left positions of the Tags",
-				"y": "String // y top-left positions of the Tags",
-				"h": "String // heights of the Tags",
-				"w": "String // widths of the Tags",
-				"boost": "String // if the tags will be boosted or not"
+				"x": "Int64 // x top-left position of the Tag",
+				"y": "Int64 // y top-left position of the Tag",
+				"h": "Int64 // height of the Tag",
+				"w": "Int64 // width of the Tag",
+				"boost": "Int32 // if the tag will be boosted or not"
 			}
 		},
 		"endGame": {

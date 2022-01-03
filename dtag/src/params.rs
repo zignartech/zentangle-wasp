@@ -80,24 +80,24 @@ pub struct ImmutableSendTagsParams {
 }
 
 impl ImmutableSendTagsParams {
-    pub fn boost(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_BOOST))
+    pub fn boost(&self) -> ScImmutableInt32 {
+		ScImmutableInt32::new(self.id, idx_map(IDX_PARAM_BOOST))
 	}
 
-    pub fn h(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_H))
+    pub fn h(&self) -> ScImmutableInt64 {
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_H))
 	}
 
-    pub fn w(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_W))
+    pub fn w(&self) -> ScImmutableInt64 {
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_W))
 	}
 
-    pub fn x(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_X))
+    pub fn x(&self) -> ScImmutableInt64 {
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_X))
 	}
 
-    pub fn y(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_Y))
+    pub fn y(&self) -> ScImmutableInt64 {
+		ScImmutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
 	}
 }
 
@@ -107,24 +107,24 @@ pub struct MutableSendTagsParams {
 }
 
 impl MutableSendTagsParams {
-    pub fn boost(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_BOOST))
+    pub fn boost(&self) -> ScMutableInt32 {
+		ScMutableInt32::new(self.id, idx_map(IDX_PARAM_BOOST))
 	}
 
-    pub fn h(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_H))
+    pub fn h(&self) -> ScMutableInt64 {
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_H))
 	}
 
-    pub fn w(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_W))
+    pub fn w(&self) -> ScMutableInt64 {
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_W))
 	}
 
-    pub fn x(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_X))
+    pub fn x(&self) -> ScMutableInt64 {
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_X))
 	}
 
-    pub fn y(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_Y))
+    pub fn y(&self) -> ScMutableInt64 {
+		ScMutableInt64::new(self.id, idx_map(IDX_PARAM_Y))
 	}
 }
 

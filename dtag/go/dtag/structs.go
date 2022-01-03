@@ -64,38 +64,38 @@ func (o MutableBet) Value() *Bet {
 }
 
 type TaggedImage struct {
-	Boost   string  // if the tags will be boosted or not
-	H       string  // heights of the Tags
+	Boost   int32  // if the tag will be boosted or not
+	H       int64  // height of the Tag
 	ImageId int32 
 	Player  wasmlib.ScAgentID  // player that has tagged this image
-	W       string  // widths of the Tags
-	X       string  // x top-left positions of the Tags
-	Y       string  // y top-left positions of the Tags
+	W       int64  // width of the Tag
+	X       int64  // x top-left position of the Tag
+	Y       int64  // y top-left position of the Tag
 }
 
 func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &TaggedImage{}
-	data.Boost   = decode.String()
-	data.H       = decode.String()
+	data.Boost   = decode.Int32()
+	data.H       = decode.Int64()
 	data.ImageId = decode.Int32()
 	data.Player  = decode.AgentID()
-	data.W       = decode.String()
-	data.X       = decode.String()
-	data.Y       = decode.String()
+	data.W       = decode.Int64()
+	data.X       = decode.Int64()
+	data.Y       = decode.Int64()
 	decode.Close()
 	return data
 }
 
 func (o *TaggedImage) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
-		String(o.Boost).
-		String(o.H).
+		Int32(o.Boost).
+		Int64(o.H).
 		Int32(o.ImageId).
 		AgentID(o.Player).
-		String(o.W).
-		String(o.X).
-		String(o.Y).
+		Int64(o.W).
+		Int64(o.X).
+		Int64(o.Y).
 		Data()
 }
 
@@ -130,7 +130,6 @@ func (o MutableTaggedImage) Value() *TaggedImage {
 }
 
 type ValidTag struct {
-	PlayTagId   int32  // Identifier to distinguish different tags in the same play
 	Player      wasmlib.ScAgentID  // player placing the bet
 	TaggedImage int32 
 }
@@ -138,7 +137,6 @@ type ValidTag struct {
 func NewValidTagFromBytes(bytes []byte) *ValidTag {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &ValidTag{}
-	data.PlayTagId   = decode.Int32()
 	data.Player      = decode.AgentID()
 	data.TaggedImage = decode.Int32()
 	decode.Close()
@@ -147,7 +145,6 @@ func NewValidTagFromBytes(bytes []byte) *ValidTag {
 
 func (o *ValidTag) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
-		Int32(o.PlayTagId).
 		AgentID(o.Player).
 		Int32(o.TaggedImage).
 		Data()
