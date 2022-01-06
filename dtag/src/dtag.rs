@@ -112,7 +112,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // Also, a game has to be in progress.
     ctx.require(f.state.reward().value() != 0_i64,
     "Error: No game in progress");
-    ctx.log(&format!("End Game check 0"));
+
     let mut centers: Vec<Vec<TaggedImage>> = Vec::new(); // stores the center of the clusters for all images
 
     let number_of_images = f.state.number_of_images().value();
@@ -143,7 +143,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         let address = f.state.valid_tags().get_valid_tag(i).value().player.address();
         ctx.transfer_to_address(&address, transfers);
     }
-    ctx.log(&format!("End Game check 3"));
+
     // Now, we set the winners and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better 
     // to worse tagger acording to their best accuracy in the round.
@@ -153,7 +153,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     for bet in &betters_top {
         total_payout += bet.amount;
     }
-    ctx.log(&format!("End Game check 4"));
+
     // 'points' represents by how much the betting money has to be divided.
     // We have to fit the amount betted to the sum of all the prices 
     let mut points: i64 = 0_i64;
@@ -162,7 +162,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         // Tags that were boosted and resulted to be the players best tag, recieve a 2x or 3x boost.
         points += ((i+1)*(i+1)) as i64 * betters_top[i].amount * betters_top[i].boost as i64;
     }
-    ctx.log(&format!("End Game check 5"));
+
     let multiplier: f64 = total_payout as f64 / points as f64;
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
     for i in 0..betters_top.len() {
@@ -182,7 +182,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             betters_top[i].boost.to_string()
         ));
     }
-    ctx.log(&format!("End Game check 6"));
+
     // We clear all the state variables, so a new game can begin
     f.state.bets().clear();
 	f.state.plays_per_image().clear();
@@ -400,7 +400,6 @@ pub fn func_withdraw(ctx: &ScFuncContext, f: &WithdrawContext) {
 
     // Send any remainig funds to the owner
     let color = &ctx.balances().colors().get_color(0).value();
-    ctx.log(&format!("COLOR 0: {}", color.to_string()));
     let balance = ctx.balances().balance(color);
 
     let transfers: ScTransfers = ScTransfers::iotas(balance as i64);
@@ -416,7 +415,6 @@ pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext
     let image_id = f.params.image_id().value();
     let plays = f.state.plays_per_image().get_int32(image_id).value();
 
-    ctx.log(&format!("PLAYS PER IMAGE: {0}", plays.to_string()));
     f.results.plays_per_image().set_value(plays);
 }
 
