@@ -6,10 +6,12 @@
 // Change the json schema instead
 
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 use wasmlib::*;
 use wasmlib::host::*;
 
+#[derive(Clone)]
 pub struct Bet {
     pub amount   : i64, 
     pub image_id : i32, 
@@ -35,6 +37,7 @@ impl Bet {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ImmutableBet {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
@@ -50,12 +53,17 @@ impl ImmutableBet {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MutableBet {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
 impl MutableBet {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }
@@ -69,6 +77,7 @@ impl MutableBet {
     }
 }
 
+#[derive(Clone)]
 pub struct TaggedImage {
     pub boost    : String,  // if the tags will be boosted or not
     pub h        : String,  // heights of the Tags
@@ -106,6 +115,7 @@ impl TaggedImage {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ImmutableTaggedImage {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
@@ -121,12 +131,17 @@ impl ImmutableTaggedImage {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MutableTaggedImage {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
 impl MutableTaggedImage {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }
@@ -140,6 +155,7 @@ impl MutableTaggedImage {
     }
 }
 
+#[derive(Clone)]
 pub struct ValidTag {
     pub play_tag_id  : i32,  // Identifier to distinguish different tags in the same play
     pub player       : ScAgentID,  // player placing the bet
@@ -165,6 +181,7 @@ impl ValidTag {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ImmutableValidTag {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
@@ -180,12 +197,17 @@ impl ImmutableValidTag {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MutableValidTag {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
 impl MutableValidTag {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }

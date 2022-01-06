@@ -15,6 +15,7 @@ use crate::*;
 use crate::keys::*;
 use crate::typedefs::*;
 
+#[derive(Clone, Copy)]
 pub struct MapAgentIDToImmutableAllowancesForAgent {
 	pub(crate) obj_id: i32,
 }
@@ -47,6 +48,7 @@ impl ImmutableErc20State {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct MapAgentIDToMutableAllowancesForAgent {
 	pub(crate) obj_id: i32,
 }
@@ -68,6 +70,10 @@ pub struct MutableErc20State {
 }
 
 impl MutableErc20State {
+    pub fn as_immutable(&self) -> ImmutableErc20State {
+		ImmutableErc20State { id: self.id }
+	}
+
     pub fn all_allowances(&self) -> MapAgentIDToMutableAllowancesForAgent {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_ALL_ALLOWANCES), TYPE_MAP);
 		MapAgentIDToMutableAllowancesForAgent { obj_id: map_id }

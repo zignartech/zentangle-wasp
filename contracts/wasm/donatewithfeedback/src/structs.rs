@@ -6,10 +6,12 @@
 // Change the json schema instead
 
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 use wasmlib::*;
 use wasmlib::host::*;
 
+#[derive(Clone)]
 pub struct Donation {
     pub amount    : i64,  // amount donated
     pub donator   : ScAgentID,  // who donated
@@ -41,6 +43,7 @@ impl Donation {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ImmutableDonation {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
@@ -56,12 +59,17 @@ impl ImmutableDonation {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MutableDonation {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
 impl MutableDonation {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }

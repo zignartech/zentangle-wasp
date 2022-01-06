@@ -42,12 +42,13 @@ impl MutableFindContractResults {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct MapHnameToImmutableBytes {
 	pub(crate) obj_id: i32,
 }
 
 impl MapHnameToImmutableBytes {
-    pub fn get_bytes(&self, key: &ScHname) -> ScImmutableBytes {
+    pub fn get_bytes(&self, key: ScHname) -> ScImmutableBytes {
         ScImmutableBytes::new(self.obj_id, key.get_key_id())
     }
 }
@@ -64,6 +65,7 @@ impl ImmutableGetContractRecordsResults {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct MapHnameToMutableBytes {
 	pub(crate) obj_id: i32,
 }
@@ -73,7 +75,7 @@ impl MapHnameToMutableBytes {
         clear(self.obj_id);
     }
 
-    pub fn get_bytes(&self, key: &ScHname) -> ScMutableBytes {
+    pub fn get_bytes(&self, key: ScHname) -> ScMutableBytes {
         ScMutableBytes::new(self.obj_id, key.get_key_id())
     }
 }

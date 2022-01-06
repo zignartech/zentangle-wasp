@@ -23,7 +23,7 @@ provided through an optional function named `init`.
 
 When provided, the `init` function will automatically be called immediately after the
 first time the contract has been deployed to the VM. Note that this is a one-time
-initialization call, meant to be performed by the contract deployment mechanism. ISCP will
+initialization call, meant to be performed by the contract deployment mechanism. IOTA Smart Contracts will
 prevent anyone else from calling this function ever again. So if you need to be able to
 reconfigure the contract later on, you will need to provide a separate configuration
 function, and guard it from being accessed by anyone else than properly authorized
@@ -151,7 +151,7 @@ pub fn func_init(ctx: &ScFuncContext, f: &InitContext) {
 // step by step what is happening in the code. We also unnecessarily annotate
 // all 'let' statements with their assignment type to improve understanding.
 
-import * as wasmlib from "../wasmlib"
+import * as wasmlib from "wasmlib"
 import * as sc from "./index";
 
 // 'init' is used as a way to initialize a smart contract. It is an optional

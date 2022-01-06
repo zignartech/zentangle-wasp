@@ -1,9 +1,8 @@
 ---
 keywords:
-- ISCP
 - Smart Contracts
 - Consensus
-description: ISCP Consensus
+description: IOTA Smart Contracts Consensus
 image: /img/logo/WASP_logo_dark.png
 ---
 # Consensus
@@ -36,18 +35,19 @@ The anchor transaction contains chain state transition, the AliasOutput and toke
 
 **It is only possible to produce valid signatures of inputs of the anchor transaction by the quorum** of nodes. In this case, a confirmed anchor transaction becomes a cryptographical **proof of consensus** in the committee.  
 
-To archive this, ISCP uses **BLS threshold signatures in combination with polynomial (Shamir) secret sharing** to identify the address controlling the chain state. In order for the secret keys to be distributed across the chain validators, a DKG (Distributed Key Generation) procedure is executed when starting a chain (using the Rabin-Gennaro algorithm).
+To archive this, IOTA Smart Contracts uses **BLS threshold signatures in combination with polynomial (Shamir) secret sharing** to identify the address controlling the chain state. In order for the secret keys to be distributed across the chain validators, a DKG (Distributed Key Generation) procedure is executed when starting a chain (using the Rabin-Gennaro algorithm).
 
 ## The Consensus Algorithm
 
 The committee is of fixed size, thus we use a Byzantine Fault Tolerant (BFT) Algorithm, which guarantees consistency and byzantine fault tolerance if less than ⅓ of nodes are malicious.
 
-As a basis for the ISCP consensus, the Asynchronous Common Subset (ACS) part of the HoneyBadgerBFT algorithm is used, with the exception of how the proposals are combined.
+As a basis for the IOTA Smart Contracts consensus, the Asynchronous Common Subset (ACS) part of the HoneyBadgerBFT algorithm is used, with the exception of how the proposals are combined.
 
 The rest of the consensus algorithm is built on top of the ACS. Each node supplies to the ACS its batch proposal which indicates a set of Request IDs, a timestamp, consensus and access mana pledge addresses, fee destination and a partial signature for generating non-forgeable entropy. Upon termination of the ACS, each honest node gets the same set of such proposals and aggregates them into the final batch in a deterministic way.
 
 It is ensured that all honest nodes have the same input for the VM. After running the selected batch, the VM results are then collectively signed using the threshold signature. The signed transaction can be published by any node at this point. In order to minimize the load on the IOTA network, the nodes calculate a delay for posting the transaction to the network based on a deterministic permutation of the nodes relative to the local perception of time.
 
 :::note
-A more in-depth explanation of the topics described in this page can be found on the [architecture document](https://github.com/iotaledger/wasp/raw/master/documentation/ISCP%20architecture%20description%20v3.pdf)
+The comprehensive overview of architectural design decisions of IOTA Smart Contracts can be found in the
+[whitepaper](https://github.com/iotaledger/wasp/raw/master/documentation/ISC_WP_Nov_10_2021.pdf).  
 :::

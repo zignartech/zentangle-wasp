@@ -124,35 +124,16 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         // We append the clusters coordinate to the centers vector (a vector of centers for every image)
         centers.push(centers_in_image);
     }
-    ctx.log(&format!("End Game check 1"));
+
     // The following line, sorts the centers vector by 'image_id'
     centers.sort_by(|b, a| b[0].image_id.cmp(&a[0].image_id));
+
     // update the 'processed_images' state variable with the final tagging data
     for centers_in_image in centers{
-        let mut x: Vec<i64> = Vec::new();
-        let mut y: Vec<i64> = Vec::new(); 
-        let mut h: Vec<i64> = Vec::new(); 
-        let mut w: Vec<i64> = Vec::new(); 
-        let mut boost: Vec<i32> = Vec::new(); 
-        for center in &centers_in_image {
-            x.push(input_str_to_vec64(&center.x, ctx)[0]);
-            y.push(input_str_to_vec64(&center.y, ctx)[0]);
-            h.push(input_str_to_vec64(&center.h, ctx)[0]);
-            w.push(input_str_to_vec64(&center.w, ctx)[0]);
-            boost.push(input_str_to_vec32(&center.boost, ctx)[0]);
-        }
-        let processed_image = TaggedImage {
-            image_id: (&centers_in_image[0]).image_id,
-            player: ctx.caller(), // field is required but not used in this case
-            x: vec64_to_str(x),
-            y: vec64_to_str(y),
-            h: vec64_to_str(h),
-            w: vec64_to_str(w),
-            boost: vec32_to_str(boost)
-        };
-        f.state.processed_images().get_tagged_image(centers_in_image[0].image_id).set_value(&processed_image)
+        let processed_image = vec_to_tagged_image(centers_in_image, ctx);
+        f.state.processed_images().get_tagged_image(processed_image.image_id).set_value(&processed_image)
     }
-    ctx.log(&format!("End Game check 2"));
+
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
     let n_rewards = f.state.valid_tags().length() as i64;
@@ -166,7 +147,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // Now, we set the winners and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better 
     // to worse tagger acording to their best accuracy in the round.
-    let betters_top: Vec<&Better> = do_players_ranking(f, ctx);
+    let betters_top: Vec<Better> = do_players_ranking(f, ctx);
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
     for bet in &betters_top {
@@ -511,15 +492,16 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
 
 // This struct refers to a player regarding it's best accuracy play,
 // the total amount betted and the boost of it's best accuracy play
-struct Better<'a> {
+#[derive(Clone)]
+struct Better {
     accuracy: f64,
-    player: &'a ScAgentID,
+    player: ScAgentID,
     amount: i64,
     boost: i32
 }
 
-impl Better<'_> {
-    pub fn new(accuracy: f64, player: &'static ScAgentID, amount:i64, boost:i32) -> Self {
+impl Better {
+    pub fn new(accuracy: f64, player: ScAgentID, amount:i64, boost:i32) -> Self {
         Better {
             accuracy,
             player,
@@ -616,7 +598,7 @@ fn find_image_centers(image:i32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec
             // [x, y, h, w, tag_id1. tag_id2, tag_id3, ... ],
             // where x, y, h and w are the center coordinates of the cluster
             let cluster = vec![x[j as usize], y[j as usize], h[j as usize], w[j as usize], clusters.len() as i64];
-            hash_image_id.insert(clusters.len() as i64, tagged_image.image_id);
+            hash_image_id.insert(clusters.len() as i64, i);
             hash_play_tag_id.insert(clusters.len() as i64, j as i32);
             clusters.push(cluster);
         }
@@ -638,9 +620,10 @@ fn find_image_centers(image:i32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec
         } 
         else { // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
             for j in 4..clusters[id].len() {
+                let tagged_image = *hash_image_id.get(&clusters[id][j]).unwrap();
                 let vaid_tag = ValidTag{
-                    player: f.state.tagged_images().get_tagged_image(clusters[id][j] as i32).value().player,
-                    tagged_image: *hash_image_id.get(&clusters[id][j]).unwrap(),
+                    player: f.state.tagged_images().get_tagged_image(tagged_image).value().player,
+                    tagged_image: tagged_image,
                     play_tag_id: *hash_play_tag_id.get(&clusters[id][j]).unwrap()
                 };
                 f.state.valid_tags().get_valid_tag(f.state.valid_tags().length()).set_value(&vaid_tag);
@@ -675,16 +658,15 @@ fn find_image_centers(image:i32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec
 // An internal function to generate a ranking of players based on their best bet.
 // It uses the accuracy to calculate how good a bet is and the ranking is so that
 // the best players are higher up in the returning vector.
-fn do_players_ranking<'a>(f: &'a EndGameContext, ctx: &ScFuncContext) -> Vec<&'a Better<'a>> {
+fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better> {
     // 'valid_bets' stores all the bets placed, including zero value ones (with the player, 
     // the accuracy of the tag and, for the moment, a total bet equal to zero)
-    let mut valid_bets: Vec<&Better> = Vec::new();
-    let mut valid_tags: Vec<ValidTag> = Vec::new();
+    let mut valid_bets: Vec<Better> = Vec::new();
     // fill the 'valid_bets' with the bets. The bet amount will be filled later 
     for i in 0..f.state.valid_tags().length() as usize {
-        valid_tags.push(f.state.valid_tags().get_valid_tag(i as i32).value());
-        let player_tag_id = valid_tags[i].play_tag_id as usize;
-        let tagged_image = f.state.tagged_images().get_tagged_image(valid_tags[i].tagged_image).value();
+        let valid_tag = f.state.valid_tags().get_valid_tag(i as i32).value();
+        let player_tag_id = valid_tag.play_tag_id as usize;
+        let tagged_image = f.state.tagged_images().get_tagged_image(valid_tag.tagged_image).value();
         let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
         let tagged_image_point = &tagged_image_coords[player_tag_id];
         let boost = input_str_to_vec32(&tagged_image.boost, ctx)[player_tag_id];
@@ -701,41 +683,42 @@ fn do_players_ranking<'a>(f: &'a EndGameContext, ctx: &ScFuncContext) -> Vec<&'a
                 distance_to_cluster_center = distance;
             }
         }
-        valid_bets.push(&Better::new(distance_to_cluster_center, &valid_tags[i].player, 0, boost));
+        valid_bets.push(Better::new(distance_to_cluster_center, valid_tag.clone().player, 0, boost));
     }
 
     // Next, we make a list with all the betters that made a valid tag, leaving their best one
     // and calculating how much they betted in total
-    let mut betters_top: Vec<&Better> = Vec::new();
+    let mut betters_top: Vec<Better> = Vec::new();
     'all: for i in 0..valid_bets.len() {
-        let valid_bet = valid_bets[i];
+        let valid_bet = valid_bets[i].clone();
         for better in 0..betters_top.len() {
-            if valid_bet.player == betters_top[better].player {
-                let amount = betters_top[better].amount + valid_bet.amount;
-                let mut boost = betters_top[better].boost;
+            if valid_bet.clone().player == betters_top[better].player {
+
                 // replace the accuracy for the player's best one
                 if valid_bet.accuracy > betters_top[better].accuracy{
-                    boost = valid_bet.boost;
+                    betters_top[better].boost = valid_bet.clone().boost;
+                    betters_top[better].accuracy = valid_bet.clone().accuracy;
                 }
-                let bet = Better::new(
-                    valid_bet.accuracy, 
-                    betters_top[better].player, 
-                    amount, 
-                    boost
-                );
-                betters_top[better] = &bet;
+
                 // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
                 continue 'all;
             }
         }
-        betters_top.push(&valid_bet);
+        let new_better = Better {
+            accuracy: valid_bet.clone().accuracy,
+            amount: valid_bet.clone().amount,
+            boost: valid_bet.clone().boost,
+            player: valid_bet.clone().player
+        };
+
+        betters_top.push(new_better);
     }
 
     // Here we calculate the amount of iotas betted by each player in the 'betters_top' list
     'bet: for i in 0..f.state.bets().length() {
         let bet = f.state.bets().get_bet(i).value();
         for better in 0..betters_top.len() {
-            if betters_top[better].player == &bet.player {
+            if betters_top[better].player == bet.player {
                 betters_top[better].amount += bet.amount;
                 continue 'bet;
             }
@@ -800,6 +783,31 @@ fn vec64_to_str(vec64: Vec<i64>) -> String{
     return string;
 }
 
+fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> TaggedImage {
+    let mut x: Vec<i64> = Vec::new();
+    let mut y: Vec<i64> = Vec::new(); 
+    let mut h: Vec<i64> = Vec::new(); 
+    let mut w: Vec<i64> = Vec::new(); 
+    let mut boost: Vec<i32> = Vec::new(); 
+    for point in &vec {
+        x.push(input_str_to_vec64(&point.x, ctx)[0]);
+        y.push(input_str_to_vec64(&point.y, ctx)[0]);
+        h.push(input_str_to_vec64(&point.h, ctx)[0]);
+        w.push(input_str_to_vec64(&point.w, ctx)[0]);
+        boost.push(input_str_to_vec32(&point.boost, ctx)[0]);
+    }
+    let processed_image = TaggedImage {
+        image_id: (&vec[0]).image_id,
+        player: ctx.caller(), // field is required but not used in this case
+        x: vec64_to_str(x),
+        y: vec64_to_str(y),
+        h: vec64_to_str(h),
+        w: vec64_to_str(w),
+        boost: vec32_to_str(boost)
+    };
+
+    return processed_image;
+}
 
 // An internal function to get a vector of vectors of type i64, each vector representing
 // a dimention and each dimention having multiple points. This is calculated taking a 

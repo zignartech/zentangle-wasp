@@ -15,6 +15,7 @@ use crate::*;
 use crate::keys::*;
 use crate::structs::*;
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableBet {
 	pub(crate) obj_id: i32,
 }
@@ -29,6 +30,7 @@ impl ArrayOfImmutableBet {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableInt32 {
 	pub(crate) obj_id: i32,
 }
@@ -43,6 +45,7 @@ impl ArrayOfImmutableInt32 {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableTaggedImage {
 	pub(crate) obj_id: i32,
 }
@@ -57,6 +60,7 @@ impl ArrayOfImmutableTaggedImage {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableValidTag {
 	pub(crate) obj_id: i32,
 }
@@ -132,6 +136,7 @@ impl ImmutabledtagState {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfMutableBet {
 	pub(crate) obj_id: i32,
 }
@@ -150,6 +155,7 @@ impl ArrayOfMutableBet {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfMutableInt32 {
 	pub(crate) obj_id: i32,
 }
@@ -168,6 +174,7 @@ impl ArrayOfMutableInt32 {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfMutableTaggedImage {
 	pub(crate) obj_id: i32,
 }
@@ -186,6 +193,7 @@ impl ArrayOfMutableTaggedImage {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfMutableValidTag {
 	pub(crate) obj_id: i32,
 }
@@ -210,6 +218,10 @@ pub struct MutabledtagState {
 }
 
 impl MutabledtagState {
+    pub fn as_immutable(&self) -> ImmutabledtagState {
+		ImmutabledtagState { id: self.id }
+	}
+
     pub fn bets(&self) -> ArrayOfMutableBet {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_BETS), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfMutableBet { obj_id: arr_id }

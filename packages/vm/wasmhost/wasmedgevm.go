@@ -20,15 +20,13 @@ type WasmEdgeVM struct {
 	importers []*wasmedge.ImportObject
 }
 
-var _ WasmVM = &WasmEdgeVM{}
-
 type HostFunction func(params []interface{}) []interface{}
 
 const I32 = wasmedge.ValType_I32
 
 var i32 = []wasmedge.ValType{I32, I32, I32, I32, I32}
 
-func NewWasmEdgeVM() *WasmEdgeVM {
+func NewWasmEdgeVM() WasmVM {
 	vm := &WasmEdgeVM{}
 	wasmedge.SetLogErrorLevel()
 
@@ -39,6 +37,10 @@ func NewWasmEdgeVM() *WasmEdgeVM {
 	//vm.store = wasmedge.NewStore(wasmedge.NewEngineWithConfig(config))
 	//vm.interrupt, _ = vm.store.InterruptHandle()
 	return vm
+}
+
+func (vm *WasmEdgeVM) NewInstance() WasmVM {
+	return NewWasmEdgeVM()
 }
 
 //TODO
@@ -63,33 +65,33 @@ func (vm *WasmEdgeVM) importModule(name string) {
 func (vm *WasmEdgeVM) LinkHost(impl WasmVM, host *WasmHost) error {
 	_ = vm.WasmVMBase.LinkHost(impl, host)
 
-	vm.importModule("WasmLib")
-	vm.importFunc(5, 1, "hostGetBytes", vm.exportHostGetBytes)
-	vm.importFunc(2, 1, "hostGetKeyID", vm.exportHostGetKeyID)
-	vm.importFunc(3, 1, "hostGetObjectID", vm.exportHostGetObjectID)
-	vm.importFunc(5, 0, "hostSetBytes", vm.exportHostSetBytes)
+	vm.importModule(ModuleWasmLib)
+	vm.importFunc(5, 1, FuncHostGetBytes, vm.exportHostGetBytes)
+	vm.importFunc(2, 1,FuncHostGetKeyID, vm.exportHostGetKeyID)
+	vm.importFunc(3, 1, FuncHostGetObjectID, vm.exportHostGetObjectID)
+	vm.importFunc(5, 0, FuncHostSetBytes, vm.exportHostSetBytes)
 	err := vm.edge.RegisterImport(vm.module)
 	if err != nil {
 		return err
 	}
 
 	// AssemblyScript Wasm versions uses this one to write panic message to console
-	vm.importModule("env")
-	vm.importFunc(4, 0, "abort", vm.exportAbort)
+	vm.importModule(ModuleEnv)
+	vm.importFunc(4, 0, FuncAbort, vm.exportAbort)
 	err = vm.edge.RegisterImport(vm.module)
 	if err != nil {
 		return err
 	}
 
 	// TinyGo Wasm versions uses these to write panic message to console
-	vm.importModule("wasi_unstable")
-	vm.importFunc(4, 1, "fd_write", vm.exportFdWrite)
+	vm.importModule(ModuleWasi1)
+	vm.importFunc(4, 1, FuncFdWrite, vm.exportFdWrite)
 	err = vm.edge.RegisterImport(vm.module)
 	if err != nil {
 		return err
 	}
-	vm.importModule("wasi_snapshot_preview1")
-	vm.importFunc(4, 1, "fd_write", vm.exportFdWrite)
+	vm.importModule(ModuleWasi2)
+	vm.importFunc(4, 1, FuncFdWrite, vm.exportFdWrite)
 	return vm.edge.RegisterImport(vm.module)
 }
 
@@ -102,7 +104,11 @@ func (vm *WasmEdgeVM) LoadWasm(wasmData []byte) error {
 	if err != nil {
 		return err
 	}
-	err = vm.edge.Instantiate()
+	return vm.Instantiate()
+}
+
+func (vm *WasmEdgeVM) Instantiate() error {
+	err := vm.edge.Instantiate()
 	if err != nil {
 		return err
 	}

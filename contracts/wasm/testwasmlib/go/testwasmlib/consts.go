@@ -11,7 +11,7 @@ import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 const (
 	ScName        = "testwasmlib"
-	ScDescription = "Exercise all aspects of WasmLib"
+	ScDescription = "Exercise several aspects of WasmLib"
 	HScName       = wasmlib.ScHname(0x89703a45)
 )
 
@@ -19,6 +19,7 @@ const (
 	ParamAddress     = "address"
 	ParamAgentID     = "agentID"
 	ParamBlockIndex  = "blockIndex"
+	ParamBool        = "bool"
 	ParamBytes       = "bytes"
 	ParamChainID     = "chainID"
 	ParamColor       = "color"
@@ -28,11 +29,16 @@ const (
 	ParamInt16       = "int16"
 	ParamInt32       = "int32"
 	ParamInt64       = "int64"
+	ParamInt8        = "int8"
 	ParamName        = "name"
 	ParamParam       = "this"
 	ParamRecordIndex = "recordIndex"
 	ParamRequestID   = "requestID"
 	ParamString      = "string"
+	ParamUint16      = "uint16"
+	ParamUint32      = "uint32"
+	ParamUint64      = "uint64"
+	ParamUint8       = "uint8"
 	ParamValue       = "value"
 )
 
@@ -56,6 +62,7 @@ const (
 	FuncArraySet     = "arraySet"
 	FuncParamTypes   = "paramTypes"
 	FuncRandom       = "random"
+	FuncTriggerEvent = "triggerEvent"
 	ViewArrayLength  = "arrayLength"
 	ViewArrayValue   = "arrayValue"
 	ViewBlockRecord  = "blockRecord"
@@ -70,6 +77,7 @@ const (
 	HFuncArraySet     = wasmlib.ScHname(0x2c4150b3)
 	HFuncParamTypes   = wasmlib.ScHname(0x6921c4cd)
 	HFuncRandom       = wasmlib.ScHname(0xe86c97ca)
+	HFuncTriggerEvent = wasmlib.ScHname(0xd5438ac6)
 	HViewArrayLength  = wasmlib.ScHname(0x3a831021)
 	HViewArrayValue   = wasmlib.ScHname(0x662dbd81)
 	HViewBlockRecord  = wasmlib.ScHname(0xad13b2f8)

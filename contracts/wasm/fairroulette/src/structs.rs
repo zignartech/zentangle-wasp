@@ -6,10 +6,12 @@
 // Change the json schema instead
 
 #![allow(dead_code)]
+#![allow(unused_imports)]
 
 use wasmlib::*;
 use wasmlib::host::*;
 
+#[derive(Clone)]
 pub struct Bet {
     pub amount : i64, 
     pub better : ScAgentID, 
@@ -35,6 +37,7 @@ impl Bet {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct ImmutableBet {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
@@ -50,12 +53,17 @@ impl ImmutableBet {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MutableBet {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
 impl MutableBet {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }

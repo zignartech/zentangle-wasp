@@ -183,6 +183,10 @@ type MutabledtagState struct {
 	id int32
 }
 
+func (s MutabledtagState) AsImmutable() ImmutabledtagState {
+	return ImmutabledtagState(s)
+}
+
 func (s MutabledtagState) Bets() ArrayOfMutableBet {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateBets], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfMutableBet{objID: arrID}

@@ -51,6 +51,10 @@ type MutableBet struct {
 	keyID wasmlib.Key32
 }
 
+func (o MutableBet) Delete() {
+	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
 func (o MutableBet) Exists() bool {
 	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
@@ -117,6 +121,10 @@ type MutableTaggedImage struct {
 	keyID wasmlib.Key32
 }
 
+func (o MutableTaggedImage) Delete() {
+	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
 func (o MutableTaggedImage) Exists() bool {
 	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
@@ -169,6 +177,10 @@ func (o ImmutableValidTag) Value() *ValidTag {
 type MutableValidTag struct {
 	objID int32
 	keyID wasmlib.Key32
+}
+
+func (o MutableValidTag) Delete() {
+	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
 
 func (o MutableValidTag) Exists() bool {
