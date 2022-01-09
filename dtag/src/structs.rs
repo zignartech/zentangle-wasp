@@ -78,6 +78,75 @@ impl MutableBet {
 }
 
 #[derive(Clone)]
+pub struct Player {
+    pub n_double_boosts  : i64,  // Number of 2x boost used in the round
+    pub n_tags           : i64,  // Number of tags made by the player in the current round
+    pub n_tripple_boosts : i64,  // Number of 3x boosts used in the round
+    pub player_id        : ScAgentID,  // The player
+}
+
+impl Player {
+    pub fn from_bytes(bytes: &[u8]) -> Player {
+        let mut decode = BytesDecoder::new(bytes);
+        Player {
+            n_double_boosts  : decode.int64(),
+            n_tags           : decode.int64(),
+            n_tripple_boosts : decode.int64(),
+            player_id        : decode.agent_id(),
+        }
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut encode = BytesEncoder::new();
+		encode.int64(self.n_double_boosts);
+		encode.int64(self.n_tags);
+		encode.int64(self.n_tripple_boosts);
+		encode.agent_id(&self.player_id);
+        return encode.data();
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct ImmutablePlayer {
+    pub(crate) obj_id: i32,
+    pub(crate) key_id: Key32,
+}
+
+impl ImmutablePlayer {
+    pub fn exists(&self) -> bool {
+        exists(self.obj_id, self.key_id, TYPE_BYTES)
+    }
+
+    pub fn value(&self) -> Player {
+        Player::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct MutablePlayer {
+    pub(crate) obj_id: i32,
+    pub(crate) key_id: Key32,
+}
+
+impl MutablePlayer {
+    pub fn delete(&self) {
+        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+    }
+
+    pub fn exists(&self) -> bool {
+        exists(self.obj_id, self.key_id, TYPE_BYTES)
+    }
+
+    pub fn set_value(&self, value: &Player) {
+        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+    }
+
+    pub fn value(&self) -> Player {
+        Player::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    }
+}
+
+#[derive(Clone)]
 pub struct TaggedImage {
     pub boost    : String,  // if the tags will be boosted or not
     pub h        : String,  // heights of the Tags

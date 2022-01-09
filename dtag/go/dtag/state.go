@@ -21,6 +21,18 @@ func (a ArrayOfImmutableBet) GetBet(index int32) ImmutableBet {
 	return ImmutableBet{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
+type ArrayOfImmutablePlayer struct {
+	objID int32
+}
+
+func (a ArrayOfImmutablePlayer) Length() int32 {
+	return wasmlib.GetLength(a.objID)
+}
+
+func (a ArrayOfImmutablePlayer) GetPlayer(index int32) ImmutablePlayer {
+	return ImmutablePlayer{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
 type ArrayOfImmutableInt32 struct {
 	objID int32
 }
@@ -87,6 +99,11 @@ func (s ImmutabledtagState) PendingPlays() ArrayOfImmutableBet {
 	return ArrayOfImmutableBet{objID: arrID}
 }
 
+func (s ImmutabledtagState) Players() ArrayOfImmutablePlayer {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayers], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfImmutablePlayer{objID: arrID}
+}
+
 func (s ImmutabledtagState) PlaysPerImage() ArrayOfImmutableInt32 {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlaysPerImage], wasmlib.TYPE_ARRAY|wasmlib.TYPE_INT32)
 	return ArrayOfImmutableInt32{objID: arrID}
@@ -129,6 +146,22 @@ func (a ArrayOfMutableBet) Length() int32 {
 
 func (a ArrayOfMutableBet) GetBet(index int32) MutableBet {
 	return MutableBet{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
+type ArrayOfMutablePlayer struct {
+	objID int32
+}
+
+func (a ArrayOfMutablePlayer) Clear() {
+	wasmlib.Clear(a.objID)
+}
+
+func (a ArrayOfMutablePlayer) Length() int32 {
+	return wasmlib.GetLength(a.objID)
+}
+
+func (a ArrayOfMutablePlayer) GetPlayer(index int32) MutablePlayer {
+	return MutablePlayer{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
 type ArrayOfMutableInt32 struct {
@@ -211,6 +244,11 @@ func (s MutabledtagState) Owner() wasmlib.ScMutableAgentID {
 func (s MutabledtagState) PendingPlays() ArrayOfMutableBet {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfMutableBet{objID: arrID}
+}
+
+func (s MutabledtagState) Players() ArrayOfMutablePlayer {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayers], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfMutablePlayer{objID: arrID}
 }
 
 func (s MutabledtagState) PlaysPerImage() ArrayOfMutableInt32 {

@@ -16,8 +16,8 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
-	number_of_images := int32(30)
-	const number_of_players = 60
+	number_of_images := int32(10)
+	const number_of_players = 15
 	const plays_required_per_image = 2
 
 	// create game
@@ -37,11 +37,11 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 
 		SendTags := dtag.ScFuncs.SendTags(ctx.Sign(player[i]))
-		SendTags.Params.X().SetValue(fmt.Sprint(50+i) + " " + fmt.Sprint(200+2*i))
-		SendTags.Params.Y().SetValue(fmt.Sprint(100+i) + " " + fmt.Sprint(250+2*i))
-		SendTags.Params.H().SetValue(fmt.Sprint(150+i) + " " + fmt.Sprint(50+2*i))
-		SendTags.Params.W().SetValue(fmt.Sprint(200+i) + " " + fmt.Sprint(50+2*i))
-		SendTags.Params.Boost().SetValue(fmt.Sprint(2) + " " + fmt.Sprint(1))
+		SendTags.Params.X().SetValue(fmt.Sprint(50+i) + " " + fmt.Sprint(200+i) + " " + fmt.Sprint(500+i))
+		SendTags.Params.Y().SetValue(fmt.Sprint(100+i) + " " + fmt.Sprint(250+i) + " " + fmt.Sprint(550+i))
+		SendTags.Params.H().SetValue(fmt.Sprint(150+i) + " " + fmt.Sprint(50+i) + " " + fmt.Sprint(50+i))
+		SendTags.Params.W().SetValue(fmt.Sprint(200+i) + " " + fmt.Sprint(50+i) + " " + fmt.Sprint(55+i))
+		SendTags.Params.Boost().SetValue(fmt.Sprint(2) + " " + fmt.Sprint(1) + " " + fmt.Sprint(3))
 
 		for j := 0; int32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
 			RequestPlay.Func.TransferIotas(1000 + int64(i)).Post()
@@ -71,25 +71,29 @@ func TestPlay2(t *testing.T) {
 }
 
 func TestPlay(t *testing.T) {
+	numberOfImages := int32(22)
+
 	ctx := wasmsolo.NewSoloContext(t, dtag.ScName, dtag.OnLoad)
 
 	// create game
 	f := dtag.ScFuncs.CreateGame(ctx)
 	f.Params.Description().SetValue("Esto es un test")
-	f.Params.NumberOfImages().SetValue(4)
+	f.Params.NumberOfImages().SetValue(numberOfImages)
 	f.Params.TagsRequiredPerImage().SetValue(4)
 	f.Func.TransferIotas(10000).Post()
 	require.NoError(t, ctx.Err)
 
 	//make plays
+	for i := 0; int32(i) < numberOfImages-3; i++ {
+		RequestPlay(t, ctx)
+		SendTags(t, ctx, 50, 100, 150, 200, 1)
+	}
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200)
+	SendTags(t, ctx, 50, 100, 150, 200, 2)
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200)
+	SendTags(t, ctx, 50, 100, 150, 200, 2)
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200)
-	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200)
+	SendTags(t, ctx, 50, 100, 150, 200, 2)
 
 	getPlayerBets := dtag.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
@@ -108,7 +112,7 @@ func RequestPlay(t *testing.T, _ctx *wasmsolo.SoloContext) {
 	require.NoError(t, ctx.Err)
 }
 
-func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int64, w int64) {
+func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int64, w int64, boost int64) {
 	ctx := _ctx
 
 	f := dtag.ScFuncs.SendTags(ctx)
@@ -116,6 +120,7 @@ func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int6
 	f.Params.Y().SetValue(fmt.Sprint(y))
 	f.Params.H().SetValue(fmt.Sprint(h))
 	f.Params.W().SetValue(fmt.Sprint(w))
+	f.Params.Boost().SetValue(fmt.Sprint(boost))
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }

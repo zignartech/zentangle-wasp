@@ -31,6 +31,21 @@ impl ArrayOfImmutableBet {
 }
 
 #[derive(Clone, Copy)]
+pub struct ArrayOfImmutablePlayer {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfImmutablePlayer {
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_player(&self, index: i32) -> ImmutablePlayer {
+		ImmutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableInt32 {
 	pub(crate) obj_id: i32,
 }
@@ -107,6 +122,11 @@ impl ImmutabledtagState {
 		ArrayOfImmutableBet { obj_id: arr_id }
 	}
 
+    pub fn players(&self) -> ArrayOfImmutablePlayer {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfImmutablePlayer { obj_id: arr_id }
+	}
+
     pub fn plays_per_image(&self) -> ArrayOfImmutableInt32 {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
 		ArrayOfImmutableInt32 { obj_id: arr_id }
@@ -152,6 +172,25 @@ impl ArrayOfMutableBet {
 
 	pub fn get_bet(&self, index: i32) -> MutableBet {
 		MutableBet { obj_id: self.obj_id, key_id: Key32(index) }
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct ArrayOfMutablePlayer {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfMutablePlayer {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_player(&self, index: i32) -> MutablePlayer {
+		MutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
 	}
 }
 
@@ -246,6 +285,11 @@ impl MutabledtagState {
     pub fn pending_plays(&self) -> ArrayOfMutableBet {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfMutableBet { obj_id: arr_id }
+	}
+
+    pub fn players(&self) -> ArrayOfMutablePlayer {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfMutablePlayer { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableInt32 {

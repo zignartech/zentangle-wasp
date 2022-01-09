@@ -33,15 +33,16 @@ const (
 	IdxStateNumberOfImages       = 18
 	IdxStateOwner                = 19
 	IdxStatePendingPlays         = 20
-	IdxStatePlaysPerImage        = 21
-	IdxStateProcessedImages      = 22
-	IdxStateReward               = 23
-	IdxStateTaggedImages         = 24
-	IdxStateTagsRequiredPerImage = 25
-	IdxStateValidTags            = 26
+	IdxStatePlayers              = 21
+	IdxStatePlaysPerImage        = 22
+	IdxStateProcessedImages      = 23
+	IdxStateReward               = 24
+	IdxStateTaggedImages         = 25
+	IdxStateTagsRequiredPerImage = 26
+	IdxStateValidTags            = 27
 )
 
-const keyMapLen = 27
+const keyMapLen = 28
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamBoost,
@@ -65,6 +66,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StateNumberOfImages,
 	StateOwner,
 	StatePendingPlays,
+	StatePlayers,
 	StatePlaysPerImage,
 	StateProcessedImages,
 	StateReward,

@@ -67,6 +67,67 @@ func (o MutableBet) Value() *Bet {
 	return NewBetFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
 }
 
+type Player struct {
+	NDoubleBoosts  int64  // Number of 2x boost used in the round
+	NTags          int64  // Number of tags made by the player in the current round
+	NTrippleBoosts int64  // Number of 3x boosts used in the round
+	PlayerId       wasmlib.ScAgentID  // The player
+}
+
+func NewPlayerFromBytes(bytes []byte) *Player {
+	decode := wasmlib.NewBytesDecoder(bytes)
+	data := &Player{}
+	data.NDoubleBoosts  = decode.Int64()
+	data.NTags          = decode.Int64()
+	data.NTrippleBoosts = decode.Int64()
+	data.PlayerId       = decode.AgentID()
+	decode.Close()
+	return data
+}
+
+func (o *Player) Bytes() []byte {
+	return wasmlib.NewBytesEncoder().
+		Int64(o.NDoubleBoosts).
+		Int64(o.NTags).
+		Int64(o.NTrippleBoosts).
+		AgentID(o.PlayerId).
+		Data()
+}
+
+type ImmutablePlayer struct {
+	objID int32
+	keyID wasmlib.Key32
+}
+
+func (o ImmutablePlayer) Exists() bool {
+	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
+func (o ImmutablePlayer) Value() *Player {
+	return NewPlayerFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+}
+
+type MutablePlayer struct {
+	objID int32
+	keyID wasmlib.Key32
+}
+
+func (o MutablePlayer) Delete() {
+	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
+func (o MutablePlayer) Exists() bool {
+	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+}
+
+func (o MutablePlayer) SetValue(value *Player) {
+	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+}
+
+func (o MutablePlayer) Value() *Player {
+	return NewPlayerFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+}
+
 type TaggedImage struct {
 	Boost   string  // if the tags will be boosted or not
 	H       string  // heights of the Tags

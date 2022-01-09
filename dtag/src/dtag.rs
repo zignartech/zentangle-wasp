@@ -155,26 +155,37 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     }
 
     // 'points' represents by how much the betting money has to be divided.
-    // We have to fit the amount betted to the sum of all the prices 
+    // We have to fit the amount betted to the sum of all the prices.
+    // We need "position" because if there are a number of repeated accuracies, their position must be the same.
     let mut points: i64 = 0_i64;
+    let mut position = 1;
     for i in 0..betters_top.len() {
         // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
         // Tags that were boosted and resulted to be the players best tag, recieve a 2x or 3x boost.
-        points += ((i+1)*(i+1)) as i64 * betters_top[i].amount * betters_top[i].boost as i64;
+        points += ((position)*(position)) as i64 * betters_top[i].amount * betters_top[i].boost as i64;
+        if i+1 < betters_top.len() && betters_top[i].accuracy != betters_top[i+1].accuracy {
+            position += 1;
+        }
     }
 
     let multiplier: f64 = total_payout as f64 / points as f64;
+    position = 1;
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
     for i in 0..betters_top.len() {
         // Again, the prices take an exponential form, where 'i' 
         // represents the position of the player given it's acuracy (higher is better)
-        let payout = multiplier * ((i+1)*(i+1)) as f64 * betters_top[i].amount as f64 * betters_top[i].boost as f64;
+        let payout = multiplier * ((position)*(position)) as f64 * betters_top[i].amount as f64 * betters_top[i].boost as f64;
         if payout < 1.0 { continue; }
         // payout may incurr in rounding errors. This errors are truncations, so no negative balance exists.
+
+        if i+1 < betters_top.len() && betters_top[i].accuracy != betters_top[i+1].accuracy {
+            position += 1;
+        }
+
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
         ctx.log(&format!(
-            "{ } PAID { } IOTAS TO { }. Accuracy: { } Boost: { }", 
+            "{ } PAID { } IOTAS TO { } Accuracy: { } Boost: { }", 
             i.to_string(),
             (payout as i64).to_string(), 
             betters_top[i].player.address().to_string(), 
@@ -189,6 +200,8 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 	f.state.tagged_images().clear();
     f.state.reward().set_value(0_i64);
     f.state.pending_plays().clear();
+    f.state.players().clear();
+    f.state.valid_tags().clear();
 
     ctx.event(&format!(
         "dtag.game.ended",
@@ -295,6 +308,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     let pending_plays: ArrayOfMutableBet = f.state.pending_plays();
+    let players: ArrayOfMutablePlayer = f.state.players();
     let tags_req_per_image = f.state.tags_required_per_image().value();
     let pending_plays_length = pending_plays.length();
     let mut bet: Option<MutableBet> = None;
@@ -317,12 +331,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     );
 
     // check that boost value is allowed
-    for i in 0..boost.len() {
-        //TODO: check if boost is allowed for this player
-        if boost[i] != 1 && boost[i] != 2 && boost[i] !=3 {
-            ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
-        }
-    }
+    check_boost(boost, players, ctx);
 
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
@@ -415,6 +424,7 @@ pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext
     let image_id = f.params.image_id().value();
     let plays = f.state.plays_per_image().get_int32(image_id).value();
 
+    ctx.log(&format!("PLAYS PER IMAGE: {0}", plays.to_string()));
     f.results.plays_per_image().set_value(plays);
 }
 
@@ -506,6 +516,66 @@ impl Better {
             amount,
             boost
         }
+    }
+}
+
+fn check_boost(boost: Vec<i32>, players: ArrayOfMutablePlayer, ctx: &ScFuncContext) {
+    // initialize mutable variables of the player
+    let mut n_double_boosts = 0;
+    let mut n_tripple_boosts = 0;
+    let mut n_tags = 0;
+    let mut player_pos = players.length();
+
+    // Fill in the variables
+    for i in 0..players.length() {
+        if ctx.caller() == players.get_player(i).value().player_id {
+            n_double_boosts = players.get_player(i).value().n_double_boosts;
+            n_tripple_boosts = players.get_player(i).value().n_tripple_boosts;
+            n_tags = players.get_player(i).value().n_tags;
+            player_pos = i;
+            break;
+        }
+    }
+
+    // For every boost value, check if it's valid for the player
+    for i in 0..boost.len() {
+        if boost[i] == 1 {
+            n_tags += 1;
+        }
+
+        else if boost[i] == 2 {
+            if ((n_tags+1) / 6) <= n_double_boosts { 
+                ctx.panic("Error: You don't have enough Drift to use a double boost");
+            }
+            else {
+                n_double_boosts += 1;
+                n_tags += 1;
+            }
+        }
+
+        else if boost[i] == 3 {
+            if ((n_tags+1) / 24) <= n_tripple_boosts { 
+                ctx.panic("Error: You don't have enough Mana to use a tripple boost");
+            }
+            else {
+                n_tripple_boosts += 1;
+                n_tags += 1;
+            }
+        }
+
+        else {
+            ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
+        }
+
+
+        let player = Player {
+            player_id: ctx.caller(),
+            n_tags: n_tags,
+            n_double_boosts: n_double_boosts,
+            n_tripple_boosts: n_tripple_boosts
+        };
+
+        players.get_player(player_pos).set_value(&player);
     }
 }
 
@@ -689,13 +759,14 @@ fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better> {
     let mut betters_top: Vec<Better> = Vec::new();
     'all: for i in 0..valid_bets.len() {
         let valid_bet = valid_bets[i].clone();
+
         for better in 0..betters_top.len() {
-            if valid_bet.clone().player == betters_top[better].player {
+            if valid_bet.player == betters_top[better].player {
 
                 // replace the accuracy for the player's best one
-                if valid_bet.accuracy > betters_top[better].accuracy{
-                    betters_top[better].boost = valid_bet.clone().boost;
-                    betters_top[better].accuracy = valid_bet.clone().accuracy;
+                if valid_bet.accuracy < betters_top[better].accuracy{
+                    betters_top[better].boost = valid_bet.boost;
+                    betters_top[better].accuracy = valid_bet.accuracy;
                 }
 
                 // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
@@ -703,10 +774,10 @@ fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better> {
             }
         }
         let new_better = Better {
-            accuracy: valid_bet.clone().accuracy,
-            amount: valid_bet.clone().amount,
-            boost: valid_bet.clone().boost,
-            player: valid_bet.clone().player
+            accuracy: valid_bet.accuracy,
+            amount: valid_bet.amount,
+            boost: valid_bet.boost,
+            player: valid_bet.player
         };
 
         betters_top.push(new_better);
@@ -781,6 +852,8 @@ fn vec64_to_str(vec64: Vec<i64>) -> String{
     return string;
 }
 
+// An internal function to convert a vector of tagged images, each with a single point
+// to one single tagged image but with many points
 fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> TaggedImage {
     let mut x: Vec<i64> = Vec::new();
     let mut y: Vec<i64> = Vec::new(); 

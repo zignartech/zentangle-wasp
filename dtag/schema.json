@@ -20,6 +20,12 @@
 			"player": "AgentID // player placing the bet",
 			"taggedImage": "Int32",
 			"playTagId": "Int32 // Identifier to distinguish different tags in the same play"
+		},
+		"Player": {
+			"playerId": "AgentID // The player",
+			"nTags": "Int64 // Number of tags made by the player in the current round",
+			"nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
+			"nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
 		}
 	},
 	"typedefs": {},
@@ -35,7 +41,8 @@
 		"playsPerImage": "Int32[] // counts how many times an image has been tagged",
 		"taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
 		"validTags": " ValidTag[] // stores the player and imageId of all valid tags",
-		"processedImages": "TaggedImage[]"
+		"processedImages": "TaggedImage[]",
+		"players": "Player[] // list of players"
 	},
 	"funcs": {
 		"init": { 

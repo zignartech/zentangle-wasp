@@ -36,6 +36,7 @@ pub const STATE_DESCRIPTION             : &str = "description";
 pub const STATE_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const STATE_OWNER                   : &str = "owner";
 pub const STATE_PENDING_PLAYS           : &str = "pendingPlays";
+pub const STATE_PLAYERS                 : &str = "players";
 pub const STATE_PLAYS_PER_IMAGE         : &str = "playsPerImage";
 pub const STATE_PROCESSED_IMAGES        : &str = "processedImages";
 pub const STATE_REWARD                  : &str = "reward";

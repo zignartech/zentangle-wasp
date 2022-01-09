@@ -43,6 +43,7 @@ const (
 	StateNumberOfImages       = "numberOfImages"
 	StateOwner                = "owner"
 	StatePendingPlays         = "pendingPlays"
+	StatePlayers              = "players"
 	StatePlaysPerImage        = "playsPerImage"
 	StateProcessedImages      = "processedImages"
 	StateReward               = "reward"
