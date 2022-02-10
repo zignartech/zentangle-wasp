@@ -20,7 +20,11 @@ $#if map proxyMap proxyMethods3
 `,
 	// *******************************
 	"proxyMethods3": `
-$#if basetype proxyBaseType proxyNewType
+$#if basetype proxyBaseType proxyMethods4
+`,
+	// *******************************
+	"proxyMethods4": `
+$#if typedef proxyTypeDef proxyStruct
 `,
 	// *******************************
 	"setCoreVarID": `
@@ -44,7 +48,7 @@ $#if this proxyMapThis proxyMapOther
 	}
 `,
 	// *******************************
-	"proxyMapOther": `55544444.0
+	"proxyMapOther": `
     pub fn $fld_name(&self) -> Map$fldMapKey$+To$mut$FldType {
 		let map_id = get_object_id(self.id, $varID, TYPE_MAP);
 		Map$fldMapKey$+To$mut$FldType { obj_id: map_id }
@@ -57,7 +61,15 @@ $#if this proxyMapThis proxyMapOther
 	}
 `,
 	// *******************************
-	"proxyNewType": `
+	"proxyTypeDef": `
+$#emit setVarType
+    pub fn $old_name(&self) -> $mut$OldType {
+		let sub_id = get_object_id(self.id, $varID, $varType);
+		$mut$OldType { obj_id: sub_id }
+	}
+`,
+	// *******************************
+	"proxyStruct": `
     pub fn $fld_name(&self) -> $mut$FldType {
 		$mut$FldType { obj_id: self.id, key_id: $varID }
 	}

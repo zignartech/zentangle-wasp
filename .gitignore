@@ -19,10 +19,9 @@ wasp-cli.json
 .DS_Store
 ./tools/wasp-cli/wasp-cli
 .docusaurus
-node_modules
+**/node_modules/
 goshimmer.log
 /*.sh
-dtag/target/.rustc_info.json
 wasp-cli.json
-/dtag/target/
-/dtag/pkg/
+/zentangle/target/
+/zentangle/pkg/

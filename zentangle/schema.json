@@ -1,0 +1,110 @@
+{
+	"name": "zentangle",
+	"description": "Incentivized AI Training Casino",
+	"structs": {
+		"TaggedImage": {
+			"imageId": "Int32",
+			"player": "AgentID // player that has tagged this image",
+			"boost":"String // if the tags will be boosted or not",
+			"x": "String // x top-left positions of the Tags",
+			"y": "String // y top-left positions of the Tags",
+			"w": "String // widths of the Tags",
+			"h": "String // heights of the Tags"
+		},
+		"Bet": {
+			"amount": "Int64",
+			"player": "AgentID // player placing the bet",
+			"imageId": "Int32"
+		},
+		"ValidTag": {
+			"player": "AgentID // player placing the bet",
+			"taggedImage": "Int32",
+			"playTagId": "Int32 // Identifier to distinguish different tags in the same play"
+		},
+		"Player": {
+			"playerId": "AgentID // The player",
+			"nTags": "Int64 // Number of tags made by the player in the current round",
+			"nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
+			"nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
+		}
+	},
+	"typedefs": {},
+	"state": {
+		"owner": "AgentID // current owner of this smart contract",
+		"numberOfImages": "Int32 // total number of images to tag",
+		"reward": "Int64 // current reward to split between players",
+		"description": "String // details on how should the images be tagged",
+		"creator": "AgentID // the creator of the game",
+		"tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
+		"bets": "Bet[]",
+		"pendingPlays": "Bet[] // List of Plays that have been requested but not completed",
+		"playsPerImage": "Int32[] // counts how many times an image has been tagged",
+		"taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
+		"validTags": " ValidTag[] // stores the player and imageId of all valid tags",
+		"processedImages": "TaggedImage[]",
+		"players": "Player[] // list of players"
+	},
+	"funcs": {
+		"init": { 
+			"params": { 
+				"owner": "AgentID? // optional owner of this smart contract"
+			}	
+		},
+		"setOwner": { 
+			"access": "owner // current owner of this smart contract",
+			"params": { 
+				"owner": "AgentID // new owner of this smart contract"
+			}
+		},
+		"withdraw": {
+			"access": "owner // current owner of this smart contract"
+		},
+		"createGame": {
+			"params": {
+				"numberOfImages": "Int32 // total number of images to tag",
+				"description": "String // details on how should the images be tagged",
+				"tagsRequiredPerImage":"Int32? // Images have to be tagged by this amount of players to be ready"
+			}
+		},
+		"requestPlay": {
+			"results": {
+				"imageId": "Int32"
+			}
+		},
+		"sendTags": {
+			"params": {
+				"inputJson": "String // x, y, h, w and boost values for every annotaiton in the image"
+			}
+		},
+		"endGame": {
+		}
+	},
+	"views": {
+		"getOwner": { 
+    		"results": { 
+      			"owner": "AgentID // current owner of this smart contract"
+			}
+		},
+		"getPlaysPerImage": {
+			"params": {
+				"imageId": "Int32"
+			},
+			"results": {
+				"playsPerImage": "Int32"
+			}
+		},
+		"getResults": {
+			"params": {
+				"imageId": "Int32"
+			},
+			"results": {
+				"results": "String // x/y/h/w"
+			}
+		},
+		"getPlayerBets": { 
+			"results": {
+				"playerBets": "String // a json with all players and their bets"
+			}
+		}
+	}
+}

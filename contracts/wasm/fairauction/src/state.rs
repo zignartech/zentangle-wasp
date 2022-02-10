@@ -16,6 +16,7 @@ use crate::keys::*;
 use crate::structs::*;
 use crate::typedefs::*;
 
+#[derive(Clone, Copy)]
 pub struct MapColorToImmutableAuction {
 	pub(crate) obj_id: i32,
 }
@@ -26,6 +27,7 @@ impl MapColorToImmutableAuction {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MapColorToImmutableBidderList {
 	pub(crate) obj_id: i32,
 }
@@ -37,6 +39,7 @@ impl MapColorToImmutableBidderList {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MapColorToImmutableBids {
 	pub(crate) obj_id: i32,
 }
@@ -74,6 +77,7 @@ impl ImmutableFairAuctionState {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct MapColorToMutableAuction {
 	pub(crate) obj_id: i32,
 }
@@ -88,6 +92,7 @@ impl MapColorToMutableAuction {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MapColorToMutableBidderList {
 	pub(crate) obj_id: i32,
 }
@@ -103,6 +108,7 @@ impl MapColorToMutableBidderList {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct MapColorToMutableBids {
 	pub(crate) obj_id: i32,
 }
@@ -124,6 +130,10 @@ pub struct MutableFairAuctionState {
 }
 
 impl MutableFairAuctionState {
+    pub fn as_immutable(&self) -> ImmutableFairAuctionState {
+		ImmutableFairAuctionState { id: self.id }
+	}
+
     pub fn auctions(&self) -> MapColorToMutableAuction {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_AUCTIONS), TYPE_MAP);
 		MapColorToMutableAuction { obj_id: map_id }

@@ -15,6 +15,7 @@ use crate::*;
 use crate::keys::*;
 use crate::structs::*;
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableDonation {
 	pub(crate) obj_id: i32,
 }
@@ -49,6 +50,7 @@ impl ImmutableDonateWithFeedbackState {
 	}
 }
 
+#[derive(Clone, Copy)]
 pub struct ArrayOfMutableDonation {
 	pub(crate) obj_id: i32,
 }
@@ -73,6 +75,10 @@ pub struct MutableDonateWithFeedbackState {
 }
 
 impl MutableDonateWithFeedbackState {
+    pub fn as_immutable(&self) -> ImmutableDonateWithFeedbackState {
+		ImmutableDonateWithFeedbackState { id: self.id }
+	}
+
     pub fn log(&self) -> ArrayOfMutableDonation {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_LOG), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfMutableDonation { obj_id: arr_id }
