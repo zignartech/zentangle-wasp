@@ -18,9 +18,9 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := int32(1)
-	const number_of_players = 1
-	const plays_required_per_image = 1
+	number_of_images := int32(7)
+	const number_of_players = 10
+	const plays_required_per_image = 3
 
 	// create game
 	creator := ctx.NewSoloAgent()

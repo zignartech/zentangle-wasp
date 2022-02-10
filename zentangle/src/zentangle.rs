@@ -138,9 +138,11 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
     let n_rewards = f.state.valid_tags().length() as i64;
-    let transfers: ScTransfers = ScTransfers::iotas(f.state.reward().value()/n_rewards);
+    ctx.require(n_rewards > 0, "No valid tags so no rewards will be paid.");
+
+    let individual_reward = f.state.reward().value()/n_rewards;
+    let transfers: ScTransfers = ScTransfers::iotas(individual_reward);
     for i in 0..f.state.valid_tags().length() {
-        // Transfer the reward to players who tagged correctly
         let address = f.state.valid_tags().get_valid_tag(i).value().player.address();
         ctx.transfer_to_address(&address, transfers);
     }
@@ -309,7 +311,6 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     let pending_plays: ArrayOfMutableBet = f.state.pending_plays();
-    let players: ArrayOfMutablePlayer = f.state.players();
     let tags_req_per_image = f.state.tags_required_per_image().value();
     let pending_plays_length = pending_plays.length();
     let mut bet: Option<MutableBet> = None;
@@ -335,7 +336,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let annotations = annotations_option.unwrap();
 
     // check that boost value is allowed
-    check_boost(annotations.boost.clone(), players, ctx);
+    check_boost(annotations.boost.clone(), f, ctx);
 
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
@@ -524,11 +525,12 @@ impl Better {
 }
 
 // An internal function to check if the boost entered by a player are valid or not
-fn check_boost(boost: Vec<i32>, players: ArrayOfMutablePlayer, ctx: &ScFuncContext) {
+fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
     // initialize mutable variables of the player
     let mut n_double_boosts = 0;
     let mut n_tripple_boosts = 0;
     let mut n_tags = 0;
+    let players: ArrayOfMutablePlayer = f.state.players();
     let mut player_pos = players.length();
 
     // Fill in the variables
