@@ -10,51 +10,43 @@ package zentangle
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 const (
-	IdxParamBoost                = 0
-	IdxParamDescription          = 1
-	IdxParamH                    = 2
-	IdxParamImageId              = 3
-	IdxParamNumberOfImages       = 4
-	IdxParamOwner                = 5
-	IdxParamTagsRequiredPerImage = 6
-	IdxParamW                    = 7
-	IdxParamX                    = 8
-	IdxParamY                    = 9
+	IdxParamDescription          = 0
+	IdxParamImageId              = 1
+	IdxParamInputJson            = 2
+	IdxParamNumberOfImages       = 3
+	IdxParamOwner                = 4
+	IdxParamTagsRequiredPerImage = 5
 
-	IdxResultImageId       = 10
-	IdxResultOwner         = 11
-	IdxResultPlayerBets    = 12
-	IdxResultPlaysPerImage = 13
-	IdxResultResults       = 14
+	IdxResultImageId       = 6
+	IdxResultOwner         = 7
+	IdxResultPlayerBets    = 8
+	IdxResultPlaysPerImage = 9
+	IdxResultResults       = 10
 
-	IdxStateBets                 = 15
-	IdxStateCreator              = 16
-	IdxStateDescription          = 17
-	IdxStateNumberOfImages       = 18
-	IdxStateOwner                = 19
-	IdxStatePendingPlays         = 20
-	IdxStatePlayers              = 21
-	IdxStatePlaysPerImage        = 22
-	IdxStateProcessedImages      = 23
-	IdxStateReward               = 24
-	IdxStateTaggedImages         = 25
-	IdxStateTagsRequiredPerImage = 26
-	IdxStateValidTags            = 27
+	IdxStateBets                 = 11
+	IdxStateCreator              = 12
+	IdxStateDescription          = 13
+	IdxStateNumberOfImages       = 14
+	IdxStateOwner                = 15
+	IdxStatePendingPlays         = 16
+	IdxStatePlayers              = 17
+	IdxStatePlaysPerImage        = 18
+	IdxStateProcessedImages      = 19
+	IdxStateReward               = 20
+	IdxStateTaggedImages         = 21
+	IdxStateTagsRequiredPerImage = 22
+	IdxStateValidTags            = 23
 )
 
-const keyMapLen = 28
+const keyMapLen = 24
 
 var keyMap = [keyMapLen]wasmlib.Key{
-	ParamBoost,
 	ParamDescription,
-	ParamH,
 	ParamImageId,
+	ParamInputJson,
 	ParamNumberOfImages,
 	ParamOwner,
 	ParamTagsRequiredPerImage,
-	ParamW,
-	ParamX,
-	ParamY,
 	ResultImageId,
 	ResultOwner,
 	ResultPlayerBets,

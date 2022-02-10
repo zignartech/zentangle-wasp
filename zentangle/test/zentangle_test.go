@@ -4,7 +4,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
@@ -19,9 +18,9 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := int32(10)
-	const number_of_players = 15
-	const plays_required_per_image = 2
+	number_of_images := int32(1)
+	const number_of_players = 1
+	const plays_required_per_image = 1
 
 	// create game
 	creator := ctx.NewSoloAgent()
@@ -40,11 +39,7 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 
 		SendTags := zentangle.ScFuncs.SendTags(ctx.Sign(player[i]))
-		SendTags.Params.X().SetValue(fmt.Sprint(50+i) + " " + fmt.Sprint(200+i) + " " + fmt.Sprint(500+i))
-		SendTags.Params.Y().SetValue(fmt.Sprint(100+i) + " " + fmt.Sprint(250+i) + " " + fmt.Sprint(550+i))
-		SendTags.Params.H().SetValue(fmt.Sprint(150+i) + " " + fmt.Sprint(50+i) + " " + fmt.Sprint(50+i))
-		SendTags.Params.W().SetValue(fmt.Sprint(200+i) + " " + fmt.Sprint(50+i) + " " + fmt.Sprint(55+i))
-		SendTags.Params.Boost().SetValue(fmt.Sprint(2) + " " + fmt.Sprint(1) + " " + fmt.Sprint(3))
+		SendTags.Params.InputJson().SetValue(`{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}`)
 
 		for j := 0; int32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
 			RequestPlay.Func.TransferIotas(1000 + int64(i)).Post()
@@ -73,6 +68,7 @@ func TestPlay2(t *testing.T) {
 	}
 }
 
+/*
 func TestPlay(t *testing.T) {
 	numberOfImages := int32(22)
 
@@ -127,3 +123,4 @@ func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int6
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
+*/

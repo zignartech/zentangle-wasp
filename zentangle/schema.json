@@ -73,11 +73,7 @@
 		},
 		"sendTags": {
 			"params": {
-				"x": "String // x top-left positions of the Tags",
-				"y": "String // y top-left positions of the Tags",
-				"h": "String // heights of the Tags",
-				"w": "String // widths of the Tags",
-				"boost": "String // if the tags will be boosted or not"
+				"inputJson": "String // x, y, h, w and boost values for every annotaiton in the image"
 			}
 		},
 		"endGame": {

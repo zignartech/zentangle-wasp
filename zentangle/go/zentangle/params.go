@@ -61,48 +61,16 @@ type ImmutableSendTagsParams struct {
 	id int32
 }
 
-func (s ImmutableSendTagsParams) Boost() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamBoost])
-}
-
-func (s ImmutableSendTagsParams) H() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamH])
-}
-
-func (s ImmutableSendTagsParams) W() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamW])
-}
-
-func (s ImmutableSendTagsParams) X() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamX])
-}
-
-func (s ImmutableSendTagsParams) Y() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamY])
+func (s ImmutableSendTagsParams) InputJson() wasmlib.ScImmutableString {
+	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamInputJson])
 }
 
 type MutableSendTagsParams struct {
 	id int32
 }
 
-func (s MutableSendTagsParams) Boost() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamBoost])
-}
-
-func (s MutableSendTagsParams) H() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamH])
-}
-
-func (s MutableSendTagsParams) W() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamW])
-}
-
-func (s MutableSendTagsParams) X() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamX])
-}
-
-func (s MutableSendTagsParams) Y() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamY])
+func (s MutableSendTagsParams) InputJson() wasmlib.ScMutableString {
+	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamInputJson])
 }
 
 type ImmutableSetOwnerParams struct {

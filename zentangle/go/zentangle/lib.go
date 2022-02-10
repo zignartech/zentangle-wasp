@@ -118,11 +118,7 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 			id: wasmlib.OBJ_ID_STATE,
 		},
 	}
-	ctx.Require(f.Params.Boost().Exists(), "missing mandatory boost")
-	ctx.Require(f.Params.H().Exists(), "missing mandatory h")
-	ctx.Require(f.Params.W().Exists(), "missing mandatory w")
-	ctx.Require(f.Params.X().Exists(), "missing mandatory x")
-	ctx.Require(f.Params.Y().Exists(), "missing mandatory y")
+	ctx.Require(f.Params.InputJson().Exists(), "missing mandatory inputJson")
 	funcSendTags(ctx, f)
 	ctx.Log("zentangle.funcSendTags ok")
 }

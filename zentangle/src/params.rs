@@ -81,24 +81,8 @@ pub struct ImmutableSendTagsParams {
 }
 
 impl ImmutableSendTagsParams {
-    pub fn boost(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_BOOST))
-	}
-
-    pub fn h(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_H))
-	}
-
-    pub fn w(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_W))
-	}
-
-    pub fn x(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_X))
-	}
-
-    pub fn y(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_Y))
+    pub fn input_json(&self) -> ScImmutableString {
+		ScImmutableString::new(self.id, idx_map(IDX_PARAM_INPUT_JSON))
 	}
 }
 
@@ -108,24 +92,8 @@ pub struct MutableSendTagsParams {
 }
 
 impl MutableSendTagsParams {
-    pub fn boost(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_BOOST))
-	}
-
-    pub fn h(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_H))
-	}
-
-    pub fn w(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_W))
-	}
-
-    pub fn x(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_X))
-	}
-
-    pub fn y(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_Y))
+    pub fn input_json(&self) -> ScMutableString {
+		ScMutableString::new(self.id, idx_map(IDX_PARAM_INPUT_JSON))
 	}
 }
 

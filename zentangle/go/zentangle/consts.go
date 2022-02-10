@@ -16,16 +16,12 @@ const (
 )
 
 const (
-	ParamBoost                = "boost"
 	ParamDescription          = "description"
-	ParamH                    = "h"
 	ParamImageId              = "imageId"
+	ParamInputJson            = "inputJson"
 	ParamNumberOfImages       = "numberOfImages"
 	ParamOwner                = "owner"
 	ParamTagsRequiredPerImage = "tagsRequiredPerImage"
-	ParamW                    = "w"
-	ParamX                    = "x"
-	ParamY                    = "y"
 )
 
 const (

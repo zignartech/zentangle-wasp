@@ -5,15 +5,13 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-//go:build wasm
 // +build wasm
 
 package main
 
-import (
-	"github.com/iotaledger/wasp/packages/vm/wasmvmhost"
-	"github.com/iotaledger/wasp/zentangle/go/zentangle"
-)
+import "github.com/iotaledger/wasp/packages/vm/wasmvmhost"
+
+import "github.com/iotaledger/wasp/zentangle/go/zentangle"
 
 func main() {
 }

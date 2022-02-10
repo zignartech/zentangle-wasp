@@ -13,16 +13,12 @@ pub const SC_NAME        : &str = "zentangle";
 pub const SC_DESCRIPTION : &str = "Incentivized AI Training Casino";
 pub const HSC_NAME       : ScHname = ScHname(0xf707a9c6);
 
-pub const PARAM_BOOST                   : &str = "boost";
 pub const PARAM_DESCRIPTION             : &str = "description";
-pub const PARAM_H                       : &str = "h";
 pub const PARAM_IMAGE_ID                : &str = "imageId";
+pub const PARAM_INPUT_JSON              : &str = "inputJson";
 pub const PARAM_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const PARAM_OWNER                   : &str = "owner";
 pub const PARAM_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
-pub const PARAM_W                       : &str = "w";
-pub const PARAM_X                       : &str = "x";
-pub const PARAM_Y                       : &str = "y";
 
 pub const RESULT_IMAGE_ID        : &str = "imageId";
 pub const RESULT_OWNER           : &str = "owner";

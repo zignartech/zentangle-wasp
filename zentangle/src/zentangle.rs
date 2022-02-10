@@ -3,6 +3,7 @@
 
 use wasmlib::*;
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 
 use crate::*;
 use crate::structs::*;
@@ -112,7 +113,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // Also, a game has to be in progress.
     ctx.require(f.state.reward().value() != 0_i64,
     "Error: No game in progress");
-
+    
     let mut centers: Vec<Vec<TaggedImage>> = Vec::new(); // stores the center of the clusters for all images
 
     let number_of_images = f.state.number_of_images().value();
@@ -314,24 +315,27 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let mut bet: Option<MutableBet> = None;
     let mut pending_play_id: i32 = 0;
 
-    // convert input as strings to vectors of integers
-    let boost: Vec<i32> = input_str_to_vec32(&f.params.boost().value(), ctx);
-    let x = input_str_to_vec64(&f.params.x().value(), ctx);
-    let y = input_str_to_vec64(&f.params.y().value(), ctx);
-    let h = input_str_to_vec64(&f.params.h().value(), ctx);
-    let w = input_str_to_vec64(&f.params.w().value(), ctx);
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    struct Annotations {
+        x: Vec<i64>,
+        y: Vec<i64>,
+        h: Vec<i64>,
+        w: Vec<i64>,
+        boost: Vec<i32>
+    }
 
-    // each tag has to have x, y, h, w and boost, so they can't be different in quantity
-    ctx.require(
-        boost.len() == x.len() && 
-        x.len() == y.len() &&
-        y.len() == h.len() && 
-        h.len() == w.len(),
-        "Error: Same length required for input parameters."
-    );
+    // convert input as strings to vectors of integers
+    let input: Result<_, serde_json::Error> = serde_json::from_str(&f.params.input_json().value());
+    let mut annotations_option: Option<Annotations> = None;
+    match input {
+        Ok(a)=> annotations_option = Some(a),
+        Err(e) => ctx.panic(&e.to_string())
+    }
+
+    let annotations = annotations_option.unwrap();
 
     // check that boost value is allowed
-    check_boost(boost, players, ctx);
+    check_boost(annotations.boost.clone(), players, ctx);
 
     // Searching for the player's open request. If it doesn't exist, panic.
     // If it does, it will get stored as an option. We will have to use unwrap() to access it
@@ -374,11 +378,11 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let tagged_image = TaggedImage {
         image_id: image_id,
         player: ctx.caller(),
-        boost: f.params.boost().value(),
-        x: f.params.x().value(),
-        y: f.params.y().value(),
-        h: f.params.h().value(),
-        w: f.params.w().value()
+        boost: vec32_to_str(annotations.boost.clone()),
+        x: vec64_to_str(annotations.x),
+        y: vec64_to_str(annotations.y),
+        h: vec64_to_str(annotations.h),
+        w: vec64_to_str(annotations.w)
     };
 
     // Add the tag data to the taggedImage array. The taggedImages array will automatically take care
@@ -810,7 +814,7 @@ fn input_str_to_vec64(string: &String, ctx: &ScFuncContext) -> Vec<i64> {
         let input = i.parse::<i64>();
         match input {
             Ok(integer) => vec64.push(integer),
-            Err(_error) => ctx.panic("Error: Input couldn't be decoded correctly. Must be an integer.")
+            Err(_error) => ctx.panic("Error: Input couldn't be decoded correctly. Must be an int64.")
         }
     }
     return vec64;
@@ -825,7 +829,7 @@ fn input_str_to_vec32(string: &String, ctx: &ScFuncContext) -> Vec<i32>{
         let input = i.parse::<i32>();
         match input {
             Ok(integer) => vec32.push(integer),
-            Err(_error) => ctx.panic("Error: Input couldn't be decoded correctly. Must be an integer.")
+            Err(_error) => ctx.panic("Error: Input couldn't be decoded correctly. Must be an int32.")
         }
     }
     return vec32;
@@ -837,7 +841,7 @@ fn vec32_to_str(vec32: Vec<i32>) -> String{
     let mut string = "".to_string();
     for i in 0..vec32.len() {
         if i != 0 { string += " "; }
-        string.push((vec32[i] as u8) as char);
+        string += &((vec32[i] as u8).to_string());
     }
     return string;
 }
