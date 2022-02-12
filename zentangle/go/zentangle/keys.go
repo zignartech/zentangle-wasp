@@ -15,30 +15,32 @@ const (
 	IdxParamInputJson            = 2
 	IdxParamNumberOfImages       = 3
 	IdxParamOwner                = 4
-	IdxParamTagsRequiredPerImage = 5
+	IdxParamPlayerAddress        = 5
+	IdxParamTagsRequiredPerImage = 6
 
-	IdxResultImageId       = 6
-	IdxResultOwner         = 7
-	IdxResultPlayerBets    = 8
-	IdxResultPlaysPerImage = 9
-	IdxResultResults       = 10
+	IdxResultImageId       = 7
+	IdxResultInfo          = 8
+	IdxResultOwner         = 9
+	IdxResultPlayerBets    = 10
+	IdxResultPlaysPerImage = 11
+	IdxResultResults       = 12
 
-	IdxStateBets                 = 11
-	IdxStateCreator              = 12
-	IdxStateDescription          = 13
-	IdxStateNumberOfImages       = 14
-	IdxStateOwner                = 15
-	IdxStatePendingPlays         = 16
-	IdxStatePlayers              = 17
-	IdxStatePlaysPerImage        = 18
-	IdxStateProcessedImages      = 19
-	IdxStateReward               = 20
-	IdxStateTaggedImages         = 21
-	IdxStateTagsRequiredPerImage = 22
-	IdxStateValidTags            = 23
+	IdxStateBets                 = 13
+	IdxStateCreator              = 14
+	IdxStateDescription          = 15
+	IdxStateNumberOfImages       = 16
+	IdxStateOwner                = 17
+	IdxStatePendingPlays         = 18
+	IdxStatePlayers              = 19
+	IdxStatePlaysPerImage        = 20
+	IdxStateProcessedImages      = 21
+	IdxStateReward               = 22
+	IdxStateTaggedImages         = 23
+	IdxStateTagsRequiredPerImage = 24
+	IdxStateValidTags            = 25
 )
 
-const keyMapLen = 24
+const keyMapLen = 26
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamDescription,
@@ -46,8 +48,10 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	ParamInputJson,
 	ParamNumberOfImages,
 	ParamOwner,
+	ParamPlayerAddress,
 	ParamTagsRequiredPerImage,
 	ResultImageId,
+	ResultInfo,
 	ResultOwner,
 	ResultPlayerBets,
 	ResultPlaysPerImage,

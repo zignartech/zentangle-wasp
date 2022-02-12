@@ -484,15 +484,11 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
     let mut player_bet_strings: Vec<String> = Vec::new();
     for player_bet in player_bets {
         let mut player_bet_string: String = "".to_string();
-        player_bet_string.push_str("{\n");
-        player_bet_string.push_str(&json::stringify("amount"));
-        player_bet_string.push_str(": ");
-        player_bet_string.push_str(&json::stringify(player_bet.amount));
-        player_bet_string.push_str(",\n");
-        player_bet_string.push_str(&json::stringify("address"));
-        player_bet_string.push_str(": ");
-        player_bet_string.push_str(&json::stringify(player_bet.player.address().to_string()));
-        player_bet_string.push_str("\n}");
+        player_bet_string.push_str("{\n\"amount\": \"");
+        player_bet_string.push_str(&player_bet.amount.to_string());
+        player_bet_string.push_str("\",\n\"address\": \"");
+        player_bet_string.push_str(&player_bet.player.address().to_string());
+        player_bet_string.push_str("\"\n}");
         player_bet_strings.push(player_bet_string);
     }
     output.push_str(&player_bet_strings.join(",\n"));
@@ -502,6 +498,29 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
 
     f.results.player_bets().set_value(&output);
 }
+
+pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
+    let player_address = f.params.player_address().value();
+    for i in 0..f.state.players().length() {
+        let player = f.state.players().get_player(i).value();
+        if player.player_id.address().to_string() == player_address{
+            let mut json = "{\n".to_string();
+            json.push_str("\"n_tags\": \"");
+            json.push_str(&player.n_tags.to_string());
+            json.push_str("\",\n\"n_double_boosts\": \"");
+            json.push_str(&player.n_double_boosts.to_string());
+            json.push_str("\",\n\"n_tripple_boosts\": \"");
+            json.push_str(&player.n_tripple_boosts.to_string());
+            json.push_str("\"\n} ");
+
+            f.results.info().set_value(&json);
+            ctx.log(&json);
+        }
+    }
+    f.results.info().set_value("");
+    ctx.log("player not found")
+}
+
 
 // This struct refers to a player regarding it's best accuracy play,
 // the total amount betted and the boost of it's best accuracy play

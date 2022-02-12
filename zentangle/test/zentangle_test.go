@@ -49,6 +49,10 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 	}
 
+	getPlayerInfo := zentangle.ScFuncs.GetPlayerInfo(ctx)
+	getPlayerInfo.Params.PlayerAddress().SetValue(player[5].ScAddress().String())
+	getPlayerInfo.Func.Call()
+
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
 

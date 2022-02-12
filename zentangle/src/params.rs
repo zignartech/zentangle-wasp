@@ -120,6 +120,28 @@ impl MutableSetOwnerParams {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableGetPlayerInfoParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetPlayerInfoParams {
+    pub fn player_address(&self) -> ScImmutableString {
+		ScImmutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetPlayerInfoParams {
+    pub(crate) id: i32,
+}
+
+impl MutableGetPlayerInfoParams {
+    pub fn player_address(&self) -> ScMutableString {
+		ScMutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableGetPlaysPerImageParams {
     pub(crate) id: i32,
 }

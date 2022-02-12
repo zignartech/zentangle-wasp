@@ -18,9 +18,11 @@ pub const PARAM_IMAGE_ID                : &str = "imageId";
 pub const PARAM_INPUT_JSON              : &str = "inputJson";
 pub const PARAM_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const PARAM_OWNER                   : &str = "owner";
+pub const PARAM_PLAYER_ADDRESS          : &str = "playerAddress";
 pub const PARAM_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
 
 pub const RESULT_IMAGE_ID        : &str = "imageId";
+pub const RESULT_INFO            : &str = "info";
 pub const RESULT_OWNER           : &str = "owner";
 pub const RESULT_PLAYER_BETS     : &str = "playerBets";
 pub const RESULT_PLAYS_PER_IMAGE : &str = "playsPerImage";
@@ -49,6 +51,7 @@ pub const FUNC_SET_OWNER           : &str = "setOwner";
 pub const FUNC_WITHDRAW            : &str = "withdraw";
 pub const VIEW_GET_OWNER           : &str = "getOwner";
 pub const VIEW_GET_PLAYER_BETS     : &str = "getPlayerBets";
+pub const VIEW_GET_PLAYER_INFO     : &str = "getPlayerInfo";
 pub const VIEW_GET_PLAYS_PER_IMAGE : &str = "getPlaysPerImage";
 pub const VIEW_GET_RESULTS         : &str = "getResults";
 
@@ -61,5 +64,6 @@ pub const HFUNC_SET_OWNER           : ScHname = ScHname(0x2a15fe7b);
 pub const HFUNC_WITHDRAW            : ScHname = ScHname(0x9dcc0f41);
 pub const HVIEW_GET_OWNER           : ScHname = ScHname(0x137107a6);
 pub const HVIEW_GET_PLAYER_BETS     : ScHname = ScHname(0x842b0ef5);
+pub const HVIEW_GET_PLAYER_INFO     : ScHname = ScHname(0x504151da);
 pub const HVIEW_GET_PLAYS_PER_IMAGE : ScHname = ScHname(0x749519e8);
 pub const HVIEW_GET_RESULTS         : ScHname = ScHname(0xc2ed9edb);

@@ -89,6 +89,22 @@ func (s MutableSetOwnerParams) Owner() wasmlib.ScMutableAgentID {
 	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
 }
 
+type ImmutableGetPlayerInfoParams struct {
+	id int32
+}
+
+func (s ImmutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScImmutableString {
+	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamPlayerAddress])
+}
+
+type MutableGetPlayerInfoParams struct {
+	id int32
+}
+
+func (s MutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScMutableString {
+	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamPlayerAddress])
+}
+
 type ImmutableGetPlaysPerImageParams struct {
 	id int32
 }

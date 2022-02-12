@@ -58,6 +58,12 @@ pub struct GetPlayerBetsCall {
 	pub results: ImmutableGetPlayerBetsResults,
 }
 
+pub struct GetPlayerInfoCall {
+	pub func: ScView,
+	pub params: MutableGetPlayerInfoParams,
+	pub results: ImmutableGetPlayerInfoResults,
+}
+
 pub struct GetPlaysPerImageCall {
 	pub func: ScView,
 	pub params: MutableGetPlaysPerImageParams,
@@ -146,6 +152,16 @@ impl ScFuncs {
             results: ImmutableGetPlayerBetsResults { id: 0 },
         };
         f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        f
+    }
+
+    pub fn get_player_info(_ctx: & dyn ScViewCallContext) -> GetPlayerInfoCall {
+        let mut f = GetPlayerInfoCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_PLAYER_INFO),
+            params: MutableGetPlayerInfoParams { id: 0 },
+            results: ImmutableGetPlayerInfoResults { id: 0 },
+        };
+        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
         f
     }
 
