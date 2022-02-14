@@ -54,6 +54,28 @@ impl MutableCreateGameParams {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableEndGameParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableEndGameParams {
+    pub fn reset_player_info(&self) -> ScImmutableBool {
+		ScImmutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableEndGameParams {
+    pub(crate) id: i32,
+}
+
+impl MutableEndGameParams {
+    pub fn reset_player_info(&self) -> ScMutableBool {
+		ScMutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableInitParams {
     pub(crate) id: i32,
 }

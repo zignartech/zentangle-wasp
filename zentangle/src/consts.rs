@@ -19,6 +19,7 @@ pub const PARAM_INPUT_JSON              : &str = "inputJson";
 pub const PARAM_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const PARAM_OWNER                   : &str = "owner";
 pub const PARAM_PLAYER_ADDRESS          : &str = "playerAddress";
+pub const PARAM_RESET_PLAYER_INFO       : &str = "resetPlayerInfo";
 pub const PARAM_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
 
 pub const RESULT_IMAGE_ID        : &str = "imageId";

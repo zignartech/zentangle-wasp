@@ -72,12 +72,16 @@ fn func_create_game_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct EndGameContext {
+	params: ImmutableEndGameParams,
 	state: MutablezentangleState,
 }
 
 fn func_end_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcEndGame");
 	let f = EndGameContext {
+		params: ImmutableEndGameParams {
+			id: OBJ_ID_PARAMS,
+		},
 		state: MutablezentangleState {
 			id: OBJ_ID_STATE,
 		},
