@@ -72,7 +72,6 @@ func TestPlay2(t *testing.T) {
 	}
 }
 
-/*
 func TestPlay(t *testing.T) {
 	numberOfImages := int32(22)
 
@@ -89,14 +88,14 @@ func TestPlay(t *testing.T) {
 	//make plays
 	for i := 0; int32(i) < numberOfImages-3; i++ {
 		RequestPlay(t, ctx)
-		SendTags(t, ctx, 50, 100, 150, 200, 1)
+		SendTags(t, ctx)
 	}
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200, 2)
+	SendTags(t, ctx)
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200, 2)
+	SendTags(t, ctx)
 	RequestPlay(t, ctx)
-	SendTags(t, ctx, 50, 100, 150, 200, 2)
+	SendTags(t, ctx)
 
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
@@ -115,16 +114,12 @@ func RequestPlay(t *testing.T, _ctx *wasmsolo.SoloContext) {
 	require.NoError(t, ctx.Err)
 }
 
-func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext, x int64, y int64, h int64, w int64, boost int64) {
+func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext) {
 	ctx := _ctx
 
 	f := zentangle.ScFuncs.SendTags(ctx)
-	f.Params.X().SetValue(fmt.Sprint(x))
-	f.Params.Y().SetValue(fmt.Sprint(y))
-	f.Params.H().SetValue(fmt.Sprint(h))
-	f.Params.W().SetValue(fmt.Sprint(w))
-	f.Params.Boost().SetValue(fmt.Sprint(boost))
+	f.Params.InputJson().SetValue(`{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}`)
+
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
-*/

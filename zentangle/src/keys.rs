@@ -32,8 +32,8 @@ pub(crate) const IDX_STATE_CREATOR                 : usize = 15;
 pub(crate) const IDX_STATE_DESCRIPTION             : usize = 16;
 pub(crate) const IDX_STATE_NUMBER_OF_IMAGES        : usize = 17;
 pub(crate) const IDX_STATE_OWNER                   : usize = 18;
-pub(crate) const IDX_STATE_PENDING_PLAYS           : usize = 19;
-pub(crate) const IDX_STATE_PLAYERS                 : usize = 20;
+pub(crate) const IDX_STATE_PENDING_PLAY            : usize = 19;
+pub(crate) const IDX_STATE_PLAYER                  : usize = 20;
 pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 21;
 pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 22;
 pub(crate) const IDX_STATE_REWARD                  : usize = 23;
@@ -63,8 +63,8 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	STATE_DESCRIPTION,
 	STATE_NUMBER_OF_IMAGES,
 	STATE_OWNER,
-	STATE_PENDING_PLAYS,
-	STATE_PLAYERS,
+	STATE_PENDING_PLAY,
+	STATE_PLAYER,
 	STATE_PLAYS_PER_IMAGE,
 	STATE_PROCESSED_IMAGES,
 	STATE_REWARD,

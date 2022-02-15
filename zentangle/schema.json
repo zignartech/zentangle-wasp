@@ -37,12 +37,12 @@
         "creator": "AgentID // the creator of the game",
         "tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
         "bets": "Bet[]",
-        "pendingPlays": "Bet[] // List of Plays that have been requested but not completed",
+        "pendingPlay": "map[String]Bet // List of Plays that have been requested but not completed",
         "playsPerImage": "Int32[] // counts how many times an image has been tagged",
         "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
         "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
         "processedImages": "TaggedImage[]",
-        "players": "Player[] // list of players"
+        "player": "map[String]Player // maps an address to the information of the player"
     },
     "funcs": {
         "init": {

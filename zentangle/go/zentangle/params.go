@@ -41,6 +41,22 @@ func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamTagsRequiredPerImage])
 }
 
+type ImmutableEndGameParams struct {
+	id int32
+}
+
+func (s ImmutableEndGameParams) ResetPlayerInfo() wasmlib.ScImmutableBool {
+	return wasmlib.NewScImmutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+}
+
+type MutableEndGameParams struct {
+	id int32
+}
+
+func (s MutableEndGameParams) ResetPlayerInfo() wasmlib.ScMutableBool {
+	return wasmlib.NewScMutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+}
+
 type ImmutableInitParams struct {
 	id int32
 }

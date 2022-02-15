@@ -52,12 +52,16 @@ func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type EndGameContext struct {
+	Params  ImmutableEndGameParams
 	State   MutablezentangleState
 }
 
 func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcEndGame")
 	f := &EndGameContext{
+		Params: ImmutableEndGameParams{
+			id: wasmlib.OBJ_ID_PARAMS,
+		},
 		State: MutablezentangleState{
 			id: wasmlib.OBJ_ID_STATE,
 		},

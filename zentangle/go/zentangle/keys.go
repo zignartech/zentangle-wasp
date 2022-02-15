@@ -16,31 +16,32 @@ const (
 	IdxParamNumberOfImages       = 3
 	IdxParamOwner                = 4
 	IdxParamPlayerAddress        = 5
-	IdxParamTagsRequiredPerImage = 6
+	IdxParamResetPlayerInfo      = 6
+	IdxParamTagsRequiredPerImage = 7
 
-	IdxResultImageId       = 7
-	IdxResultInfo          = 8
-	IdxResultOwner         = 9
-	IdxResultPlayerBets    = 10
-	IdxResultPlaysPerImage = 11
-	IdxResultResults       = 12
+	IdxResultImageId       = 8
+	IdxResultInfo          = 9
+	IdxResultOwner         = 10
+	IdxResultPlayerBets    = 11
+	IdxResultPlaysPerImage = 12
+	IdxResultResults       = 13
 
-	IdxStateBets                 = 13
-	IdxStateCreator              = 14
-	IdxStateDescription          = 15
-	IdxStateNumberOfImages       = 16
-	IdxStateOwner                = 17
-	IdxStatePendingPlays         = 18
-	IdxStatePlayers              = 19
-	IdxStatePlaysPerImage        = 20
-	IdxStateProcessedImages      = 21
-	IdxStateReward               = 22
-	IdxStateTaggedImages         = 23
-	IdxStateTagsRequiredPerImage = 24
-	IdxStateValidTags            = 25
+	IdxStateBets                 = 14
+	IdxStateCreator              = 15
+	IdxStateDescription          = 16
+	IdxStateNumberOfImages       = 17
+	IdxStateOwner                = 18
+	IdxStatePendingPlay          = 19
+	IdxStatePlayer               = 20
+	IdxStatePlaysPerImage        = 21
+	IdxStateProcessedImages      = 22
+	IdxStateReward               = 23
+	IdxStateTaggedImages         = 24
+	IdxStateTagsRequiredPerImage = 25
+	IdxStateValidTags            = 26
 )
 
-const keyMapLen = 26
+const keyMapLen = 27
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamDescription,
@@ -49,6 +50,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	ParamNumberOfImages,
 	ParamOwner,
 	ParamPlayerAddress,
+	ParamResetPlayerInfo,
 	ParamTagsRequiredPerImage,
 	ResultImageId,
 	ResultInfo,
@@ -61,8 +63,8 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StateDescription,
 	StateNumberOfImages,
 	StateOwner,
-	StatePendingPlays,
-	StatePlayers,
+	StatePendingPlay,
+	StatePlayer,
 	StatePlaysPerImage,
 	StateProcessedImages,
 	StateReward,

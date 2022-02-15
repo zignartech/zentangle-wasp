@@ -16,6 +16,7 @@ type CreateGameCall struct {
 
 type EndGameCall struct {
 	Func    *wasmlib.ScFunc
+	Params  MutableEndGameParams
 }
 
 type InitCall struct {
@@ -81,7 +82,9 @@ func (sc Funcs) CreateGame(ctx wasmlib.ScFuncCallContext) *CreateGameCall {
 }
 
 func (sc Funcs) EndGame(ctx wasmlib.ScFuncCallContext) *EndGameCall {
-	return &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
+	f := &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
+	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
 }
 
 func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {

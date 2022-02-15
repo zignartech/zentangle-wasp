@@ -1,6 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use serde::de::EnumAccess;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use wasmlib::*;
@@ -227,10 +228,10 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // reset the players information (boost related), unless specified otherwise using reset_player_info as false
     let reset_player_info = f.params.reset_player_info();
     if !reset_player_info.exists() {
-        f.state.players().clear();
+        f.state.player().clear();
     } else {
         if reset_player_info.value() == true {
-            f.state.players().clear();
+            f.state.player().clear();
         }
     }
 
@@ -239,7 +240,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     f.state.plays_per_image().clear();
     f.state.tagged_images().clear();
     f.state.reward().set_value(0_i64);
-    f.state.pending_plays().clear();
+    f.state.pending_play().clear();
     f.state.valid_tags().clear();
 
     ctx.event(&format!("dtag.game.ended",));
@@ -255,16 +256,11 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     let number_of_images = f.state.number_of_images().value();
     let player = ctx.caller();
     let plays_per_image = f.state.plays_per_image();
-    let pending_plays = f.state.pending_plays();
+    let pending_play = f.state.pending_play().get_bet(&player.address().to_string());
 
     // Check if the player has an open request. If it does, panic.
-    for i in 0..pending_plays.length() {
-        if !pending_plays.get_bet(i).exists() {
-            continue;
-        }
-        if pending_plays.get_bet(i).value().player == ctx.caller() {
-            panic("Error: Player already has an open request");
-        }
+    if pending_play.exists() {
+        panic("Error: Player already has an open request");
     }
 
     // Check if any images are available for the player to tag. If all are tagged the required amount of times
@@ -339,13 +335,12 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         image_id: image_id,
     };
 
-    // Append the bet data to the bets array and to the pending plays array.
+    // Append the bet data to the bets array and to the pending plays map.
     // They will automatically take care of serializing the bet struct into a bytes representation.
     let bets: ArrayOfMutableBet = f.state.bets();
     let bets_nr: i32 = bets.length();
     bets.get_bet(bets_nr).set_value(&bet);
-    let pending_plays_nr: i32 = pending_plays.length();
-    pending_plays.get_bet(pending_plays_nr).set_value(&bet);
+    pending_play.set_value(&bet);
 
     ctx.event(&format!(
         "play.requested {0} {1} {2}",
@@ -367,10 +362,8 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 // - 'h', which must be an Int64 number and
 // - 'w', which must be an Int64 number
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
-    let pending_plays: ArrayOfMutableBet = f.state.pending_plays();
+    let bet = f.state.pending_play().get_bet(&ctx.caller().address().to_string());
     let tags_req_per_image = f.state.tags_required_per_image().value();
-    let pending_plays_length = pending_plays.length();
-    let mut bet: Option<MutableBet> = None;
     let mut pending_play_id: i32 = 0;
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -396,25 +389,18 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     check_boost(annotations.boost.clone(), f, ctx);
 
     // Searching for the player's open request. If it doesn't exist, panic.
-    // If it does, it will get stored as an option. We will have to use unwrap() to access it
-    for i in 0..pending_plays_length {
-        if pending_plays.get_bet(i).value().player.address() == ctx.caller().address() {
-            bet = Some(pending_plays.get_bet(i));
-            pending_play_id = i;
-            break;
-        }
-    }
-    if bet.is_none() {
+    if !bet.exists() {
         ctx.panic("Error: No plays requested for this address");
     }
 
     // Get the image_id and the number of times a play has been made for this image.
-    let image_id = bet.unwrap().value().image_id;
+    let image_id = bet.value().image_id;
     let plays_per_image: i32 = f.state.plays_per_image().get_int32(image_id).value();
 
-    // We delete the bet from the pending plays by clearing the array and copying again, minus the bet of the player
+    // We delete the bet from the pending plays
+    bet.delete();
+    /*
     let mut vec_pending_plays: Vec<Bet> = Vec::new();
-
     for i in 0..pending_plays.length() {
         vec_pending_plays.push(f.state.pending_plays().get_bet(i).value());
     }
@@ -430,7 +416,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
             .pending_plays()
             .get_bet(i - 1)
             .set_value(&vec_pending_plays[i as usize]);
-    }
+    }*/
 
     // If the image has all it's required plays, we panic.
     // Note that the request has been removed from the pendingPlays list
@@ -574,25 +560,23 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
 }
 
 pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
-    let player_address = f.params.player_address().value();
-    for i in 0..f.state.players().length() {
-        let player = f.state.players().get_player(i).value();
-        if player.player_id.address().to_string() == player_address {
-            let mut json = "{\n".to_string();
-            json.push_str("\"n_tags\": \"");
-            json.push_str(&player.n_tags.to_string());
-            json.push_str("\",\n\"n_double_boosts\": \"");
-            json.push_str(&player.n_double_boosts.to_string());
-            json.push_str("\",\n\"n_tripple_boosts\": \"");
-            json.push_str(&player.n_tripple_boosts.to_string());
-            json.push_str("\"\n} ");
-
-            f.results.info().set_value(&json);
-            ctx.log(&json);
-        }
+    let player_address = f.params.player_address().value().to_string();
+    let player = f.state.player().get_player(&player_address);
+    if !player.exists() {
+        ctx.panic("player not found");
     }
-    f.results.info().set_value("");
-    ctx.log("player not found")
+
+    let mut json = "{\n".to_string();
+    json.push_str("\"n_tags\": \"");
+    json.push_str(&player.value().n_tags.to_string());
+    json.push_str("\",\n\"n_double_boosts\": \"");
+    json.push_str(&player.value().n_double_boosts.to_string());
+    json.push_str("\",\n\"n_tripple_boosts\": \"");
+    json.push_str(&player.value().n_tripple_boosts.to_string());
+    json.push_str("\"\n} ");
+
+    f.results.info().set_value(&json);
+    ctx.log(&json);
 }
 
 // This struct refers to a player regarding it's best accuracy play,
@@ -622,18 +606,14 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
     let mut n_double_boosts = 0;
     let mut n_tripple_boosts = 0;
     let mut n_tags = 0;
-    let players: ArrayOfMutablePlayer = f.state.players();
-    let mut player_pos = players.length();
+    let player_address = &ctx.caller().address().to_string();
 
-    // Fill in the variables
-    for i in 0..players.length() {
-        if ctx.caller() == players.get_player(i).value().player_id {
-            n_double_boosts = players.get_player(i).value().n_double_boosts;
-            n_tripple_boosts = players.get_player(i).value().n_tripple_boosts;
-            n_tags = players.get_player(i).value().n_tags;
-            player_pos = i;
-            break;
-        }
+    let player = f.state.player().get_player(player_address);
+    // Fill in the variables if the player has a history
+    if player.exists() {
+        n_double_boosts = player.value().n_double_boosts;
+        n_tripple_boosts = player.value().n_tripple_boosts;
+        n_tags = player.value().n_tags;
     }
 
     // For every boost value, check if it's valid for the player
@@ -665,7 +645,10 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
             n_tripple_boosts: n_tripple_boosts,
         };
 
-        players.get_player(player_pos).set_value(&player);
+        f.state
+            .player()
+            .get_player(player_address)
+            .set_value(&player);
     }
 }
 

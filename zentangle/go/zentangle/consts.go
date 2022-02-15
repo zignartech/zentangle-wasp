@@ -22,6 +22,7 @@ const (
 	ParamNumberOfImages       = "numberOfImages"
 	ParamOwner                = "owner"
 	ParamPlayerAddress        = "playerAddress"
+	ParamResetPlayerInfo      = "resetPlayerInfo"
 	ParamTagsRequiredPerImage = "tagsRequiredPerImage"
 )
 
@@ -40,8 +41,8 @@ const (
 	StateDescription          = "description"
 	StateNumberOfImages       = "numberOfImages"
 	StateOwner                = "owner"
-	StatePendingPlays         = "pendingPlays"
-	StatePlayers              = "players"
+	StatePendingPlay          = "pendingPlay"
+	StatePlayer               = "player"
 	StatePlaysPerImage        = "playsPerImage"
 	StateProcessedImages      = "processedImages"
 	StateReward               = "reward"
