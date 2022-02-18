@@ -4,12 +4,12 @@
 
 ./wasp-cli chain deposit IOTA:10000
 
-./wasp-cli chain deploy-contract wasmtime dtag "DTag SC v" ./dtag_bg.wasm
+./wasp-cli chain deploy-contract wasmtime zentangle "Zentangle SC" ./zentangle_bg.wasm
 
-./wasp-cli chain post-request dtag createGame string numberOfImages int32 2 string description string "esto es un test" -t IOTA:10000
+./wasp-cli chain post-request zentangle createGame string numberOfImages int32 2 string description string "test game" -t IOTA:10000
 
-./wasp-cli chain post-request dtag requestPlay | ./wasp-cli decode string imageId string
+./wasp-cli chain post-request zentangle requestPlay | ./wasp-cli decode string imageId string
 
-./wasp-cli chain post-request dtag sendTags string x int 50 string y int 100 string h int 150 string w int 200
+./wasp-cli chain post-request zentangle sendTags string inputJson string '{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}'
 
 -----------------------------------------------------------------------------------------

@@ -364,7 +364,6 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let bet = f.state.pending_play().get_bet(&ctx.caller().address().to_string());
     let tags_req_per_image = f.state.tags_required_per_image().value();
-    let mut pending_play_id: i32 = 0;
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
     struct Annotations {
@@ -399,24 +398,6 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     // We delete the bet from the pending plays
     bet.delete();
-    /*
-    let mut vec_pending_plays: Vec<Bet> = Vec::new();
-    for i in 0..pending_plays.length() {
-        vec_pending_plays.push(f.state.pending_plays().get_bet(i).value());
-    }
-    f.state.pending_plays().clear();
-    for i in 0..pending_play_id {
-        f.state
-            .pending_plays()
-            .get_bet(i)
-            .set_value(&vec_pending_plays[i as usize]);
-    }
-    for i in pending_play_id + 1..pending_plays_length {
-        f.state
-            .pending_plays()
-            .get_bet(i - 1)
-            .set_value(&vec_pending_plays[i as usize]);
-    }*/
 
     // If the image has all it's required plays, we panic.
     // Note that the request has been removed from the pendingPlays list
