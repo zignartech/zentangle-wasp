@@ -3,7 +3,7 @@ Introduction
 Decentralized Tagging is a way to tag images given a certain descriprion, but in a decentralized and incentivazed way. This tagged images can then be used to train a Deep Learning algorithm to recognize an object in an image. Zentangle consists of taking a usually tedious and monotone task of spending many hours tagging images, and making it a game, where anyone can not only tag images given a description and recieve rewards for it, but bet against other players on their tags being the most precise.
 
 A tag consists of a rectangle inside an image represented by a four dimentional point, one dimention for each component of the tag: x and y positions of the upper left corner of the tag, h for the hight of the rectangle and w for it’s width. And example can be seen in image 1.
-![Image 1: Tag of a bee](annotation_example.png)
+![Image 1: Tag of a bee](annotation_example.jpeg)
 
 Summary
 The SC has the purpose of taking data and a reward from a researcher that wants to get the images tagged and making sure that users that tag images (taggers) make correct tags. If they dont, discard the data and do not reward them for the wrong tags. On the other hand, the SC accepts payments from the taggers that want to bet that their tags are the best and then, at the end, distributes that money in an exponential function given the taggers position in the top list.
