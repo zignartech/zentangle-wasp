@@ -22,6 +22,7 @@ pub struct CreateGameCall {
 
 pub struct EndGameCall {
 	pub func: ScFunc,
+	pub params: MutableEndGameParams,
 }
 
 pub struct InitCall {
@@ -58,6 +59,12 @@ pub struct GetPlayerBetsCall {
 	pub results: ImmutableGetPlayerBetsResults,
 }
 
+pub struct GetPlayerInfoCall {
+	pub func: ScView,
+	pub params: MutableGetPlayerInfoParams,
+	pub results: ImmutableGetPlayerInfoResults,
+}
+
 pub struct GetPlaysPerImageCall {
 	pub func: ScView,
 	pub params: MutableGetPlaysPerImageParams,
@@ -84,9 +91,12 @@ impl ScFuncs {
     }
 
     pub fn end_game(_ctx: & dyn ScFuncCallContext) -> EndGameCall {
-        EndGameCall {
+        let mut f = EndGameCall {
             func: ScFunc::new(HSC_NAME, HFUNC_END_GAME),
-        }
+            params: MutableEndGameParams { id: 0 },
+        };
+        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f
     }
 
     pub fn init(_ctx: & dyn ScFuncCallContext) -> InitCall {
@@ -146,6 +156,16 @@ impl ScFuncs {
             results: ImmutableGetPlayerBetsResults { id: 0 },
         };
         f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        f
+    }
+
+    pub fn get_player_info(_ctx: & dyn ScViewCallContext) -> GetPlayerInfoCall {
+        let mut f = GetPlayerInfoCall {
+            func: ScView::new(HSC_NAME, HVIEW_GET_PLAYER_INFO),
+            params: MutableGetPlayerInfoParams { id: 0 },
+            results: ImmutableGetPlayerInfoResults { id: 0 },
+        };
+        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
         f
     }
 

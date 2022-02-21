@@ -16,6 +16,7 @@ type CreateGameCall struct {
 
 type EndGameCall struct {
 	Func    *wasmlib.ScFunc
+	Params  MutableEndGameParams
 }
 
 type InitCall struct {
@@ -52,6 +53,12 @@ type GetPlayerBetsCall struct {
 	Results ImmutableGetPlayerBetsResults
 }
 
+type GetPlayerInfoCall struct {
+	Func    *wasmlib.ScView
+	Params  MutableGetPlayerInfoParams
+	Results ImmutableGetPlayerInfoResults
+}
+
 type GetPlaysPerImageCall struct {
 	Func    *wasmlib.ScView
 	Params  MutableGetPlaysPerImageParams
@@ -75,7 +82,9 @@ func (sc Funcs) CreateGame(ctx wasmlib.ScFuncCallContext) *CreateGameCall {
 }
 
 func (sc Funcs) EndGame(ctx wasmlib.ScFuncCallContext) *EndGameCall {
-	return &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
+	f := &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
+	f.Func.SetPtrs(&f.Params.id, nil)
+	return f
 }
 
 func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
@@ -115,6 +124,12 @@ func (sc Funcs) GetOwner(ctx wasmlib.ScViewCallContext) *GetOwnerCall {
 func (sc Funcs) GetPlayerBets(ctx wasmlib.ScViewCallContext) *GetPlayerBetsCall {
 	f := &GetPlayerBetsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlayerBets)}
 	f.Func.SetPtrs(nil, &f.Results.id)
+	return f
+}
+
+func (sc Funcs) GetPlayerInfo(ctx wasmlib.ScViewCallContext) *GetPlayerInfoCall {
+	f := &GetPlayerInfoCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlayerInfo)}
+	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
 	return f
 }
 

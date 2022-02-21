@@ -15,30 +15,33 @@ const (
 	IdxParamInputJson            = 2
 	IdxParamNumberOfImages       = 3
 	IdxParamOwner                = 4
-	IdxParamTagsRequiredPerImage = 5
+	IdxParamPlayerAddress        = 5
+	IdxParamResetPlayerInfo      = 6
+	IdxParamTagsRequiredPerImage = 7
 
-	IdxResultImageId       = 6
-	IdxResultOwner         = 7
-	IdxResultPlayerBets    = 8
-	IdxResultPlaysPerImage = 9
-	IdxResultResults       = 10
+	IdxResultImageId       = 8
+	IdxResultInfo          = 9
+	IdxResultOwner         = 10
+	IdxResultPlayerBets    = 11
+	IdxResultPlaysPerImage = 12
+	IdxResultResults       = 13
 
-	IdxStateBets                 = 11
-	IdxStateCreator              = 12
-	IdxStateDescription          = 13
-	IdxStateNumberOfImages       = 14
-	IdxStateOwner                = 15
-	IdxStatePendingPlays         = 16
-	IdxStatePlayers              = 17
-	IdxStatePlaysPerImage        = 18
-	IdxStateProcessedImages      = 19
-	IdxStateReward               = 20
-	IdxStateTaggedImages         = 21
-	IdxStateTagsRequiredPerImage = 22
-	IdxStateValidTags            = 23
+	IdxStateBets                 = 14
+	IdxStateCreator              = 15
+	IdxStateDescription          = 16
+	IdxStateNumberOfImages       = 17
+	IdxStateOwner                = 18
+	IdxStatePendingPlay          = 19
+	IdxStatePlayer               = 20
+	IdxStatePlaysPerImage        = 21
+	IdxStateProcessedImages      = 22
+	IdxStateReward               = 23
+	IdxStateTaggedImages         = 24
+	IdxStateTagsRequiredPerImage = 25
+	IdxStateValidTags            = 26
 )
 
-const keyMapLen = 24
+const keyMapLen = 27
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamDescription,
@@ -46,8 +49,11 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	ParamInputJson,
 	ParamNumberOfImages,
 	ParamOwner,
+	ParamPlayerAddress,
+	ParamResetPlayerInfo,
 	ParamTagsRequiredPerImage,
 	ResultImageId,
+	ResultInfo,
 	ResultOwner,
 	ResultPlayerBets,
 	ResultPlaysPerImage,
@@ -57,8 +63,8 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StateDescription,
 	StateNumberOfImages,
 	StateOwner,
-	StatePendingPlays,
-	StatePlayers,
+	StatePendingPlay,
+	StatePlayer,
 	StatePlaysPerImage,
 	StateProcessedImages,
 	StateReward,

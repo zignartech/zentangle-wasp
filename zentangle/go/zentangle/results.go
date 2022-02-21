@@ -57,6 +57,22 @@ func (s MutableGetPlayerBetsResults) PlayerBets() wasmlib.ScMutableString {
 	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultPlayerBets])
 }
 
+type ImmutableGetPlayerInfoResults struct {
+	id int32
+}
+
+func (s ImmutableGetPlayerInfoResults) Info() wasmlib.ScImmutableString {
+	return wasmlib.NewScImmutableString(s.id, idxMap[IdxResultInfo])
+}
+
+type MutableGetPlayerInfoResults struct {
+	id int32
+}
+
+func (s MutableGetPlayerInfoResults) Info() wasmlib.ScMutableString {
+	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultInfo])
+}
+
 type ImmutableGetPlaysPerImageResults struct {
 	id int32
 }

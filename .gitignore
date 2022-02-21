@@ -22,5 +22,6 @@ wasp-cli.json
 **/node_modules/
 goshimmer.log
 /*.sh
+wasp-cli.json
 /zentangle/target/
 /zentangle/pkg/

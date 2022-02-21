@@ -39,6 +39,7 @@ fn on_load() {
     exports.add_func(FUNC_WITHDRAW,            func_withdraw_thunk);
     exports.add_view(VIEW_GET_OWNER,           view_get_owner_thunk);
     exports.add_view(VIEW_GET_PLAYER_BETS,     view_get_player_bets_thunk);
+    exports.add_view(VIEW_GET_PLAYER_INFO,     view_get_player_info_thunk);
     exports.add_view(VIEW_GET_PLAYS_PER_IMAGE, view_get_plays_per_image_thunk);
     exports.add_view(VIEW_GET_RESULTS,         view_get_results_thunk);
 
@@ -71,12 +72,16 @@ fn func_create_game_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct EndGameContext {
+	params: ImmutableEndGameParams,
 	state: MutablezentangleState,
 }
 
 fn func_end_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcEndGame");
 	let f = EndGameContext {
+		params: ImmutableEndGameParams {
+			id: OBJ_ID_PARAMS,
+		},
 		state: MutablezentangleState {
 			id: OBJ_ID_STATE,
 		},
@@ -226,6 +231,30 @@ fn view_get_player_bets_thunk(ctx: &ScViewContext) {
 	};
 	view_get_player_bets(ctx, &f);
 	ctx.log("zentangle.viewGetPlayerBets ok");
+}
+
+pub struct GetPlayerInfoContext {
+	params: ImmutableGetPlayerInfoParams,
+	results: MutableGetPlayerInfoResults,
+	state: ImmutablezentangleState,
+}
+
+fn view_get_player_info_thunk(ctx: &ScViewContext) {
+	ctx.log("zentangle.viewGetPlayerInfo");
+	let f = GetPlayerInfoContext {
+		params: ImmutableGetPlayerInfoParams {
+			id: OBJ_ID_PARAMS,
+		},
+		results: MutableGetPlayerInfoResults {
+			id: OBJ_ID_RESULTS,
+		},
+		state: ImmutablezentangleState {
+			id: OBJ_ID_STATE,
+		},
+	};
+	ctx.require(f.params.player_address().exists(), "missing mandatory playerAddress");
+	view_get_player_info(ctx, &f);
+	ctx.log("zentangle.viewGetPlayerInfo ok");
 }
 
 pub struct GetPlaysPerImageContext {

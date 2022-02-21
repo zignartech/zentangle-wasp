@@ -44,3 +44,6 @@ func viewGetPlaysPerImage(ctx wasmlib.ScViewContext, f *GetPlaysPerImageContext)
 
 func viewGetResults(ctx wasmlib.ScViewContext, f *GetResultsContext) {
 }
+
+func viewGetPlayerInfo(ctx wasmlib.ScViewContext, f *GetPlayerInfoContext) {
+}

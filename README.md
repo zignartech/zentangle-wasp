@@ -1,85 +1,214 @@
 # Zentangle Smart Contract
-Introduction
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Summary](#summary)
+3. [Structure](#structure)
+4. [Algorithms](#algorithms)
+5. [Deploy Locally](#deploy-locally)
+
+## Introduction
 Decentralized Tagging is a way to tag images given a certain descriprion, but in a decentralized and incentivazed way. This tagged images can then be used to train a Deep Learning algorithm to recognize an object in an image. Zentangle consists of taking a usually tedious and monotone task of spending many hours tagging images, and making it a game, where anyone can not only tag images given a description and recieve rewards for it, but bet against other players on their tags being the most precise.
 
 A tag consists of a rectangle inside an image represented by a four dimentional point, one dimention for each component of the tag: x and y positions of the upper left corner of the tag, h for the hight of the rectangle and w for it’s width. And example can be seen in image 1.
 ![Image 1: Tag of a bee](annotation_example.jpeg)
 
-Summary
+## Summary
 The SC has the purpose of taking data and a reward from a researcher that wants to get the images tagged and making sure that users that tag images (taggers) make correct tags. If they dont, discard the data and do not reward them for the wrong tags. On the other hand, the SC accepts payments from the taggers that want to bet that their tags are the best and then, at the end, distributes that money in an exponential function given the taggers position in the top list.
 
 The steps that follows the SC in a normal round are as follows:
 
 * A researcher creates a round, specifying the amount of images to tag, a description of how to tag them and the amount of players to tag every image.
+
 * A player requests to tag an image and can place a bet.
+
 * The SC chooses an image randomly and returns it’s id to the player.
+
 * The player tags the image and sends the tagging data to the SC, witch stores it.
+
 * After many players have tagged images, the researcher decides to end the round.
+
 * The SC takes all the tagging data and, for every image, calculates clusters of four dimentional points representing the tags. Small clusters get discarted as invalid tags. Then, it pays for every valid tag equally with the money placed by the researcher.
+
 * The SC calculates the player’s ranking based on the valid tag’s distance to the center of their respective clusters. It proceeds to order a list of all players with a valid tag, given their best tag (with the shortest distance to the cluster’s center). The best players get exponentially better payouts, allways proportional to their cumullative bets.
 
 Now, let’s dive deeper into the details.
 
-[Wasp](https://github.com/iotaledger/wasp) is a node software developed by the
-[IOTA Foundation](http://iota.org) to run the _IOTA Smart Contract Protocol_
-(_ISCP_ in short) on top of the _IOTA Tangle_.  Here's a [high level
-introduction](https://blog.iota.org/an-introduction-to-iota-smart-contracts-16ea6f247936)
-into ISCP.
+## Structure
+The smart contract consists of four main functions: createRound , requestPlay , sendTags and endGame plus three functions related to the owner of the smart contract: init, setOwner and withdraw. There are also state variables that store key information for the functioning of the SC:
 
-The comprehensive overview of design decisions of _IOTA Smart Contracts_ can be found in the
-[whitepaper](https://github.com/iotaledger/wasp/raw/master/documentation/ISC_WP_Nov_10_2021.pdf).
+```
+"state": {
+		"owner": "AgentID // current owner of this smart contract",
+		"numberOfImages": "Int32 // total number of images to tag",
+		"reward": "Int64 // current reward to split between players",
+		"description": "String // details on how should the images be tagged",
+		"creator": "AgentID // the creator of the game",
+		"tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
+		"bets": "Bet[]",
+		"pendingPlay": "map[String]Bet // maps a players address to the Play that has been requested but not completed",
+        "playsPerImage": "Int32[] // counts how many times an image has been tagged",
+        "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
+        "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
+        "processedImages": "TaggedImage[]",
+        "player": "map[String]Player // maps an address to the information of the player"
+	}
+```
+To understand these, it is also necessary to know the TaggedImage , Bet, ValidTag and Player structs:
 
-## Documentation
+```"TaggedImage": {
+	"imageId": "Int32",
+	"player": "AgentID // player that has tagged this image",
+	"boost":"String // if the tags will be boosted or not",
+	"x": "String // x top-left positions of the Tags",
+	"y": "String // y top-left positions of the Tags",
+	"w": "String // widths of the Tags",
+	"h": "String // heights of the Tags"
+},
+"Bet": {
+	"amount": "Int64",
+	"player": "AgentID // player placing the bet",
+	"imageId": "Int32"
+},
+"ValidTag": {
+	"player": "AgentID // player placing the bet",
+	"taggedImage": "Int32",
+	"playTagId": "Int32 // Identifier to distinguish different tags in the same play"
+},
+"Player": {
+	"playerId": "AgentID // The player",
+	"nTags": "Int64 // Number of tags made by the player in the current round",
+	"nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
+	"nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
+}
+```
+The descriptions and names leave it clear what they are for, with exception perhaps of some of the last state variables. taggedImages is a list of TaggedImages and it stores all the plays that have been made in the round, so at the end we should have a length of exactly  numberOfImages times tagsRequiredPerImage. 
 
-The documentation for Wasp and IOTA Smart Contracts can be found on the [IOTA Wiki](https://wiki.iota.org/wasp/overview).
+The TaggedImage struct has the imageId of the image being tagged, the player that tagged the image (in some aplications is left with a default value) and the information of the many tags it contains. Note that x, y, h, w and boost are strings. These strings contain n amount of variables, one for every tag and are separated using spaces.
 
-## Contributing
+On the other hand, processedImages refers to the images that are the final tags, that is, after the clusterization algorithm, we are left with the four-dimentional centers of the clusters, that represent the average x, y, h and w of a valid tag. This is the output data that can be used to train a Deep Learning algorithm.
 
-If you want to contribute to this repository, consider posting a [bug
-report](https://github.com/iotaledger/wasp/issues/new-issue), feature request
-or a [pull request](https://github.com/iotaledger/wasp/pulls/).
+Lastly, the playerstate variable is here to keep track of the amount of boosts that the players have used and the amount of tags they have made. This is used to check if they can use a 2x or 3x boost.
 
-Please read [this](documentation/docs/contribute.md) before creating a pull request.
+## Algorithms
+### Clusterization algorithm
+The clusterization algorithm used to merge the tags that are close to eachother is called “Aglomerative Hierarchical Clusterization Algorithm“. This algorithm, unlike most of other clusterization algorithms, doesn't take as manual input the amount of clusters to consider. This is important, because we do not know how many they will be. It does require a manual input tho, and it is the distance at which it will no longer merge two particular clusters.
 
-You can also join our [Discord server](https://discord.iota.org/) and ping us
-in `#smartcontracts-dev`.
+The  “Aglomerative Hierarchical Clusterization Algorithm“ works as follows: 
 
+* Every point starts as a cluster
 
-# Data Clustering Smart Contract
-The Data Clustering Smart Contract processes the annotation data made by players to calculate the centers of each cluster, identify outliers, and reward players based on the relative accuracy compared to other players making sure that the collective annotation is completed with accuracy. The outlier annotations are discarded and are not eligible for campaign rewards. 
+* Find the two closests clusters
 
-On the other hand, the Data Clustering Smart Contract accepts additional payments from the players that want to increase their bet during the campaigns. At the end of the campaign, the smart contract distributes the sponsored bets and players bets based on the power of two of the relative positions multiplied by the total amount of the player's bet relative to the total betting pot.
+* Merge those clusters into one cluster. In our case, we set it’s new coordinates as the average of all points inside both clusters. This is because our clusters normally take a circular shape.
 
-The steps followed by system in a normal campaign are as follows:
-1. A data scientist creates a campaign uploading the images to annotate including the objective, annotation classes, key words, number of annotators, number of validators and pays to the smart contract for the campaign.
-1. The backend creates unique identifiers for the images and sends the campaign details to the smart contract.
-1. Once the Data Clustering Smart Contract receives the funds and image list with all the details in place, players can request images through the application frontend to start annotating and betting.
-1. The smart contract chooses an image ID randomly and sends it to the frontend, then the frontend pulls the image from the backend and presents it to the player.
-1. The player annotates the image and sends the annotation details by requesting the next image to the smart contract. Each image annotation has four dimensions: X coordinate, Y coordinate, Height and Width.
-1. After the number of annotators previously defined by the data scientist (sovereign) is reached for an image, the smart contract marks the image as attempted, not presenting it to other players until the campaign is completed.
-1. When the campaign is completed the smart contract takes all the annotation data, for every image, and starts to calculate the annotation clusters using the four dimensions that represent each annotation. 
-1. The smart contract discards small clusters or outliers, and calculates the distribution among valid annotations.
-1. The Data Clustering Smart Contract ranks players based on shortest distance to the center of each annotated image, considering only the best image of each player. Then, take the total number of players plus one minus the position to the power of two to calculate the positions points for each player.
-    * Position Points = (number of players + 1 - player’s position) ^ 2
-1. The smart contract uses each player's bet considering sponsored bet amount and the total additional bet amount to multiply this with the position points.
-    * Player’s Bet = (Sponsored Bet amount + all Total Additional Bet amount)
-    * Players points = ( Player’s Bet * Position Points)
-1. Valid play’s that haven’t been marked as outliers, are used by the smart contract to divide each Player’s Points by All Players Aggregated Points and multiplies this division with the total Betting Pot to determine the reward for each player.
-    * Reward = (Player Points / All Players Aggregated Points ) * Betting Pot
-1. Finally, the smart contract starts to fund the rewards directly to the registered wallets of players. The players with most accuracy get exponentially better payouts, and proportionally to their cumulative bets.
-1. If all annotations made by a player are marked as outliers, then the betting funds go to ZenTangle Wallet, but if at least one image is not marked as outlier, then the player is rewarded depending on how that image annotation is ranked.
+* Repeat this step until the two closest clusters are further away than the minimum distance set in the MIN_INTER_CLUSTER_DISTANCE constant. 
 
-# Data Clustering Algorithm
-The clusterization algorithm used to merge the annotations that are close to each other is called **Agglomerative Hierarchical Clusterization Algorithm**. This algorithm, unlike most of other clusterization algorithms, doesn't take as manual input the amount of clusters to consider. This is an important feature, because we do not know how many annotations there will be. Tho, it does require a manual input, this is the distance at which it will no longer merge two particular clusters.
+In our Smart Contract, we also count the amount of points inside of the clusters. If it is less than X% of players, set by the CONFIRMATION_PERCENTAGE constant, then the cluster is discarted, and not considered for the results.
 
-The  “Agglomerative Hierarchical Clusterization Algorithm“ works as follows: 
+### Reward algorithms
+There are two kinds of rewards for players. Both of this rewards only apply for valid tags.
 
-1. Every annotation starts as a cluster.
-1. Find the two closest clusters.
-1. Merge those clusters into one cluster. In our case, we set it’s new coordinates as the average of all points inside both clusters. This is because our clusters normally take a circular shape.
-1. Repeat this step until the two closest clusters are further away than the minimum distance set as the minimum inter cluster distance constant. 
-1. The algorithm counts the amount of points inside of clusters; if this number is less than the confirmation percentage of players, then the cluster is discarded, and not considered for the results. The confirmation percentage is a constant parameter.
+The first reward is paid with the funds given by the researcher and is split equally between all valid tags. This way, players get rewarded proportionally to their contribution.
 
-As mentioned before, images are presented randomly by the smart contract and the plays are only accepted from verified players through the frontend. Then, an important assumption is that, at any moment, collectively all players will not set up more than one annotation at the same time for the same object in the image. This allows the algorithm to iterate until the number of clusters matches the objects to annotate compared to other players, ensuring that some player's repeated annotations for the same object can be discarded. These features allow the algorithm to work for images with low or moderate agglomeration of objects.
+The second reward comes from the betting money. For this reward, the calculation is as follows:
 
-The algorithm decides if a cluster is valid using a percentage of players that annotate an object near the same coordinates, this percentage is known as **confirmation percentage**. But the algorithm also can decide on the tags. If there are two or more tags from a player within the same cluster, then this point is left apart with another in similar conditions, and then only over these points, the algorithm is applied again, looking for new possible clusters using the **confirmation percentage**. This could happen if two objects are to close one from the other, and two tags of the same player are close enough.
+* List all bets that come with a valid tag (using the list from first reward)
+
+* Filter the ones who's players are repeated, leaving only the best bet by accuracy
+
+* Calculate the total amount of iotas betted by each of theese players
+
+* Sort the bets list by tag accuracy
+
+* Calculate the total amount of iotas betted
+
+* Pay each player on the bets list the following amount: 
+
+`position²*boost*amount_betted*const`
+
+where:
+
+position: the players position on the list, where higher is better. Ties exist.
+
+boos: the boost constant of the tag
+
+amount_betted: the total amount betted by the player in the round
+
+const: calculated so that the sum of all payouts is equal to the total amount of iotas betted
+
+## Deploy locally
+First, you want to clone the Github wasp repository from the iota foundation: GitHub - iotaledger/wasp at develop 
+
+You also want to have the wasm file of the smart contract you want to deploy.
+
+When that is done, you will want to build all the tools that come with the wasp repo. We will use the wasp tool to run a local node and the wasp-cli to interact with the smart contract. Make sure you have go installed and on the path.
+
+`make install`
+
+`make`
+
+After this, create a folder inside the wasp folder, called wasp-node. In this folder, we will store the database of the wasp node, the config file and also the log file. Copy the config.json file inside of this folder. The other files will be generated after initializing the server. Change the file to connect to the IF's goshimmer node by changing the nodeconn address to goshimmer.sc.iota.org:5000. This way, we won’t have to run a goshimmer node as well.
+
+If you are wondering why we are running our own wasp node, it’s because this way we can deploy new smart contracts. In other nodes this is usually blocked for outsiders.
+
+To start the wasp node, run this command:
+
+`../wasp --logger.level="warn"`
+
+Next, let’s set up a wasp-cli wallet. Start by initializing with `./wasp-cli init` on the wasp folder. This will create a wasp-cli.json with a seed. Open the wasp-cli.json and edit it to connect to the goshimmer node of the IF and to the local wasp node. It should look something like this:
+
+```{
+  "goshimmer": {
+    "api": "https://api.goshimmer.sc.iota.org"
+  },
+  "wallet": {
+    "seed": "whatever random seed was generated"
+  },
+  "wasp": {
+    "0": {
+      "api": "127.0.0.1:9090",
+      "nanomsg": "127.0.0.1:5550",
+      "peering": "127.0.0.1:4000"
+    }
+  }
+}
+```
+If goshimmer node is ok, you should be able to get iotas from the faucet. Run `./wasp-cli request-fundsand` then `./wasp-cli balance`. You should see 1 Miota in your wallet.
+
+Next, run the following command to deploy a chain:
+
+`./wasp-cli chain deploy --committee=0 --quorum=1 --chain=mychain --description="Test Chain"`
+
+You can see the chains with their smart contracts in http://localhost:7000/.
+
+Let’s send some balance to the chain, before deploying the smart contract:
+
+`./wasp-cli chain deposit IOTA:10000`
+
+`./wasp-cli chain deploy-contract wasmtime zentangle "Zentangle SC" ./zentangle_bg.wasm`
+
+The `./zentangle/pkg/zentangle_bg.wasm` file is the compiled smart contract. If it doesn’t exist, create it by running `wasm-pack build` inside of the zentangle folder. If wasm-pack is not installed, do it with: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`.
+
+Now, let’s interact with the smart contract. Fisrt, run createGame. Here we are establishing 2 images to tag, with a description saying “test game“ and a reward of 10000 iotas. We are letting the tagsRequiredPerImage parameter blank, so it will be set to the default of 10.
+
+`./wasp-cli chain post-request zentangle createGame string numberOfImages int32 2 string description string "test game" -t IOTA:10000`
+
+Next, we request to play and place a bet of 10000 iotas and then send an imageTag:
+
+`./wasp-cli chain post-request zentangle requestPlay -t IOTA:10000`
+
+`./wasp-cli chain post-request zentangle sendTags string inputJson string '{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}'`
+
+You can repeat this step as many times as you want, with different coordinates of tags and different bets. You can also send them form different wallets.
+
+Finally, we end the game by running ./wasp-cli chain post-request zentangle endGame from the wallet the game was created.
+
+To see the results of a particular image, run:
+
+`./wasp-cli chain call-view dtag getResults string imageId int32 0 | ./wasp-cli decode string request string`
+ 
+
+## References: 
+[Exploring IOTA 2.0 Smart Contracts in a Private Network: Developing a Prediction Market](https://medium.com/51nodes/exploring-iota-2-0-smart-contracts-in-a-private-network-developing-a-prediction-market-c2d81988f75e)
+[Setting Up a Chain | IOTA Wiki](https://wiki.iota.org/wasp/guide/chains_and_nodes/setting-up-a-chain)

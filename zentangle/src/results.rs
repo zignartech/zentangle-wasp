@@ -82,6 +82,28 @@ impl MutableGetPlayerBetsResults {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableGetPlayerInfoResults {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetPlayerInfoResults {
+    pub fn info(&self) -> ScImmutableString {
+		ScImmutableString::new(self.id, idx_map(IDX_RESULT_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetPlayerInfoResults {
+    pub(crate) id: i32,
+}
+
+impl MutableGetPlayerInfoResults {
+    pub fn info(&self) -> ScMutableString {
+		ScMutableString::new(self.id, idx_map(IDX_RESULT_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableGetPlaysPerImageResults {
     pub(crate) id: i32,
 }

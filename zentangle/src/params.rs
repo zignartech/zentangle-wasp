@@ -54,6 +54,28 @@ impl MutableCreateGameParams {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableEndGameParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableEndGameParams {
+    pub fn reset_player_info(&self) -> ScImmutableBool {
+		ScImmutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableEndGameParams {
+    pub(crate) id: i32,
+}
+
+impl MutableEndGameParams {
+    pub fn reset_player_info(&self) -> ScMutableBool {
+		ScMutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableInitParams {
     pub(crate) id: i32,
 }
@@ -116,6 +138,28 @@ pub struct MutableSetOwnerParams {
 impl MutableSetOwnerParams {
     pub fn owner(&self) -> ScMutableAgentID {
 		ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct ImmutableGetPlayerInfoParams {
+    pub(crate) id: i32,
+}
+
+impl ImmutableGetPlayerInfoParams {
+    pub fn player_address(&self) -> ScImmutableString {
+		ScImmutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableGetPlayerInfoParams {
+    pub(crate) id: i32,
+}
+
+impl MutableGetPlayerInfoParams {
+    pub fn player_address(&self) -> ScMutableString {
+		ScMutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
 	}
 }
 

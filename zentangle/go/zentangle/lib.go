@@ -21,6 +21,7 @@ func OnLoad() {
 	exports.AddFunc(FuncWithdraw,         funcWithdrawThunk)
 	exports.AddView(ViewGetOwner,         viewGetOwnerThunk)
 	exports.AddView(ViewGetPlayerBets,    viewGetPlayerBetsThunk)
+	exports.AddView(ViewGetPlayerInfo,    viewGetPlayerInfoThunk)
 	exports.AddView(ViewGetPlaysPerImage, viewGetPlaysPerImageThunk)
 	exports.AddView(ViewGetResults,       viewGetResultsThunk)
 
@@ -51,12 +52,16 @@ func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type EndGameContext struct {
+	Params  ImmutableEndGameParams
 	State   MutablezentangleState
 }
 
 func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcEndGame")
 	f := &EndGameContext{
+		Params: ImmutableEndGameParams{
+			id: wasmlib.OBJ_ID_PARAMS,
+		},
 		State: MutablezentangleState{
 			id: wasmlib.OBJ_ID_STATE,
 		},
@@ -206,6 +211,30 @@ func viewGetPlayerBetsThunk(ctx wasmlib.ScViewContext) {
 	}
 	viewGetPlayerBets(ctx, f)
 	ctx.Log("zentangle.viewGetPlayerBets ok")
+}
+
+type GetPlayerInfoContext struct {
+	Params  ImmutableGetPlayerInfoParams
+	Results MutableGetPlayerInfoResults
+	State   ImmutablezentangleState
+}
+
+func viewGetPlayerInfoThunk(ctx wasmlib.ScViewContext) {
+	ctx.Log("zentangle.viewGetPlayerInfo")
+	f := &GetPlayerInfoContext{
+		Params: ImmutableGetPlayerInfoParams{
+			id: wasmlib.OBJ_ID_PARAMS,
+		},
+		Results: MutableGetPlayerInfoResults{
+			id: wasmlib.OBJ_ID_RESULTS,
+		},
+		State: ImmutablezentangleState{
+			id: wasmlib.OBJ_ID_STATE,
+		},
+	}
+	ctx.Require(f.Params.PlayerAddress().Exists(), "missing mandatory playerAddress")
+	viewGetPlayerInfo(ctx, f)
+	ctx.Log("zentangle.viewGetPlayerInfo ok")
 }
 
 type GetPlaysPerImageContext struct {

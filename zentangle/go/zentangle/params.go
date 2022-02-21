@@ -41,6 +41,22 @@ func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamTagsRequiredPerImage])
 }
 
+type ImmutableEndGameParams struct {
+	id int32
+}
+
+func (s ImmutableEndGameParams) ResetPlayerInfo() wasmlib.ScImmutableBool {
+	return wasmlib.NewScImmutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+}
+
+type MutableEndGameParams struct {
+	id int32
+}
+
+func (s MutableEndGameParams) ResetPlayerInfo() wasmlib.ScMutableBool {
+	return wasmlib.NewScMutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+}
+
 type ImmutableInitParams struct {
 	id int32
 }
@@ -87,6 +103,22 @@ type MutableSetOwnerParams struct {
 
 func (s MutableSetOwnerParams) Owner() wasmlib.ScMutableAgentID {
 	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+}
+
+type ImmutableGetPlayerInfoParams struct {
+	id int32
+}
+
+func (s ImmutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScImmutableString {
+	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamPlayerAddress])
+}
+
+type MutableGetPlayerInfoParams struct {
+	id int32
+}
+
+func (s MutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScMutableString {
+	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamPlayerAddress])
 }
 
 type ImmutableGetPlaysPerImageParams struct {
