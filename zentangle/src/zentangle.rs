@@ -345,7 +345,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     pending_play.set_value(&bet);
 
     f.events.play_requested(
-        &bet.player.address().to_string(),
+&bet.player.address().to_string(), 
         bet.amount,
         bet.image_id
     );
@@ -354,14 +354,13 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 }
 
 // This function is used for a player to tag an image that has been assigned to it.
-// It basically deletes the request from the request list 'pending_plays', adds the
+// It basically deletes the request from the request map 'pending_play', adds the
 // information of the tag to the tagged images list and adds one to the number of times
 // the image has been tagged, using the 'plays_per_game' list.
-// The 'sendTags' function takes 4 mandatory parameters, corresponding to the coordinates and dimentions of the tag:
-// - 'x', which must be an Int64 number,
-// - 'y', which must be an Int64 number,
-// - 'h', which must be an Int64 number and
-// - 'w', which must be an Int64 number
+// The 'sendTags' function takes 1 mandatory parameter, corresponding to a json 
+// of x, y, h, w coordinates and boosts of the annotations in the image:
+// { "x": [], "y": [], "h":[], "w":[], "boost":[]}
+// Each of the lists for evey dimention has as many elements as annotations the user made in the image.
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let bet = f
         .state
