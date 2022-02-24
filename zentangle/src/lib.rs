@@ -13,6 +13,7 @@ use wasmlib::*;
 use wasmlib::host::*;
 
 use crate::consts::*;
+use crate::events::*;
 use crate::keys::*;
 use crate::params::*;
 use crate::results::*;
@@ -20,6 +21,7 @@ use crate::state::*;
 
 mod consts;
 mod contract;
+mod events;
 mod keys;
 mod params;
 mod results;
@@ -51,6 +53,7 @@ fn on_load() {
 }
 
 pub struct CreateGameContext {
+	events:  zentangleEvents,
 	params: ImmutableCreateGameParams,
 	state: MutablezentangleState,
 }
@@ -58,6 +61,7 @@ pub struct CreateGameContext {
 fn func_create_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcCreateGame");
 	let f = CreateGameContext {
+		events:  zentangleEvents {},
 		params: ImmutableCreateGameParams {
 			id: OBJ_ID_PARAMS,
 		},
@@ -72,6 +76,7 @@ fn func_create_game_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct EndGameContext {
+	events:  zentangleEvents,
 	params: ImmutableEndGameParams,
 	state: MutablezentangleState,
 }
@@ -79,6 +84,7 @@ pub struct EndGameContext {
 fn func_end_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcEndGame");
 	let f = EndGameContext {
+		events:  zentangleEvents {},
 		params: ImmutableEndGameParams {
 			id: OBJ_ID_PARAMS,
 		},
@@ -91,6 +97,7 @@ fn func_end_game_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct InitContext {
+	events:  zentangleEvents,
 	params: ImmutableInitParams,
 	state: MutablezentangleState,
 }
@@ -98,6 +105,7 @@ pub struct InitContext {
 fn func_init_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcInit");
 	let f = InitContext {
+		events:  zentangleEvents {},
 		params: ImmutableInitParams {
 			id: OBJ_ID_PARAMS,
 		},
@@ -110,6 +118,7 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct RequestPlayContext {
+	events:  zentangleEvents,
 	results: MutableRequestPlayResults,
 	state: MutablezentangleState,
 }
@@ -117,6 +126,7 @@ pub struct RequestPlayContext {
 fn func_request_play_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcRequestPlay");
 	let f = RequestPlayContext {
+		events:  zentangleEvents {},
 		results: MutableRequestPlayResults {
 			id: OBJ_ID_RESULTS,
 		},
@@ -129,6 +139,7 @@ fn func_request_play_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SendTagsContext {
+	events:  zentangleEvents,
 	params: ImmutableSendTagsParams,
 	state: MutablezentangleState,
 }
@@ -136,6 +147,7 @@ pub struct SendTagsContext {
 fn func_send_tags_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcSendTags");
 	let f = SendTagsContext {
+		events:  zentangleEvents {},
 		params: ImmutableSendTagsParams {
 			id: OBJ_ID_PARAMS,
 		},
@@ -149,6 +161,7 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SetOwnerContext {
+	events:  zentangleEvents,
 	params: ImmutableSetOwnerParams,
 	state: MutablezentangleState,
 }
@@ -162,6 +175,7 @@ fn func_set_owner_thunk(ctx: &ScFuncContext) {
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
 	let f = SetOwnerContext {
+		events:  zentangleEvents {},
 		params: ImmutableSetOwnerParams {
 			id: OBJ_ID_PARAMS,
 		},
@@ -175,6 +189,7 @@ fn func_set_owner_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct WithdrawContext {
+	events:  zentangleEvents,
 	state: MutablezentangleState,
 }
 
@@ -187,6 +202,7 @@ fn func_withdraw_thunk(ctx: &ScFuncContext) {
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
 	let f = WithdrawContext {
+		events:  zentangleEvents {},
 		state: MutablezentangleState {
 			id: OBJ_ID_STATE,
 		},

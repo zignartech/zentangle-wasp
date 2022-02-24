@@ -434,8 +434,9 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         .get_int32(tagged_image.image_id)
         .set_value(playsfor_this_image + 1);
 
+    
     ctx.event(&format!(
-        "dtag.image.tagged {0} {1}",
+        "zentangle.imageTagged {0} {1}",
         &tagged_image.player.address().to_string(),
         f.state
             .plays_per_image()

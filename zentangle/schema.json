@@ -1,6 +1,26 @@
 {
     "name": "zentangle",
     "description": "Incentivized AI Training Casino",
+    "events": {
+        "imagetagged": {
+            "address": "String",
+            "imageId": "Int32",
+            "playsPerImage": "Int32"
+        },
+        "gameStarted": {
+            "description": "String",
+            "numberOfImages": "Int32",
+            "reward": "Int64",
+            "tagsRequiredPerImage": "Int32"
+        },
+        "gameEnded": {
+        },
+        "playRequested": {
+            "adress": "String",
+            "amount": "Int64",
+            "imageId": "Int32" 
+        }
+    },
     "structs": {
         "TaggedImage": {
             "imageId": "Int32",
