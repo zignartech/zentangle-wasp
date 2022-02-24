@@ -9,10 +9,10 @@
 
 use wasmlib::*;
 
-pub struct zentangleEvents {
+pub struct ZentangleEvents {
 }
 
-impl zentangleEvents {
+impl ZentangleEvents {
 
 	pub fn game_ended(&self) {
 		EventEncoder::new("zentangle.gameEnded").emit();
@@ -35,9 +35,9 @@ impl zentangleEvents {
 		encoder.emit();
 	}
 
-	pub fn play_requested(&self, adress: &str, amount: i64, image_id: i32) {
+	pub fn play_requested(&self, address: &str, amount: i64, image_id: i32) {
 		let mut encoder = EventEncoder::new("zentangle.playRequested");
-		encoder.string(&adress);
+		encoder.string(&address);
 		encoder.int64(amount);
 		encoder.int32(image_id);
 		encoder.emit();

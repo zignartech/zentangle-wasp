@@ -31,6 +31,7 @@ func OnLoad() {
 }
 
 type CreateGameContext struct {
+	Events  zentangleEvents
 	Params  ImmutableCreateGameParams
 	State   MutablezentangleState
 }
@@ -52,6 +53,7 @@ func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type EndGameContext struct {
+	Events  zentangleEvents
 	Params  ImmutableEndGameParams
 	State   MutablezentangleState
 }
@@ -71,6 +73,7 @@ func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type InitContext struct {
+	Events  zentangleEvents
 	Params  ImmutableInitParams
 	State   MutablezentangleState
 }
@@ -90,6 +93,7 @@ func funcInitThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type RequestPlayContext struct {
+	Events  zentangleEvents
 	Results MutableRequestPlayResults
 	State   MutablezentangleState
 }
@@ -109,6 +113,7 @@ func funcRequestPlayThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type SendTagsContext struct {
+	Events  zentangleEvents
 	Params  ImmutableSendTagsParams
 	State   MutablezentangleState
 }
@@ -129,6 +134,7 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type SetOwnerContext struct {
+	Events  zentangleEvents
 	Params  ImmutableSetOwnerParams
 	State   MutablezentangleState
 }
@@ -155,6 +161,7 @@ func funcSetOwnerThunk(ctx wasmlib.ScFuncContext) {
 }
 
 type WithdrawContext struct {
+	Events  zentangleEvents
 	State   MutablezentangleState
 }
 

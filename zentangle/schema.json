@@ -16,7 +16,7 @@
         "gameEnded": {
         },
         "playRequested": {
-            "adress": "String",
+            "address": "String",
             "amount": "Int64",
             "imageId": "Int32" 
         }

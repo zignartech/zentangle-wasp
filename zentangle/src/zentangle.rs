@@ -94,13 +94,12 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
         f.state.plays_per_image().get_int32(i).set_value(0);
     }
 
-    ctx.event(&format!(
-        "game.started {0} {1} {2} {3}",
+    f.events.game_started(
+        description,
         number_of_images,
+        reward,
         tags_required_per_image,
-        reward.to_string(),
-        description
-    ));
+    );
 }
 
 // This function can only be executed by the creator of the game (aka: the investigator).
@@ -243,7 +242,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     f.state.pending_play().clear();
     f.state.valid_tags().clear();
 
-    ctx.event(&format!("dtag.game.ended",));
+    f.events.game_ended();
 }
 
 // This function is used by players to be assigned an image and for them to place a bet on their tags.
@@ -256,7 +255,10 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     let number_of_images = f.state.number_of_images().value();
     let player = ctx.caller();
     let plays_per_image = f.state.plays_per_image();
-    let pending_play = f.state.pending_play().get_bet(&player.address().to_string());
+    let pending_play = f
+        .state
+        .pending_play()
+        .get_bet(&player.address().to_string());
 
     // Check if the player has an open request. If it does, panic.
     if pending_play.exists() {
@@ -342,12 +344,11 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     bets.get_bet(bets_nr).set_value(&bet);
     pending_play.set_value(&bet);
 
-    ctx.event(&format!(
-        "play.requested {0} {1} {2}",
+    f.events.play_requested(
         &bet.player.address().to_string(),
         bet.amount,
-        bet.image_id,
-    ));
+        bet.image_id
+    );
 
     f.results.image_id().set_value(image_id);
 }
@@ -362,7 +363,10 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 // - 'h', which must be an Int64 number and
 // - 'w', which must be an Int64 number
 pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
-    let bet = f.state.pending_play().get_bet(&ctx.caller().address().to_string());
+    let bet = f
+        .state
+        .pending_play()
+        .get_bet(&ctx.caller().address().to_string());
     let tags_req_per_image = f.state.tags_required_per_image().value();
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -434,7 +438,6 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         .get_int32(tagged_image.image_id)
         .set_value(playsfor_this_image + 1);
 
-    
     ctx.event(&format!(
         "zentangle.imageTagged {0} {1}",
         &tagged_image.player.address().to_string(),
