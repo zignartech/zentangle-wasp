@@ -8,9 +8,9 @@
 5. [Deploy Locally](#deploy-locally)
 
 ## Introduction
-Decentralized Tagging is a way to tag images given a certain descriprion, but in a decentralized and incentivazed way. This tagged images can then be used to train a Deep Learning algorithm to recognize an object in an image. Zentangle consists of taking a usually tedious and monotone task of spending many hours tagging images, and making it a game, where anyone can not only tag images given a description and recieve rewards for it, but bet against other players on their tags being the most precise.
+Decentralized Tagging is a way to tag images given a certain description, but in a decentralized and incentivized way. These tagged images can then be used to train a Deep Learning algorithm to recognize an object in an image. Zentangle consists of taking a usually tedious and monotone task of spending many hours tagging images, and making it a game, where anyone can not only tag images given a description and recieve rewards for it, but bet against other players on their tags being the most precise.
 
-A tag consists of a rectangle inside an image represented by a four dimentional point, one dimention for each component of the tag: x and y positions of the upper left corner of the tag, h for the hight of the rectangle and w for it’s width. And example can be seen in image 1.
+A tag consists of a rectangle inside an image represented by a four dimensional point, one dimension for each component of the tag: x and y positions of the upper left corner of the tag, h for the height of the rectangle and w for it’s width. An example can be seen in image 1.
 ![Image 1: Tag of a bee](annotation_example.jpeg)
 
 ## Summary
@@ -24,18 +24,18 @@ The steps that follows the SC in a normal round are as follows:
 
 * The SC chooses an image randomly and returns it’s id to the player.
 
-* The player tags the image and sends the tagging data to the SC, witch stores it.
+* The player tags the image and sends the tagging data to the SC, which stores it.
 
 * After many players have tagged images, the researcher decides to end the round.
 
-* The SC takes all the tagging data and, for every image, calculates clusters of four dimentional points representing the tags. Small clusters get discarted as invalid tags. Then, it pays for every valid tag equally with the money placed by the researcher.
+* The SC takes all the tagging data and, for every image, calculates clusters of four dimensional points representing the tags. Small clusters get discarded as invalid tags. Then, it pays for every valid tag equally with the money placed by the researcher.
 
-* The SC calculates the player’s ranking based on the valid tag’s distance to the center of their respective clusters. It proceeds to order a list of all players with a valid tag, given their best tag (with the shortest distance to the cluster’s center). The best players get exponentially better payouts, allways proportional to their cumullative bets.
+* The SC calculates the player’s ranking based on the valid tag’s distance to the center of their respective clusters. It proceeds to order a list of all players with a valid tag, given their best tag (with the shortest distance to the cluster’s center). The best players get exponentially better payouts, always proportional to their cumulative bets.
 
 Now, let’s dive deeper into the details.
 
 ## Structure
-The smart contract consists of four main functions: createRound , requestPlay , sendTags and endGame plus three functions related to the owner of the smart contract: init, setOwner and withdraw. There are also state variables that store key information for the functioning of the SC:
+The smart contract consists of four main functions: createRound, requestPlay, sendTags and endGame plus three functions related to the owner of the smart contract: init, setOwner and withdraw. There are also state variables that store key information for the functioning of the SC:
 
 ```
 "state": {
@@ -49,14 +49,15 @@ The smart contract consists of four main functions: createRound , requestPlay , 
 		"pendingPlay": "map[String]Bet // maps a players address to the Play that has been requested but not completed",
         "playsPerImage": "Int32[] // counts how many times an image has been tagged",
         "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
-        "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
+        "validTags": "ValidTag[] // stores the player and imageId of all valid tags",
         "processedImages": "TaggedImage[]",
         "player": "map[String]Player // maps an address to the information of the player"
 	}
 ```
-To understand these, it is also necessary to know the TaggedImage , Bet, ValidTag and Player structs:
+To understand these, it is also necessary to know the TaggedImage, Bet, ValidTag and Player structs:
 
-```"TaggedImage": {
+```
+"TaggedImage": {
 	"imageId": "Int32",
 	"player": "AgentID // player that has tagged this image",
 	"boost":"String // if the tags will be boosted or not",
@@ -82,9 +83,9 @@ To understand these, it is also necessary to know the TaggedImage , Bet, ValidTa
 	"nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
 }
 ```
-The descriptions and names leave it clear what they are for, with exception perhaps of some of the last state variables. taggedImages is a list of TaggedImages and it stores all the plays that have been made in the round, so at the end we should have a length of exactly  numberOfImages times tagsRequiredPerImage. 
+The descriptions and names leave it clear what they are for, with exception perhaps of some of the last state variables. taggedImages is a list of TaggedImages and it stores all the plays that have been made in the round, so at the end we should have a length of exactly numberOfImages times tagsRequiredPerImage. 
 
-The TaggedImage struct has the imageId of the image being tagged, the player that tagged the image (in some aplications is left with a default value) and the information of the many tags it contains. Note that x, y, h, w and boost are strings. These strings contain n amount of variables, one for every tag and are separated using spaces.
+The TaggedImage struct has the imageId of the image being tagged, the player that tagged the image (in some applications is left with a default value) and the information of the many tags it contains. Note that x, y, h, w and boost are strings. These strings contain n amount of variables, one for every tag and are separated using spaces.
 
 On the other hand, processedImages refers to the images that are the final tags, that is, after the clusterization algorithm, we are left with the four-dimentional centers of the clusters, that represent the average x, y, h and w of a valid tag. This is the output data that can be used to train a Deep Learning algorithm.
 
@@ -92,19 +93,19 @@ Lastly, the playerstate variable is here to keep track of the amount of boosts t
 
 ## Algorithms
 ### Clusterization algorithm
-The clusterization algorithm used to merge the tags that are close to eachother is called “Aglomerative Hierarchical Clusterization Algorithm“. This algorithm, unlike most of other clusterization algorithms, doesn't take as manual input the amount of clusters to consider. This is important, because we do not know how many they will be. It does require a manual input tho, and it is the distance at which it will no longer merge two particular clusters.
+The clusterization algorithm used to merge the tags that are close to each other is called “Aglomerative Hierarchical Clusterization Algorithm“. This algorithm, unlike most of other clusterization algorithms, doesn't take as manual input the amount of clusters to consider. This is important, because we do not know how many they will be. It does require a manual input though, and it is the distance at which it will no longer merge two particular clusters.
 
 The  “Aglomerative Hierarchical Clusterization Algorithm“ works as follows: 
 
 * Every point starts as a cluster
 
-* Find the two closests clusters
+* Find the two closest clusters
 
 * Merge those clusters into one cluster. In our case, we set it’s new coordinates as the average of all points inside both clusters. This is because our clusters normally take a circular shape.
 
 * Repeat this step until the two closest clusters are further away than the minimum distance set in the MIN_INTER_CLUSTER_DISTANCE constant. 
 
-In our Smart Contract, we also count the amount of points inside of the clusters. If it is less than X% of players, set by the CONFIRMATION_PERCENTAGE constant, then the cluster is discarted, and not considered for the results.
+In our Smart Contract, we also count the amount of points inside of the clusters. If it is less than X% of players, set by the CONFIRMATION_PERCENTAGE constant, then the cluster is discarded, and not considered for the results.
 
 ### Reward algorithms
 There are two kinds of rewards for players. Both of this rewards only apply for valid tags.
@@ -117,7 +118,7 @@ The second reward comes from the betting money. For this reward, the calculation
 
 * Filter the ones who's players are repeated, leaving only the best bet by accuracy
 
-* Calculate the total amount of iotas betted by each of theese players
+* Calculate the total amount of iotas betted by each of these players
 
 * Sort the bets list by tag accuracy
 
@@ -131,7 +132,7 @@ where:
 
 position: the players position on the list, where higher is better. Ties exist.
 
-boos: the boost constant of the tag
+boost: the boost constant of the tag
 
 amount_betted: the total amount betted by the player in the round
 
@@ -158,7 +159,8 @@ To start the wasp node, run this command:
 
 Next, let’s set up a wasp-cli wallet. Start by initializing with `./wasp-cli init` on the wasp folder. This will create a wasp-cli.json with a seed. Open the wasp-cli.json and edit it to connect to the goshimmer node of the IF and to the local wasp node. It should look something like this:
 
-```{
+```
+{
   "goshimmer": {
     "api": "https://api.goshimmer.sc.iota.org"
   },
