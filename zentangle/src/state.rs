@@ -53,6 +53,21 @@ impl MapStringToImmutablePlayer {
 }
 
 #[derive(Clone, Copy)]
+pub struct ArrayOfImmutablePlayer {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfImmutablePlayer {
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_player(&self, index: i32) -> ImmutablePlayer {
+		ImmutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ArrayOfImmutableInt32 {
 	pub(crate) obj_id: i32,
 }
@@ -129,9 +144,19 @@ impl ImmutablezentangleState {
 		MapStringToImmutableBet { obj_id: map_id }
 	}
 
+    pub fn pending_plays(&self) -> ArrayOfImmutableBet {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfImmutableBet { obj_id: arr_id }
+	}
+
     pub fn player(&self) -> MapStringToImmutablePlayer {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER), TYPE_MAP);
 		MapStringToImmutablePlayer { obj_id: map_id }
+	}
+
+    pub fn players(&self) -> ArrayOfImmutablePlayer {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfImmutablePlayer { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfImmutableInt32 {
@@ -210,6 +235,25 @@ impl MapStringToMutablePlayer {
     pub fn get_player(&self, key: &str) -> MutablePlayer {
         MutablePlayer { obj_id: self.obj_id, key_id: key.get_key_id() }
     }
+}
+
+#[derive(Clone, Copy)]
+pub struct ArrayOfMutablePlayer {
+	pub(crate) obj_id: i32,
+}
+
+impl ArrayOfMutablePlayer {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn length(&self) -> i32 {
+        get_length(self.obj_id)
+    }
+
+	pub fn get_player(&self, index: i32) -> MutablePlayer {
+		MutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
+	}
 }
 
 #[derive(Clone, Copy)]
@@ -305,9 +349,19 @@ impl MutablezentangleState {
 		MapStringToMutableBet { obj_id: map_id }
 	}
 
+    pub fn pending_plays(&self) -> ArrayOfMutableBet {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfMutableBet { obj_id: arr_id }
+	}
+
     pub fn player(&self) -> MapStringToMutablePlayer {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER), TYPE_MAP);
 		MapStringToMutablePlayer { obj_id: map_id }
+	}
+
+    pub fn players(&self) -> ArrayOfMutablePlayer {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfMutablePlayer { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableInt32 {

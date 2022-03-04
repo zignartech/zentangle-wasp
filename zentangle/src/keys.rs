@@ -33,15 +33,17 @@ pub(crate) const IDX_STATE_DESCRIPTION             : usize = 16;
 pub(crate) const IDX_STATE_NUMBER_OF_IMAGES        : usize = 17;
 pub(crate) const IDX_STATE_OWNER                   : usize = 18;
 pub(crate) const IDX_STATE_PENDING_PLAY            : usize = 19;
-pub(crate) const IDX_STATE_PLAYER                  : usize = 20;
-pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 21;
-pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 22;
-pub(crate) const IDX_STATE_REWARD                  : usize = 23;
-pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 24;
-pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 25;
-pub(crate) const IDX_STATE_VALID_TAGS              : usize = 26;
+pub(crate) const IDX_STATE_PENDING_PLAYS           : usize = 20;
+pub(crate) const IDX_STATE_PLAYER                  : usize = 21;
+pub(crate) const IDX_STATE_PLAYERS                 : usize = 22;
+pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 23;
+pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 24;
+pub(crate) const IDX_STATE_REWARD                  : usize = 25;
+pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 26;
+pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 27;
+pub(crate) const IDX_STATE_VALID_TAGS              : usize = 28;
 
-pub const KEY_MAP_LEN: usize = 27;
+pub const KEY_MAP_LEN: usize = 29;
 
 pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	PARAM_DESCRIPTION,
@@ -64,7 +66,9 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	STATE_NUMBER_OF_IMAGES,
 	STATE_OWNER,
 	STATE_PENDING_PLAY,
+	STATE_PENDING_PLAYS,
 	STATE_PLAYER,
+	STATE_PLAYERS,
 	STATE_PLAYS_PER_IMAGE,
 	STATE_PROCESSED_IMAGES,
 	STATE_REWARD,

@@ -71,7 +71,7 @@ type Player struct {
 	NDoubleBoosts  int64  // Number of 2x boost used in the round
 	NTags          int64  // Number of tags made by the player in the current round
 	NTrippleBoosts int64  // Number of 3x boosts used in the round
-	PlayerId       wasmlib.ScAgentID  // The player
+	Player         wasmlib.ScAgentID  // The player
 }
 
 func NewPlayerFromBytes(bytes []byte) *Player {
@@ -80,7 +80,7 @@ func NewPlayerFromBytes(bytes []byte) *Player {
 	data.NDoubleBoosts  = decode.Int64()
 	data.NTags          = decode.Int64()
 	data.NTrippleBoosts = decode.Int64()
-	data.PlayerId       = decode.AgentID()
+	data.Player         = decode.AgentID()
 	decode.Close()
 	return data
 }
@@ -90,7 +90,7 @@ func (o *Player) Bytes() []byte {
 		Int64(o.NDoubleBoosts).
 		Int64(o.NTags).
 		Int64(o.NTrippleBoosts).
-		AgentID(o.PlayerId).
+		AgentID(o.Player).
 		Data()
 }
 

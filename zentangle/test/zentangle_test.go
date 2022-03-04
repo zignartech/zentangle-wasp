@@ -18,9 +18,9 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := int32(7)
-	const number_of_players = 10
-	const plays_required_per_image = 3
+	number_of_images := int32(3)
+	const number_of_players = 3
+	const plays_required_per_image = 1
 
 	// create game
 	creator := ctx.NewSoloAgent()
@@ -39,7 +39,12 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 
 		SendTags := zentangle.ScFuncs.SendTags(ctx.Sign(player[i]))
-		SendTags.Params.InputJson().SetValue(`{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}`)
+		SendTags.Params.InputJson().SetValue(`{
+			"x": [50, 200, 500, 150, 300, 400, 600, 700, 800, 900, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000], 
+			"y": [1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100, 1000, 900, 800, 700, 600, 500, 100, 250, 550, 400, 50], 
+			"h": [150, 50, 50, 150, 50, 50, 150, 50, 50, 150, 50, 50, 150, 50, 50, 150, 50, 50, 500, 80], 
+			"w": [200, 50, 55, 15, 200, 50, 55, 15, 200, 50, 55, 15, 200, 50, 55, 15, 200, 50, 55, 15], 
+			"boost": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1]}`)
 
 		for j := 0; int32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
 			RequestPlay.Func.TransferIotas(1000 + int64(i)).Post()
@@ -50,7 +55,7 @@ func TestPlay2(t *testing.T) {
 	}
 
 	getPlayerInfo := zentangle.ScFuncs.GetPlayerInfo(ctx)
-	getPlayerInfo.Params.PlayerAddress().SetValue(player[5].ScAddress().String())
+	getPlayerInfo.Params.PlayerAddress().SetValue(player[2].ScAddress().String())
 	getPlayerInfo.Func.Call()
 
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
@@ -72,6 +77,7 @@ func TestPlay2(t *testing.T) {
 	}
 }
 
+/*
 func TestPlay(t *testing.T) {
 	numberOfImages := int32(22)
 
@@ -85,25 +91,26 @@ func TestPlay(t *testing.T) {
 	f.Func.TransferIotas(10000).Post()
 	require.NoError(t, ctx.Err)
 
-	//make plays
-	for i := 0; int32(i) < numberOfImages-3; i++ {
-		RequestPlay(t, ctx)
-		SendTags(t, ctx)
-	}
 	RequestPlay(t, ctx)
 	SendTags(t, ctx)
 	RequestPlay(t, ctx)
 	SendTags(t, ctx)
 	RequestPlay(t, ctx)
-	SendTags(t, ctx)
-
-	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
-	getPlayerBets.Func.Call()
 
 	// End game
 	v := zentangle.ScFuncs.EndGame(ctx)
 	v.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
+
+	f.Func.TransferIotas(10000).Post()
+	require.NoError(t, ctx.Err)
+
+	RequestPlay(t, ctx)
+	SendTags(t, ctx)
+	RequestPlay(t, ctx)
+	SendTags(t, ctx)
+	RequestPlay(t, ctx)
+
 }
 
 func RequestPlay(t *testing.T, _ctx *wasmsolo.SoloContext) {
@@ -123,3 +130,4 @@ func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext) {
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
+*/

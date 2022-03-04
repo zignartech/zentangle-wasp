@@ -82,7 +82,7 @@ pub struct Player {
     pub n_double_boosts  : i64,  // Number of 2x boost used in the round
     pub n_tags           : i64,  // Number of tags made by the player in the current round
     pub n_tripple_boosts : i64,  // Number of 3x boosts used in the round
-    pub player_id        : ScAgentID,  // The player
+    pub player           : ScAgentID,  // The player
 }
 
 impl Player {
@@ -92,7 +92,7 @@ impl Player {
             n_double_boosts  : decode.int64(),
             n_tags           : decode.int64(),
             n_tripple_boosts : decode.int64(),
-            player_id        : decode.agent_id(),
+            player           : decode.agent_id(),
         }
     }
 
@@ -101,7 +101,7 @@ impl Player {
 		encode.int64(self.n_double_boosts);
 		encode.int64(self.n_tags);
 		encode.int64(self.n_tripple_boosts);
-		encode.agent_id(&self.player_id);
+		encode.agent_id(&self.player);
         return encode.data();
     }
 }

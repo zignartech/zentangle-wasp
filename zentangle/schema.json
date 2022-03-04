@@ -42,7 +42,7 @@
             "playTagId": "Int32 // Identifier to distinguish different tags in the same play"
         },
         "Player": {
-            "playerId": "AgentID // The player",
+            "player": "AgentID // The player",
             "nTags": "Int64 // Number of tags made by the player in the current round",
             "nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
             "nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
@@ -58,11 +58,13 @@
         "tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
         "bets": "Bet[]",
         "pendingPlay": "map[String]Bet // maps a players address to the Play that has been requested but not completed",
+        "pendingPlays": "Bet[] // TODO: because maps can't be cleared correcly yet",
         "playsPerImage": "Int32[] // counts how many times an image has been tagged",
         "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
         "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
         "processedImages": "TaggedImage[]",
-        "player": "map[String]Player // maps an address to the information of the player"
+        "player": "map[String]Player // maps an address to the information of the player",
+        "players": "Player[] // TODO: because maps can't be cleared correcly yet"
     },
     "funcs": {
         "init": {

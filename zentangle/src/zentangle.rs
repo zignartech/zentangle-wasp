@@ -227,10 +227,10 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // reset the players information (boost related), unless specified otherwise using reset_player_info as false
     let reset_player_info = f.params.reset_player_info();
     if !reset_player_info.exists() {
-        f.state.player().clear();
+        clear_player(f);
     } else {
         if reset_player_info.value() == true {
-            f.state.player().clear();
+            clear_player(f);
         }
     }
 
@@ -239,7 +239,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     f.state.plays_per_image().clear();
     f.state.tagged_images().clear();
     f.state.reward().set_value(0_i64);
-    f.state.pending_play().clear();
+    clear_pending_play(f);
     f.state.valid_tags().clear();
 
     f.events.game_ended();
@@ -262,6 +262,11 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 
     // Check if the player has an open request. If it does, panic.
     if pending_play.exists() {
+        // send any recieved iotas back
+        let payout: i64 = ctx.incoming().balance(&ScColor::IOTA);
+        let transfers: ScTransfers = ScTransfers::iotas(payout);
+        ctx.transfer_to_address(&ctx.caller().address(), transfers);
+
         panic("Error: Player already has an open request");
     }
 
@@ -343,12 +348,13 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     let bets_nr: i32 = bets.length();
     bets.get_bet(bets_nr).set_value(&bet);
     pending_play.set_value(&bet);
+    f.state
+        .pending_plays()
+        .get_bet(f.state.pending_plays().length())
+        .set_value(&bet);
 
-    f.events.play_requested(
-        &bet.player.address().to_string(),
-        bet.amount,
-        bet.image_id
-    );
+    f.events
+        .play_requested(&bet.player.address().to_string(), bet.amount, bet.image_id);
 
     f.results.image_id().set_value(image_id);
 }
@@ -622,7 +628,7 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
         }
 
         let player = Player {
-            player_id: ctx.caller(),
+            player: ctx.caller(),
             n_tags: n_tags,
             n_double_boosts: n_double_boosts,
             n_tripple_boosts: n_tripple_boosts,
@@ -632,7 +638,49 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
             .player()
             .get_player(player_address)
             .set_value(&player);
+        f.state
+            .players()
+            .get_player(f.state.players().length())
+            .set_value(&player);
     }
+}
+
+// An internal function to clear the player map and the players list
+fn clear_player(f: &EndGameContext) {
+    for player_id in 0..f.state.players().length() {
+        let player_address = f
+            .state
+            .players()
+            .get_player(player_id)
+            .value()
+            .player
+            .address()
+            .to_string();
+        let player = f.state.player().get_player(&player_address);
+        if player.exists() {
+            player.delete();
+        }
+    }
+    f.state.players().clear();
+}
+
+// An internal function to clear the pending_play map and the pending_plays list
+fn clear_pending_play(f: &EndGameContext) {
+    for player_id in 0..f.state.pending_plays().length() {
+        let player_address = f
+            .state
+            .pending_plays()
+            .get_bet(player_id)
+            .value()
+            .player
+            .address()
+            .to_string();
+        let bet = f.state.pending_play().get_bet(&player_address);
+        if bet.exists() {
+            bet.delete();
+        }
+    }
+    f.state.pending_plays().clear();
 }
 
 // An internal function that calculates distance between points in four dimentions (x, y, h, w)
