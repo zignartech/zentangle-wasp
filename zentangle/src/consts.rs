@@ -36,13 +36,14 @@ pub const STATE_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const STATE_OWNER                   : &str = "owner";
 pub const STATE_PENDING_PLAY            : &str = "pendingPlay";
 pub const STATE_PENDING_PLAYS           : &str = "pendingPlays";
-pub const STATE_PLAYER                  : &str = "player";
-pub const STATE_PLAYERS                 : &str = "players";
+pub const STATE_PLAYER_BOOST            : &str = "playerBoost";
+pub const STATE_PLAYERS_BOOST           : &str = "playersBoost";
 pub const STATE_PLAYS_PER_IMAGE         : &str = "playsPerImage";
 pub const STATE_PROCESSED_IMAGES        : &str = "processedImages";
 pub const STATE_REWARD                  : &str = "reward";
 pub const STATE_TAGGED_IMAGES           : &str = "taggedImages";
 pub const STATE_TAGS_REQUIRED_PER_IMAGE : &str = "tagsRequiredPerImage";
+pub const STATE_TOTAL_PLAYER_TAGS       : &str = "totalPlayerTags";
 pub const STATE_VALID_TAGS              : &str = "validTags";
 
 pub const FUNC_CREATE_GAME         : &str = "createGame";

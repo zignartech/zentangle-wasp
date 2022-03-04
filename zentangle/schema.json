@@ -41,8 +41,8 @@
             "taggedImage": "Int32",
             "playTagId": "Int32 // Identifier to distinguish different tags in the same play"
         },
-        "Player": {
-            "player": "AgentID // The player",
+        "PlayerBoost": {
+            "playerAddress": "String // The player's address",
             "nTags": "Int64 // Number of tags made by the player in the current round",
             "nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
             "nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
@@ -63,8 +63,9 @@
         "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
         "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
         "processedImages": "TaggedImage[]",
-        "player": "map[String]Player // maps an address to the information of the player",
-        "players": "Player[] // TODO: because maps can't be cleared correcly yet"
+        "playerBoost": "map[String]PlayerBoost // maps an address to the information of the player",
+        "playersBoost": "PlayerBoost[] // TODO: because maps can't be cleared correcly yet",
+        "totalPlayerTags": "map[String]Int64 // maps a player's address to the number of tags it has made (to calculate the ingots)."
     },
     "funcs": {
         "init": {

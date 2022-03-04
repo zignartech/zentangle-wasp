@@ -43,13 +43,14 @@ const (
 	StateOwner                = "owner"
 	StatePendingPlay          = "pendingPlay"
 	StatePendingPlays         = "pendingPlays"
-	StatePlayer               = "player"
-	StatePlayers              = "players"
+	StatePlayerBoost          = "playerBoost"
+	StatePlayersBoost         = "playersBoost"
 	StatePlaysPerImage        = "playsPerImage"
 	StateProcessedImages      = "processedImages"
 	StateReward               = "reward"
 	StateTaggedImages         = "taggedImages"
 	StateTagsRequiredPerImage = "tagsRequiredPerImage"
+	StateTotalPlayerTags      = "totalPlayerTags"
 	StateValidTags            = "validTags"
 )
 

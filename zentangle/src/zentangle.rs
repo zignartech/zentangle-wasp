@@ -270,6 +270,9 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         panic("Error: Player already has an open request");
     }
 
+    // Check if the amount betted doesn't exceed the maximum allowed, established by the ingots
+    check_ingots(ctx.incoming().balance(&ScColor::IOTA), f,  ctx);
+
     // Check if any images are available for the player to tag. If all are tagged the required amount of times
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
@@ -550,18 +553,45 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
 
 pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
     let player_address = f.params.player_address().value().to_string();
-    let player = f.state.player().get_player(&player_address);
-    if !player.exists() {
-        ctx.panic("player not found");
+
+    // In case player_ingot map exists for this address, get its value. Else, leave it as zero.
+    let mut total_player_tags = 0;
+    if f.state.
+    total_player_tags().
+    get_int64(&player_address).
+    exists()
+    {
+        total_player_tags = f.state.total_player_tags().get_int64(&player_address).value();
+    }
+    
+    // In case player_boost map exists for this address, get its value. Else, leave it as zero.
+    let mut player_boost = PlayerBoost {
+        player_address: player_address.clone(),
+        n_double_boosts: 0,
+        n_tripple_boosts: 0,
+        n_tags: 0,
+    };
+    if f.state
+        .player_boost()
+        .get_player_boost(&player_address)
+        .exists()
+    {
+        player_boost = f
+            .state
+            .player_boost()
+            .get_player_boost(&player_address)
+            .value()
     }
 
     let mut json = "{\n".to_string();
-    json.push_str("\"n_tags\": \"");
-    json.push_str(&player.value().n_tags.to_string());
+    json.push_str("\"round_n_tags\": \"");
+    json.push_str(&player_boost.n_tags.to_string());
     json.push_str("\",\n\"n_double_boosts\": \"");
-    json.push_str(&player.value().n_double_boosts.to_string());
+    json.push_str(&player_boost.n_double_boosts.to_string());
     json.push_str("\",\n\"n_tripple_boosts\": \"");
-    json.push_str(&player.value().n_tripple_boosts.to_string());
+    json.push_str(&player_boost.n_tripple_boosts.to_string());
+    json.push_str("\",\n\"total_n_tags\": \"");
+    json.push_str(&total_player_tags.to_string());
     json.push_str("\"\n} ");
 
     f.results.info().set_value(&json);
@@ -597,7 +627,7 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
     let mut n_tags = 0;
     let player_address = &ctx.caller().address().to_string();
 
-    let player = f.state.player().get_player(player_address);
+    let player = f.state.player_boost().get_player_boost(player_address);
     // Fill in the variables if the player has a history
     if player.exists() {
         n_double_boosts = player.value().n_double_boosts;
@@ -627,41 +657,74 @@ fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
             ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
         }
 
-        let player = Player {
-            player: ctx.caller(),
+        let player = PlayerBoost {
+            player_address: ctx.caller().address().to_string(),
             n_tags: n_tags,
             n_double_boosts: n_double_boosts,
             n_tripple_boosts: n_tripple_boosts,
         };
 
         f.state
-            .player()
-            .get_player(player_address)
+            .player_boost()
+            .get_player_boost(player_address)
             .set_value(&player);
         f.state
-            .players()
-            .get_player(f.state.players().length())
+            .players_boost()
+            .get_player_boost(f.state.players_boost().length())
             .set_value(&player);
+    }
+}
+
+// An internal function to check if the amount betted doesn't exceed the maximum allowed
+fn check_ingots(amount_betted: i64, f: &RequestPlayContext, ctx: &ScFuncContext) {
+    let miota: i64 = 1000000;
+    if amount_betted <= 60*miota { return } // Everyone can bet 60 Mi or less
+
+    let player_address = &ctx.caller().address().to_string();
+    let mut total_player_tags = 0;
+    if f.state.total_player_tags().get_int64(player_address).exists() {
+        total_player_tags = f.state.total_player_tags().get_int64(player_address).value();
+    }
+    let ingots = total_player_tags / 576;
+
+    if amount_betted <= 180*miota {
+        ctx.require(ingots >= 1, "Error: Not enough ingots");
+    }
+    else if amount_betted <= 480*miota {
+        ctx.require(ingots >= 2, "Error: Not enough ingots");
+    }
+    else if amount_betted <= 780*miota {
+        ctx.require(ingots >= 4, "Error: Not enough ingots");
+    }
+    else if amount_betted <= 1260*miota {
+        ctx.require(ingots >= 6, "Error: Not enough ingots");
+    }
+    else if amount_betted <= 2040*miota {
+        ctx.require(ingots >= 8, "Error: Not enough ingots");
+    }
+    else if amount_betted <= 3300*miota {
+        ctx.require(ingots >= 10, "Error: Not enough ingots");
+    }
+    else {
+        ctx.require(ingots >= 12, "Error: Not enough ingots");
     }
 }
 
 // An internal function to clear the player map and the players list
 fn clear_player(f: &EndGameContext) {
-    for player_id in 0..f.state.players().length() {
+    for player_id in 0..f.state.players_boost().length() {
         let player_address = f
             .state
-            .players()
-            .get_player(player_id)
+            .players_boost()
+            .get_player_boost(player_id)
             .value()
-            .player
-            .address()
-            .to_string();
-        let player = f.state.player().get_player(&player_address);
+            .player_address;
+        let player = f.state.player_boost().get_player_boost(&player_address);
         if player.exists() {
             player.delete();
         }
     }
-    f.state.players().clear();
+    f.state.players_boost().clear();
 }
 
 // An internal function to clear the pending_play map and the pending_plays list

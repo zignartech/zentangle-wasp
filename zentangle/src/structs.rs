@@ -78,21 +78,21 @@ impl MutableBet {
 }
 
 #[derive(Clone)]
-pub struct Player {
+pub struct PlayerBoost {
     pub n_double_boosts  : i64,  // Number of 2x boost used in the round
     pub n_tags           : i64,  // Number of tags made by the player in the current round
     pub n_tripple_boosts : i64,  // Number of 3x boosts used in the round
-    pub player           : ScAgentID,  // The player
+    pub player_address   : String,  // The player's address
 }
 
-impl Player {
-    pub fn from_bytes(bytes: &[u8]) -> Player {
+impl PlayerBoost {
+    pub fn from_bytes(bytes: &[u8]) -> PlayerBoost {
         let mut decode = BytesDecoder::new(bytes);
-        Player {
+        PlayerBoost {
             n_double_boosts  : decode.int64(),
             n_tags           : decode.int64(),
             n_tripple_boosts : decode.int64(),
-            player           : decode.agent_id(),
+            player_address   : decode.string(),
         }
     }
 
@@ -101,34 +101,34 @@ impl Player {
 		encode.int64(self.n_double_boosts);
 		encode.int64(self.n_tags);
 		encode.int64(self.n_tripple_boosts);
-		encode.agent_id(&self.player);
+		encode.string(&self.player_address);
         return encode.data();
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct ImmutablePlayer {
+pub struct ImmutablePlayerBoost {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
-impl ImmutablePlayer {
+impl ImmutablePlayerBoost {
     pub fn exists(&self) -> bool {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }
 
-    pub fn value(&self) -> Player {
-        Player::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    pub fn value(&self) -> PlayerBoost {
+        PlayerBoost::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct MutablePlayer {
+pub struct MutablePlayerBoost {
     pub(crate) obj_id: i32,
     pub(crate) key_id: Key32,
 }
 
-impl MutablePlayer {
+impl MutablePlayerBoost {
     pub fn delete(&self) {
         del_key(self.obj_id, self.key_id, TYPE_BYTES);
     }
@@ -137,12 +137,12 @@ impl MutablePlayer {
         exists(self.obj_id, self.key_id, TYPE_BYTES)
     }
 
-    pub fn set_value(&self, value: &Player) {
+    pub fn set_value(&self, value: &PlayerBoost) {
         set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
     }
 
-    pub fn value(&self) -> Player {
-        Player::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+    pub fn value(&self) -> PlayerBoost {
+        PlayerBoost::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
     }
 }
 

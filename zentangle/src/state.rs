@@ -42,28 +42,28 @@ impl MapStringToImmutableBet {
 }
 
 #[derive(Clone, Copy)]
-pub struct MapStringToImmutablePlayer {
+pub struct MapStringToImmutablePlayerBoost {
 	pub(crate) obj_id: i32,
 }
 
-impl MapStringToImmutablePlayer {
-    pub fn get_player(&self, key: &str) -> ImmutablePlayer {
-        ImmutablePlayer { obj_id: self.obj_id, key_id: key.get_key_id() }
+impl MapStringToImmutablePlayerBoost {
+    pub fn get_player_boost(&self, key: &str) -> ImmutablePlayerBoost {
+        ImmutablePlayerBoost { obj_id: self.obj_id, key_id: key.get_key_id() }
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfImmutablePlayer {
+pub struct ArrayOfImmutablePlayerBoost {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfImmutablePlayer {
+impl ArrayOfImmutablePlayerBoost {
     pub fn length(&self) -> i32 {
         get_length(self.obj_id)
     }
 
-	pub fn get_player(&self, index: i32) -> ImmutablePlayer {
-		ImmutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
+	pub fn get_player_boost(&self, index: i32) -> ImmutablePlayerBoost {
+		ImmutablePlayerBoost { obj_id: self.obj_id, key_id: Key32(index) }
 	}
 }
 
@@ -95,6 +95,17 @@ impl ArrayOfImmutableTaggedImage {
 	pub fn get_tagged_image(&self, index: i32) -> ImmutableTaggedImage {
 		ImmutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
 	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MapStringToImmutableInt64 {
+	pub(crate) obj_id: i32,
+}
+
+impl MapStringToImmutableInt64 {
+    pub fn get_int64(&self, key: &str) -> ScImmutableInt64 {
+        ScImmutableInt64::new(self.obj_id, key.get_key_id())
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -149,14 +160,14 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableBet { obj_id: arr_id }
 	}
 
-    pub fn player(&self) -> MapStringToImmutablePlayer {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER), TYPE_MAP);
-		MapStringToImmutablePlayer { obj_id: map_id }
+    pub fn player_boost(&self) -> MapStringToImmutablePlayerBoost {
+		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER_BOOST), TYPE_MAP);
+		MapStringToImmutablePlayerBoost { obj_id: map_id }
 	}
 
-    pub fn players(&self) -> ArrayOfImmutablePlayer {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutablePlayer { obj_id: arr_id }
+    pub fn players_boost(&self) -> ArrayOfImmutablePlayerBoost {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfImmutablePlayerBoost { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfImmutableInt32 {
@@ -180,6 +191,11 @@ impl ImmutablezentangleState {
 
     pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
 		ScImmutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+	}
+
+    pub fn total_player_tags(&self) -> MapStringToImmutableInt64 {
+		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
+		MapStringToImmutableInt64 { obj_id: map_id }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfImmutableValidTag {
@@ -223,26 +239,26 @@ impl MapStringToMutableBet {
 }
 
 #[derive(Clone, Copy)]
-pub struct MapStringToMutablePlayer {
+pub struct MapStringToMutablePlayerBoost {
 	pub(crate) obj_id: i32,
 }
 
-impl MapStringToMutablePlayer {
+impl MapStringToMutablePlayerBoost {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
 
-    pub fn get_player(&self, key: &str) -> MutablePlayer {
-        MutablePlayer { obj_id: self.obj_id, key_id: key.get_key_id() }
+    pub fn get_player_boost(&self, key: &str) -> MutablePlayerBoost {
+        MutablePlayerBoost { obj_id: self.obj_id, key_id: key.get_key_id() }
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfMutablePlayer {
+pub struct ArrayOfMutablePlayerBoost {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfMutablePlayer {
+impl ArrayOfMutablePlayerBoost {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
@@ -251,8 +267,8 @@ impl ArrayOfMutablePlayer {
         get_length(self.obj_id)
     }
 
-	pub fn get_player(&self, index: i32) -> MutablePlayer {
-		MutablePlayer { obj_id: self.obj_id, key_id: Key32(index) }
+	pub fn get_player_boost(&self, index: i32) -> MutablePlayerBoost {
+		MutablePlayerBoost { obj_id: self.obj_id, key_id: Key32(index) }
 	}
 }
 
@@ -292,6 +308,21 @@ impl ArrayOfMutableTaggedImage {
 	pub fn get_tagged_image(&self, index: i32) -> MutableTaggedImage {
 		MutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
 	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MapStringToMutableInt64 {
+	pub(crate) obj_id: i32,
+}
+
+impl MapStringToMutableInt64 {
+    pub fn clear(&self) {
+        clear(self.obj_id);
+    }
+
+    pub fn get_int64(&self, key: &str) -> ScMutableInt64 {
+        ScMutableInt64::new(self.obj_id, key.get_key_id())
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -354,14 +385,14 @@ impl MutablezentangleState {
 		ArrayOfMutableBet { obj_id: arr_id }
 	}
 
-    pub fn player(&self) -> MapStringToMutablePlayer {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER), TYPE_MAP);
-		MapStringToMutablePlayer { obj_id: map_id }
+    pub fn player_boost(&self) -> MapStringToMutablePlayerBoost {
+		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER_BOOST), TYPE_MAP);
+		MapStringToMutablePlayerBoost { obj_id: map_id }
 	}
 
-    pub fn players(&self) -> ArrayOfMutablePlayer {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutablePlayer { obj_id: arr_id }
+    pub fn players_boost(&self) -> ArrayOfMutablePlayerBoost {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_BYTES);
+		ArrayOfMutablePlayerBoost { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableInt32 {
@@ -385,6 +416,11 @@ impl MutablezentangleState {
 
     pub fn tags_required_per_image(&self) -> ScMutableInt32 {
 		ScMutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+	}
+
+    pub fn total_player_tags(&self) -> MapStringToMutableInt64 {
+		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
+		MapStringToMutableInt64 { obj_id: map_id }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfMutableValidTag {

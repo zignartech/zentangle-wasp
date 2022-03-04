@@ -9,10 +9,10 @@
 
 use wasmlib::*;
 
-pub struct ZentangleEvents {
+pub struct zentangleEvents {
 }
 
-impl ZentangleEvents {
+impl zentangleEvents {
 
 	pub fn game_ended(&self) {
 		EventEncoder::new("zentangle.gameEnded").emit();

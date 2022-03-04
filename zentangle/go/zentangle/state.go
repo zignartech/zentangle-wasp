@@ -29,24 +29,24 @@ func (m MapStringToImmutableBet) GetBet(key string) ImmutableBet {
 	return ImmutableBet{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type MapStringToImmutablePlayer struct {
+type MapStringToImmutablePlayerBoost struct {
 	objID int32
 }
 
-func (m MapStringToImmutablePlayer) GetPlayer(key string) ImmutablePlayer {
-	return ImmutablePlayer{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
+func (m MapStringToImmutablePlayerBoost) GetPlayerBoost(key string) ImmutablePlayerBoost {
+	return ImmutablePlayerBoost{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type ArrayOfImmutablePlayer struct {
+type ArrayOfImmutablePlayerBoost struct {
 	objID int32
 }
 
-func (a ArrayOfImmutablePlayer) Length() int32 {
+func (a ArrayOfImmutablePlayerBoost) Length() int32 {
 	return wasmlib.GetLength(a.objID)
 }
 
-func (a ArrayOfImmutablePlayer) GetPlayer(index int32) ImmutablePlayer {
-	return ImmutablePlayer{objID: a.objID, keyID: wasmlib.Key32(index)}
+func (a ArrayOfImmutablePlayerBoost) GetPlayerBoost(index int32) ImmutablePlayerBoost {
+	return ImmutablePlayerBoost{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
 type ArrayOfImmutableInt32 struct {
@@ -71,6 +71,14 @@ func (a ArrayOfImmutableTaggedImage) Length() int32 {
 
 func (a ArrayOfImmutableTaggedImage) GetTaggedImage(index int32) ImmutableTaggedImage {
 	return ImmutableTaggedImage{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
+type MapStringToImmutableInt64 struct {
+	objID int32
+}
+
+func (m MapStringToImmutableInt64) GetInt64(key string) wasmlib.ScImmutableInt64 {
+	return wasmlib.NewScImmutableInt64(m.objID, wasmlib.Key(key).KeyID())
 }
 
 type ArrayOfImmutableValidTag struct {
@@ -120,14 +128,14 @@ func (s ImmutablezentangleState) PendingPlays() ArrayOfImmutableBet {
 	return ArrayOfImmutableBet{objID: arrID}
 }
 
-func (s ImmutablezentangleState) Player() MapStringToImmutablePlayer {
-	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayer], wasmlib.TYPE_MAP)
-	return MapStringToImmutablePlayer{objID: mapID}
+func (s ImmutablezentangleState) PlayerBoost() MapStringToImmutablePlayerBoost {
+	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayerBoost], wasmlib.TYPE_MAP)
+	return MapStringToImmutablePlayerBoost{objID: mapID}
 }
 
-func (s ImmutablezentangleState) Players() ArrayOfImmutablePlayer {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayers], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
-	return ArrayOfImmutablePlayer{objID: arrID}
+func (s ImmutablezentangleState) PlayersBoost() ArrayOfImmutablePlayerBoost {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfImmutablePlayerBoost{objID: arrID}
 }
 
 func (s ImmutablezentangleState) PlaysPerImage() ArrayOfImmutableInt32 {
@@ -151,6 +159,11 @@ func (s ImmutablezentangleState) TaggedImages() ArrayOfImmutableTaggedImage {
 
 func (s ImmutablezentangleState) TagsRequiredPerImage() wasmlib.ScImmutableInt32 {
 	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxStateTagsRequiredPerImage])
+}
+
+func (s ImmutablezentangleState) TotalPlayerTags() MapStringToImmutableInt64 {
+	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStateTotalPlayerTags], wasmlib.TYPE_MAP)
+	return MapStringToImmutableInt64{objID: mapID}
 }
 
 func (s ImmutablezentangleState) ValidTags() ArrayOfImmutableValidTag {
@@ -186,32 +199,32 @@ func (m MapStringToMutableBet) GetBet(key string) MutableBet {
 	return MutableBet{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type MapStringToMutablePlayer struct {
+type MapStringToMutablePlayerBoost struct {
 	objID int32
 }
 
-func (m MapStringToMutablePlayer) Clear() {
+func (m MapStringToMutablePlayerBoost) Clear() {
 	wasmlib.Clear(m.objID)
 }
 
-func (m MapStringToMutablePlayer) GetPlayer(key string) MutablePlayer {
-	return MutablePlayer{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
+func (m MapStringToMutablePlayerBoost) GetPlayerBoost(key string) MutablePlayerBoost {
+	return MutablePlayerBoost{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type ArrayOfMutablePlayer struct {
+type ArrayOfMutablePlayerBoost struct {
 	objID int32
 }
 
-func (a ArrayOfMutablePlayer) Clear() {
+func (a ArrayOfMutablePlayerBoost) Clear() {
 	wasmlib.Clear(a.objID)
 }
 
-func (a ArrayOfMutablePlayer) Length() int32 {
+func (a ArrayOfMutablePlayerBoost) Length() int32 {
 	return wasmlib.GetLength(a.objID)
 }
 
-func (a ArrayOfMutablePlayer) GetPlayer(index int32) MutablePlayer {
-	return MutablePlayer{objID: a.objID, keyID: wasmlib.Key32(index)}
+func (a ArrayOfMutablePlayerBoost) GetPlayerBoost(index int32) MutablePlayerBoost {
+	return MutablePlayerBoost{objID: a.objID, keyID: wasmlib.Key32(index)}
 }
 
 type ArrayOfMutableInt32 struct {
@@ -244,6 +257,18 @@ func (a ArrayOfMutableTaggedImage) Length() int32 {
 
 func (a ArrayOfMutableTaggedImage) GetTaggedImage(index int32) MutableTaggedImage {
 	return MutableTaggedImage{objID: a.objID, keyID: wasmlib.Key32(index)}
+}
+
+type MapStringToMutableInt64 struct {
+	objID int32
+}
+
+func (m MapStringToMutableInt64) Clear() {
+	wasmlib.Clear(m.objID)
+}
+
+func (m MapStringToMutableInt64) GetInt64(key string) wasmlib.ScMutableInt64 {
+	return wasmlib.NewScMutableInt64(m.objID, wasmlib.Key(key).KeyID())
 }
 
 type ArrayOfMutableValidTag struct {
@@ -301,14 +326,14 @@ func (s MutablezentangleState) PendingPlays() ArrayOfMutableBet {
 	return ArrayOfMutableBet{objID: arrID}
 }
 
-func (s MutablezentangleState) Player() MapStringToMutablePlayer {
-	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayer], wasmlib.TYPE_MAP)
-	return MapStringToMutablePlayer{objID: mapID}
+func (s MutablezentangleState) PlayerBoost() MapStringToMutablePlayerBoost {
+	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayerBoost], wasmlib.TYPE_MAP)
+	return MapStringToMutablePlayerBoost{objID: mapID}
 }
 
-func (s MutablezentangleState) Players() ArrayOfMutablePlayer {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayers], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
-	return ArrayOfMutablePlayer{objID: arrID}
+func (s MutablezentangleState) PlayersBoost() ArrayOfMutablePlayerBoost {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
+	return ArrayOfMutablePlayerBoost{objID: arrID}
 }
 
 func (s MutablezentangleState) PlaysPerImage() ArrayOfMutableInt32 {
@@ -332,6 +357,11 @@ func (s MutablezentangleState) TaggedImages() ArrayOfMutableTaggedImage {
 
 func (s MutablezentangleState) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
 	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxStateTagsRequiredPerImage])
+}
+
+func (s MutablezentangleState) TotalPlayerTags() MapStringToMutableInt64 {
+	mapID := wasmlib.GetObjectID(s.id, idxMap[IdxStateTotalPlayerTags], wasmlib.TYPE_MAP)
+	return MapStringToMutableInt64{objID: mapID}
 }
 
 func (s MutablezentangleState) ValidTags() ArrayOfMutableValidTag {

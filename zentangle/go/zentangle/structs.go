@@ -67,65 +67,65 @@ func (o MutableBet) Value() *Bet {
 	return NewBetFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
 }
 
-type Player struct {
+type PlayerBoost struct {
 	NDoubleBoosts  int64  // Number of 2x boost used in the round
 	NTags          int64  // Number of tags made by the player in the current round
 	NTrippleBoosts int64  // Number of 3x boosts used in the round
-	Player         wasmlib.ScAgentID  // The player
+	PlayerAddress  string  // The player's address
 }
 
-func NewPlayerFromBytes(bytes []byte) *Player {
+func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
 	decode := wasmlib.NewBytesDecoder(bytes)
-	data := &Player{}
+	data := &PlayerBoost{}
 	data.NDoubleBoosts  = decode.Int64()
 	data.NTags          = decode.Int64()
 	data.NTrippleBoosts = decode.Int64()
-	data.Player         = decode.AgentID()
+	data.PlayerAddress  = decode.String()
 	decode.Close()
 	return data
 }
 
-func (o *Player) Bytes() []byte {
+func (o *PlayerBoost) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
 		Int64(o.NDoubleBoosts).
 		Int64(o.NTags).
 		Int64(o.NTrippleBoosts).
-		AgentID(o.Player).
+		String(o.PlayerAddress).
 		Data()
 }
 
-type ImmutablePlayer struct {
+type ImmutablePlayerBoost struct {
 	objID int32
 	keyID wasmlib.Key32
 }
 
-func (o ImmutablePlayer) Exists() bool {
+func (o ImmutablePlayerBoost) Exists() bool {
 	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
 
-func (o ImmutablePlayer) Value() *Player {
-	return NewPlayerFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+func (o ImmutablePlayerBoost) Value() *PlayerBoost {
+	return NewPlayerBoostFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
 }
 
-type MutablePlayer struct {
+type MutablePlayerBoost struct {
 	objID int32
 	keyID wasmlib.Key32
 }
 
-func (o MutablePlayer) Delete() {
+func (o MutablePlayerBoost) Delete() {
 	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
 
-func (o MutablePlayer) Exists() bool {
+func (o MutablePlayerBoost) Exists() bool {
 	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
 }
 
-func (o MutablePlayer) SetValue(value *Player) {
+func (o MutablePlayerBoost) SetValue(value *PlayerBoost) {
 	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
 }
 
-func (o MutablePlayer) Value() *Player {
-	return NewPlayerFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+func (o MutablePlayerBoost) Value() *PlayerBoost {
+	return NewPlayerBoostFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
 }
 
 type TaggedImage struct {

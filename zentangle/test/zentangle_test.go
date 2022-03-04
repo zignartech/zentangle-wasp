@@ -36,6 +36,7 @@ func TestPlay2(t *testing.T) {
 	for i := 0; i < number_of_players; i++ {
 		player[i] = ctx.NewSoloAgent()
 		RequestPlay := zentangle.ScFuncs.RequestPlay(ctx.Sign(player[i]))
+		require.Equal(t, player[i].Balance(), 10)
 		require.NoError(t, ctx.Err)
 
 		SendTags := zentangle.ScFuncs.SendTags(ctx.Sign(player[i]))
@@ -77,7 +78,6 @@ func TestPlay2(t *testing.T) {
 	}
 }
 
-/*
 func TestPlay(t *testing.T) {
 	numberOfImages := int32(22)
 
@@ -130,4 +130,3 @@ func SendTags(t *testing.T, _ctx *wasmsolo.SoloContext) {
 	f.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 }
-*/
