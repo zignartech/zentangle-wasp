@@ -170,7 +170,7 @@ pub fn clear_pending_play(f: &EndGameContext) {
 }
 
 // An internal function that calculates distance between points in four dimentions (x, y, h, w)
-pub fn euclidean_distance(a: Vec<i64>, b: Vec<i64>) -> f64 {
+pub fn euclidean_distance(a: Vec<f64>, b: Vec<f64>) -> f64 {
     (((a[0] - b[0]) * (a[0] - b[0])
         + (a[1] - b[1]) * (a[1] - b[1])
         + (a[2] - b[2]) * (a[2] - b[2])
@@ -180,7 +180,7 @@ pub fn euclidean_distance(a: Vec<i64>, b: Vec<i64>) -> f64 {
 
 // An internal function that takes many clusters and merges them using the Aglomerative Hierarchical Clustering
 // algorithm and MIN_INTER_CLUSTER_DISTANCE as a parameter to prevent merging clusters too far apart from each other
-pub fn clustering(mut clusters: Vec<Vec<i64>>) -> Vec<Vec<i64>> {
+pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
     let mut min_distance = [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
 
     // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
@@ -205,8 +205,8 @@ pub fn clustering(mut clusters: Vec<Vec<i64>>) -> Vec<Vec<i64>> {
             let index_1 = min_distance[1] as usize;
             let index_2 = min_distance[2] as usize;
             // the weight is equal to the number of point's that conform the cluster
-            let weight_1 = (clusters[index_1].len() - 4) as i64;
-            let weight_2 = (clusters[index_2].len() - 4) as i64;
+            let weight_1 = (clusters[index_1].len() - 4) as f64;
+            let weight_2 = (clusters[index_2].len() - 4) as f64;
 
             // Calculating the coordiantes of the new cluster. The more weight,
             // the more influence on the new coordinate it has. This way, the
@@ -223,10 +223,10 @@ pub fn clustering(mut clusters: Vec<Vec<i64>>) -> Vec<Vec<i64>> {
                     / (weight_1 + weight_2),
             ];
             // Push the point's inside both clusters to the new cluster
-            for i in 0..weight_1 {
+            for i in 0..weight_1 as i32 {
                 new_cluster.push(clusters[index_1][i as usize + 4]);
             }
-            for i in 0..weight_2 {
+            for i in 0..weight_2 as i32 {
                 new_cluster.push(clusters[index_2][i as usize + 4]);
             }
 
@@ -247,7 +247,7 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
     let mut hash_image_id: HashMap<i64, i32> = HashMap::new(); // a hashmap to retrieve an image_id from a tag_id
     let mut hash_play_tag_id: HashMap<i64, i32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id
 
-    let mut clusters: Vec<Vec<i64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
+    let mut clusters: Vec<Vec<f64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
     let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
                                      // the game could end before images are tagged with the required amount
                                      // it will be used to calculate the amount of players needed to agree for a valid tag
@@ -258,10 +258,10 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
         }
         let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
         // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
-        let x = input_str_to_vec64(&tagged_image.x, ctx);
-        let y = input_str_to_vec64(&tagged_image.y, ctx);
-        let h = input_str_to_vec64(&tagged_image.h, ctx);
-        let w = input_str_to_vec64(&tagged_image.w, ctx);
+        let x = input_str_to_vecf64(&tagged_image.x, ctx);
+        let y = input_str_to_vecf64(&tagged_image.y, ctx);
+        let h = input_str_to_vecf64(&tagged_image.h, ctx);
+        let w = input_str_to_vecf64(&tagged_image.w, ctx);
         for j in 0..x.len() {
             // clusters have the following form:
             // [x, y, h, w, tag_id1. tag_id2, tag_id3, ... ],
@@ -271,7 +271,7 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
                 y[j as usize],
                 h[j as usize],
                 w[j as usize],
-                clusters.len() as i64,
+                clusters.len() as f64,
             ];
             hash_image_id.insert(clusters.len() as i64, i);
             hash_play_tag_id.insert(clusters.len() as i64, j as i32);
@@ -296,7 +296,7 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
         } else {
             // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
             for j in 4..clusters[id].len() {
-                let tagged_image = *hash_image_id.get(&clusters[id][j]).unwrap();
+                let tagged_image = *hash_image_id.get(&(clusters[id][j] as i64)).unwrap();
                 let vaid_tag = ValidTag {
                     player: f
                         .state
@@ -305,7 +305,7 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
                         .value()
                         .player,
                     tagged_image: tagged_image,
-                    play_tag_id: *hash_play_tag_id.get(&clusters[id][j]).unwrap(),
+                    play_tag_id: *hash_play_tag_id.get(&(clusters[id][j] as  i64)).unwrap(),
                 };
                 f.state
                     .valid_tags()
@@ -319,7 +319,7 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
     // it's easier to find processed images based on their id. TODO: With nested arrays and nested
     // constructors, this would not be necessary.
     if clusters.len() == 0 {
-        let cluster = vec![-1, -1, -1, -1];
+        let cluster = vec![-1.0, -1.0, -1.0, -1.0];
         clusters.push(cluster);
     }
 
@@ -357,7 +357,7 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
             .value();
         let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
         let tagged_image_point = &tagged_image_coords[player_tag_id];
-        let boost = input_str_to_vec32(&tagged_image.boost, ctx)[player_tag_id];
+        let boost = input_str_to_veci32(&tagged_image.boost, ctx)[player_tag_id];
         let clusters_centers = f
             .state
             .processed_images()
@@ -429,11 +429,11 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
 
 // An internal function to convert inputs to the smart contract as strings that contain
 // int64 variables separated by spaces into a vector of those int64 variables.
-pub fn input_str_to_vec64(string: &String, ctx: &ScFuncContext) -> Vec<i64> {
+pub fn input_str_to_vecf64(string: &String, ctx: &ScFuncContext) -> Vec<f64> {
     let iterator = string.split_whitespace();
-    let mut vec64: Vec<i64> = Vec::new();
+    let mut vec64: Vec<f64> = Vec::new();
     for i in iterator {
-        let input = i.parse::<i64>();
+        let input = i.parse::<f64>();
         match input {
             Ok(integer) => vec64.push(integer),
             Err(_error) => {
@@ -446,7 +446,7 @@ pub fn input_str_to_vec64(string: &String, ctx: &ScFuncContext) -> Vec<i64> {
 
 // An internal function to convert inputs to the smart contract as strings that contain
 // int32 variables separated by spaces into a vector of those int32 variables.
-pub fn input_str_to_vec32(string: &String, ctx: &ScFuncContext) -> Vec<i32> {
+pub fn input_str_to_veci32(string: &String, ctx: &ScFuncContext) -> Vec<i32> {
     let iterator = string.split_whitespace();
     let mut vec32: Vec<i32> = Vec::new();
     for i in iterator {
@@ -463,7 +463,7 @@ pub fn input_str_to_vec32(string: &String, ctx: &ScFuncContext) -> Vec<i32> {
 
 // An internal function to convert a vector of i32 variables into a string
 // containing those variables, separated by spaces
-pub fn vec32_to_str(vec32: Vec<i32>) -> String {
+pub fn veci32_to_str(vec32: Vec<i32>) -> String {
     let mut string = "".to_string();
     for i in 0..vec32.len() {
         if i != 0 {
@@ -476,13 +476,13 @@ pub fn vec32_to_str(vec32: Vec<i32>) -> String {
 
 // An internal function to convert a vector of i32 variables into a string
 // containing those variables, separated by spaces
-pub fn vec64_to_str(vec64: Vec<i64>) -> String {
+pub fn vecf64_to_str(vecf64: Vec<f64>) -> String {
     let mut string = "".to_string();
-    for i in 0..vec64.len() {
+    for i in 0..vecf64.len() {
         if i != 0 {
             string += " ";
         }
-        string += &vec64[i].to_string();
+        string += &vecf64[i].to_string();
     }
     return string;
 }
@@ -490,26 +490,26 @@ pub fn vec64_to_str(vec64: Vec<i64>) -> String {
 // An internal function to convert a vector of tagged images, each with a single point
 // to one single tagged image but with many points
 pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> TaggedImage {
-    let mut x: Vec<i64> = Vec::new();
-    let mut y: Vec<i64> = Vec::new();
-    let mut h: Vec<i64> = Vec::new();
-    let mut w: Vec<i64> = Vec::new();
+    let mut x: Vec<f64> = Vec::new();
+    let mut y: Vec<f64> = Vec::new();
+    let mut h: Vec<f64> = Vec::new();
+    let mut w: Vec<f64> = Vec::new();
     let mut boost: Vec<i32> = Vec::new();
     for point in &vec {
-        x.push(input_str_to_vec64(&point.x, ctx)[0]);
-        y.push(input_str_to_vec64(&point.y, ctx)[0]);
-        h.push(input_str_to_vec64(&point.h, ctx)[0]);
-        w.push(input_str_to_vec64(&point.w, ctx)[0]);
-        boost.push(input_str_to_vec32(&point.boost, ctx)[0]);
+        x.push(input_str_to_vecf64(&point.x, ctx)[0]);
+        y.push(input_str_to_vecf64(&point.y, ctx)[0]);
+        h.push(input_str_to_vecf64(&point.h, ctx)[0]);
+        w.push(input_str_to_vecf64(&point.w, ctx)[0]);
+        boost.push(input_str_to_veci32(&point.boost, ctx)[0]);
     }
     let processed_image = TaggedImage {
         image_id: (&vec[0]).image_id,
         player: ctx.caller(), // field is required but not used in this case
-        x: vec64_to_str(x),
-        y: vec64_to_str(y),
-        h: vec64_to_str(h),
-        w: vec64_to_str(w),
-        boost: vec32_to_str(boost),
+        x: vecf64_to_str(x),
+        y: vecf64_to_str(y),
+        h: vecf64_to_str(h),
+        w: vecf64_to_str(w),
+        boost: veci32_to_str(boost),
     };
 
     return processed_image;
@@ -518,13 +518,13 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
 // An internal function to get a vector of vectors of type i64, each vector representing
 // a dimention and each dimention having multiple points. This is calculated taking a
 // reference to a TaggedImage as an input.
-pub fn input_tgimg_to_vecs(tagged_image: &TaggedImage, ctx: &ScFuncContext) -> Vec<Vec<i64>> {
-    let x = input_str_to_vec64(&tagged_image.x, ctx);
-    let y = input_str_to_vec64(&tagged_image.y, ctx);
-    let h = input_str_to_vec64(&tagged_image.h, ctx);
-    let w = input_str_to_vec64(&tagged_image.w, ctx);
+pub fn input_tgimg_to_vecs(tagged_image: &TaggedImage, ctx: &ScFuncContext) -> Vec<Vec<f64>> {
+    let x = input_str_to_vecf64(&tagged_image.x, ctx);
+    let y = input_str_to_vecf64(&tagged_image.y, ctx);
+    let h = input_str_to_vecf64(&tagged_image.h, ctx);
+    let w = input_str_to_vecf64(&tagged_image.w, ctx);
 
-    let mut vectors: Vec<Vec<i64>> = Vec::new();
+    let mut vectors: Vec<Vec<f64>> = Vec::new();
 
     for i in 0..x.len() {
         vectors.push(vec![x[i], y[i], h[i], w[i]]);
@@ -536,11 +536,11 @@ pub fn input_tgimg_to_vecs(tagged_image: &TaggedImage, ctx: &ScFuncContext) -> V
 // int64 variables separated by spaces into a vector of those int64 variables.
 // CAUTION: inputs MUST BE of type i64. Else, the error will not be handeled correctly.
 // This function takes no ctx, so no panic can be induced.
-pub fn unsafe_input_str_to_vec64(string: &String) -> Vec<i64> {
+pub fn unsafe_input_str_to_vecf64(string: &String) -> Vec<f64> {
     let iterator = string.split_whitespace();
-    let mut vec64: Vec<i64> = Vec::new();
+    let mut vec64: Vec<f64> = Vec::new();
     for i in iterator {
-        let input = i.parse::<i64>();
+        let input = i.parse::<f64>();
         vec64.push(input.unwrap())
     }
     return vec64;
@@ -551,13 +551,13 @@ pub fn unsafe_input_str_to_vec64(string: &String) -> Vec<i64> {
 // reference to a TaggedImage as an input.
 // CAUTION: inputs MUST BE of type i64. Else, the error will not be handeled correctly.
 // This function takes no ctx, so no panic can be induced.
-pub fn unsafe_input_tgimg_to_vecs(tagged_image: &TaggedImage) -> Vec<Vec<i64>> {
-    let x = unsafe_input_str_to_vec64(&tagged_image.x);
-    let y = unsafe_input_str_to_vec64(&tagged_image.y);
-    let h = unsafe_input_str_to_vec64(&tagged_image.h);
-    let w = unsafe_input_str_to_vec64(&tagged_image.w);
+pub fn unsafe_input_tgimg_to_vecs(tagged_image: &TaggedImage) -> Vec<Vec<f64>> {
+    let x = unsafe_input_str_to_vecf64(&tagged_image.x);
+    let y = unsafe_input_str_to_vecf64(&tagged_image.y);
+    let h = unsafe_input_str_to_vecf64(&tagged_image.h);
+    let w = unsafe_input_str_to_vecf64(&tagged_image.w);
 
-    let mut vectors: Vec<Vec<i64>> = Vec::new();
+    let mut vectors: Vec<Vec<f64>> = Vec::new();
 
     for i in 0..x.len() {
         vectors.push(vec![x[i], y[i], h[i], w[i]]);

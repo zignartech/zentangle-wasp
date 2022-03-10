@@ -4,6 +4,7 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
@@ -19,8 +20,8 @@ func TestDeploy(t *testing.T) {
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
 	number_of_images := int32(10)
-	const number_of_players = 1
-	const plays_required_per_image = 1
+	const number_of_players = 3
+	const plays_required_per_image = 3
 
 	// create game
 	creator := ctx.NewSoloAgent()
@@ -38,17 +39,21 @@ func TestPlay2(t *testing.T) {
 		RequestPlay := zentangle.ScFuncs.RequestPlay(ctx.Sign(player[i]))
 		require.NoError(t, ctx.Err)
 
+		x := 50.4518671871878
+		y := 39.46231654
+		h := 10.1465456
+		w := 11.41564515765165
 		SendTags := zentangle.ScFuncs.SendTags(ctx.Sign(player[i]))
 		SendTags.Params.InputJson().SetValue(`{
-			"x": [50, 200, 500], 
-			"y": [550, 400, 50], 
-			"h": [150, 50, 50], 
-			"w": [200, 50, 55], 
+			"x": [` + fmt.Sprintf("%v", x+float64(i)) + `, ` + fmt.Sprintf("%v", 2*x+float64(i)) + `, ` + fmt.Sprintf("%v", 3*x+float64(i)) + `],
+			"y": [` + fmt.Sprintf("%v", y+float64(i)) + `, ` + fmt.Sprintf("%v", 2*y+float64(i)) + `, ` + fmt.Sprintf("%v", 3*y+float64(i)) + `],
+			"h": [` + fmt.Sprintf("%v", h+float64(i)) + `, ` + fmt.Sprintf("%v", 2*h+float64(i)) + `, ` + fmt.Sprintf("%v", 3*h+float64(i)) + `],
+			"w": [` + fmt.Sprintf("%v", w+float64(i)) + `, ` + fmt.Sprintf("%v", 2*w+float64(i)) + `, ` + fmt.Sprintf("%v", 3*w+float64(i)) + `],
 			"boost": [1, 1, 1]
 		}`)
 
 		for j := 0; int32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
-			RequestPlay.Func.TransferIotas(60).Post()
+			RequestPlay.Func.TransferIotas(10000 + int64(i)).Post()
 			SendTags.Func.TransferIotas(1).Post()
 		}
 

@@ -379,10 +379,10 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
     struct Annotations {
-        x: Vec<i64>,
-        y: Vec<i64>,
-        h: Vec<i64>,
-        w: Vec<i64>,
+        x: Vec<f64>,
+        y: Vec<f64>,
+        h: Vec<f64>,
+        w: Vec<f64>,
         boost: Vec<i32>,
     }
 
@@ -421,11 +421,11 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let tagged_image = TaggedImage {
         image_id: image_id,
         player: ctx.caller(),
-        boost: vec32_to_str(annotations.boost.clone()),
-        x: vec64_to_str(annotations.x),
-        y: vec64_to_str(annotations.y),
-        h: vec64_to_str(annotations.h),
-        w: vec64_to_str(annotations.w),
+        boost: veci32_to_str(annotations.boost.clone()),
+        x: vecf64_to_str(annotations.x),
+        y: vecf64_to_str(annotations.y),
+        h: vecf64_to_str(annotations.h),
+        w: vecf64_to_str(annotations.w),
     };
 
     // Add the tag data to the taggedImage array. The taggedImages array will automatically take care
