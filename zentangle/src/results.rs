@@ -21,8 +21,8 @@ pub struct ImmutableRequestPlayResults {
 }
 
 impl ImmutableRequestPlayResults {
-    pub fn image_id(&self) -> ScImmutableInt32 {
-		ScImmutableInt32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+    pub fn image_id(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
 	}
 }
 
@@ -32,8 +32,8 @@ pub struct MutableRequestPlayResults {
 }
 
 impl MutableRequestPlayResults {
-    pub fn image_id(&self) -> ScMutableInt32 {
-		ScMutableInt32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+    pub fn image_id(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
 	}
 }
 
@@ -109,8 +109,8 @@ pub struct ImmutableGetPlaysPerImageResults {
 }
 
 impl ImmutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ScImmutableInt32 {
-		ScImmutableInt32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+    pub fn plays_per_image(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
 	}
 }
 
@@ -120,8 +120,8 @@ pub struct MutableGetPlaysPerImageResults {
 }
 
 impl MutableGetPlaysPerImageResults {
-    pub fn plays_per_image(&self) -> ScMutableInt32 {
-		ScMutableInt32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+    pub fn plays_per_image(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
 	}
 }
 

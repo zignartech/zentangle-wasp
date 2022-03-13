@@ -4,27 +4,27 @@
     "events": {
         "imagetagged": {
             "address": "String",
-            "imageId": "Int32",
-            "playsPerImage": "Int32"
+            "imageId": "Uint32",
+            "playsPerImage": "Uint32"
         },
         "gameStarted": {
             "description": "String",
-            "numberOfImages": "Int32",
-            "reward": "Int64",
-            "tagsRequiredPerImage": "Int32"
+            "numberOfImages": "Uint32",
+            "reward": "Uint64",
+            "tagsRequiredPerImage": "Uint32"
         },
         "gameEnded": {
         },
         "playRequested": {
             "address": "String",
-            "amount": "Int64",
-            "imageId": "Int32" 
+            "amount": "Uint64",
+            "imageId": "Uint32" 
         }
     },
     "structs": {
         "TaggedImage": {
-            "imageId": "Int32",
-            "player": "AgentID // player that has tagged this image",
+            "imageId": "Int32 // the only signed integer (It is -1 by default)",
+            "player": "Address // player that has tagged this image",
             "boost": "String // if the tags will be boosted or not",
             "x": "String // x top-left positions of the Tags",
             "y": "String // y top-left positions of the Tags",
@@ -32,40 +32,40 @@
             "h": "String // heights of the Tags"
         },
         "Bet": {
-            "amount": "Int64",
-            "player": "AgentID // player placing the bet",
-            "imageId": "Int32"
+            "amount": "Uint64",
+            "player": "Address // player placing the bet",
+            "imageId": "Uint32"
         },
         "ValidTag": {
-            "player": "AgentID // player placing the bet",
-            "taggedImage": "Int32",
-            "playTagId": "Int32 // Identifier to distinguish different tags in the same play"
+            "player": "Address // player placing the bet",
+            "taggedImage": "Uint32",
+            "playTagId": "Uint32 // Identifier to distinguish different tags in the same play"
         },
         "PlayerBoost": {
             "playerAddress": "String // The player's address",
-            "nTags": "Int64 // Number of tags made by the player in the current round",
-            "nDoubleBoosts": "Int64 // Number of 2x boost used in the round",
-            "nTrippleBoosts": "Int64 // Number of 3x boosts used in the round"
+            "nTags": "Uint64 // Number of tags made by the player in the current round",
+            "nDoubleBoosts": "Uint64 // Number of 2x boost used in the round",
+            "nTrippleBoosts": "Uint64 // Number of 3x boosts used in the round"
         }
     },
     "typedefs": {},
     "state": {
         "owner": "AgentID // current owner of this smart contract",
-        "numberOfImages": "Int32 // total number of images to tag",
-        "reward": "Int64 // current reward to split between players",
+        "numberOfImages": "Uint32 // total number of images to tag",
+        "reward": "Uint64 // current reward to split between players",
         "description": "String // details on how should the images be tagged",
         "creator": "AgentID // the creator of the game",
-        "tagsRequiredPerImage": "Int32 // Images have to be tagged by this amount of players to be ready",
+        "tagsRequiredPerImage": "Uint32 // Images have to be tagged by this amount of players to be ready",
         "bets": "Bet[]",
         "pendingPlay": "map[String]Bet // maps a players address to the Play that has been requested but not completed",
         "pendingPlays": "Bet[] // TODO: because maps can't be cleared correcly yet",
-        "playsPerImage": "Int32[] // counts how many times an image has been tagged",
+        "playsPerImage": "Uint32[] // counts how many times an image has been tagged",
         "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
         "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
         "processedImages": "TaggedImage[]",
         "playerBoost": "map[String]PlayerBoost // maps an address to the information of the player",
         "playersBoost": "PlayerBoost[] // TODO: because maps can't be cleared correcly yet",
-        "totalPlayerTags": "map[String]Int64 // maps a player's address to the number of tags it has made (to calculate the ingots)."
+        "totalPlayerTags": "map[String]Uint64 // maps a player's address to the number of tags it has made (to calculate the ingots)."
     },
     "funcs": {
         "init": {
@@ -84,14 +84,14 @@
         },
         "createGame": {
             "params": {
-                "numberOfImages": "Int32 // total number of images to tag",
+                "numberOfImages": "Uint32 // total number of images to tag",
                 "description": "String // details on how should the images be tagged",
-                "tagsRequiredPerImage": "Int32? // Images have to be tagged by this amount of players to be ready"
+                "tagsRequiredPerImage": "Uint32? // Images have to be tagged by this amount of players to be ready"
             }
         },
         "requestPlay": {
             "results": {
-                "imageId": "Int32"
+                "imageId": "Uint32"
             }
         },
         "sendTags": {
@@ -113,15 +113,15 @@
         },
         "getPlaysPerImage": {
             "params": {
-                "imageId": "Int32"
+                "imageId": "Uint32"
             },
             "results": {
-                "playsPerImage": "Int32"
+                "playsPerImage": "Uint32"
             }
         },
         "getResults": {
             "params": {
-                "imageId": "Int32"
+                "imageId": "Uint32"
             },
             "results": {
                 "results": "String // x/y/h/w"

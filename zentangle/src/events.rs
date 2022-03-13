@@ -9,37 +9,37 @@
 
 use wasmlib::*;
 
-pub struct ZentangleEvents {
+pub struct zentangleEvents {
 }
 
-impl ZentangleEvents {
+impl zentangleEvents {
 
 	pub fn game_ended(&self) {
 		EventEncoder::new("zentangle.gameEnded").emit();
 	}
 
-	pub fn game_started(&self, description: &str, number_of_images: i32, reward: i64, tags_required_per_image: i32) {
+	pub fn game_started(&self, description: &str, number_of_images: u32, reward: u64, tags_required_per_image: u32) {
 		let mut encoder = EventEncoder::new("zentangle.gameStarted");
 		encoder.string(&description);
-		encoder.int32(number_of_images);
-		encoder.int64(reward);
-		encoder.int32(tags_required_per_image);
+		encoder.uint32(number_of_images);
+		encoder.uint64(reward);
+		encoder.uint32(tags_required_per_image);
 		encoder.emit();
 	}
 
-	pub fn imagetagged(&self, address: &str, image_id: i32, plays_per_image: i32) {
+	pub fn imagetagged(&self, address: &str, image_id: u32, plays_per_image: u32) {
 		let mut encoder = EventEncoder::new("zentangle.imagetagged");
 		encoder.string(&address);
-		encoder.int32(image_id);
-		encoder.int32(plays_per_image);
+		encoder.uint32(image_id);
+		encoder.uint32(plays_per_image);
 		encoder.emit();
 	}
 
-	pub fn play_requested(&self, address: &str, amount: i64, image_id: i32) {
+	pub fn play_requested(&self, address: &str, amount: u64, image_id: u32) {
 		let mut encoder = EventEncoder::new("zentangle.playRequested");
 		encoder.string(&address);
-		encoder.int64(amount);
-		encoder.int32(image_id);
+		encoder.uint64(amount);
+		encoder.uint32(image_id);
 		encoder.emit();
 	}
 }

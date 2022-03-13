@@ -18,27 +18,27 @@ func (e zentangleEvents) GameEnded() {
 		Emit()
 }
 
-func (e zentangleEvents) GameStarted(description string, numberOfImages int32, reward int64, tagsRequiredPerImage int32) {
+func (e zentangleEvents) GameStarted(description string, numberOfImages uint32, reward uint64, tagsRequiredPerImage uint32) {
 	wasmlib.NewEventEncoder("zentangle.gameStarted").
 		String(description).
-		Int32(numberOfImages).
-		Int64(reward).
-		Int32(tagsRequiredPerImage).
+		Uint32(numberOfImages).
+		Uint64(reward).
+		Uint32(tagsRequiredPerImage).
 		Emit()
 }
 
-func (e zentangleEvents) Imagetagged(address string, imageId int32, playsPerImage int32) {
+func (e zentangleEvents) Imagetagged(address string, imageId uint32, playsPerImage uint32) {
 	wasmlib.NewEventEncoder("zentangle.imagetagged").
 		String(address).
-		Int32(imageId).
-		Int32(playsPerImage).
+		Uint32(imageId).
+		Uint32(playsPerImage).
 		Emit()
 }
 
-func (e zentangleEvents) PlayRequested(address string, amount int64, imageId int32) {
+func (e zentangleEvents) PlayRequested(address string, amount uint64, imageId uint32) {
 	wasmlib.NewEventEncoder("zentangle.playRequested").
 		String(address).
-		Int64(amount).
-		Int32(imageId).
+		Uint64(amount).
+		Uint32(imageId).
 		Emit()
 }

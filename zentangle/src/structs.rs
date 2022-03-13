@@ -13,26 +13,26 @@ use wasmlib::host::*;
 
 #[derive(Clone)]
 pub struct Bet {
-    pub amount   : i64, 
-    pub image_id : i32, 
-    pub player   : ScAgentID,  // player placing the bet
+    pub amount   : u64, 
+    pub image_id : u32, 
+    pub player   : ScAddress,  // player placing the bet
 }
 
 impl Bet {
     pub fn from_bytes(bytes: &[u8]) -> Bet {
         let mut decode = BytesDecoder::new(bytes);
         Bet {
-            amount   : decode.int64(),
-            image_id : decode.int32(),
-            player   : decode.agent_id(),
+            amount   : decode.uint64(),
+            image_id : decode.uint32(),
+            player   : decode.address(),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
-		encode.int64(self.amount);
-		encode.int32(self.image_id);
-		encode.agent_id(&self.player);
+		encode.uint64(self.amount);
+		encode.uint32(self.image_id);
+		encode.address(&self.player);
         return encode.data();
     }
 }
@@ -79,9 +79,9 @@ impl MutableBet {
 
 #[derive(Clone)]
 pub struct PlayerBoost {
-    pub n_double_boosts  : i64,  // Number of 2x boost used in the round
-    pub n_tags           : i64,  // Number of tags made by the player in the current round
-    pub n_tripple_boosts : i64,  // Number of 3x boosts used in the round
+    pub n_double_boosts  : u64,  // Number of 2x boost used in the round
+    pub n_tags           : u64,  // Number of tags made by the player in the current round
+    pub n_tripple_boosts : u64,  // Number of 3x boosts used in the round
     pub player_address   : String,  // The player's address
 }
 
@@ -89,18 +89,18 @@ impl PlayerBoost {
     pub fn from_bytes(bytes: &[u8]) -> PlayerBoost {
         let mut decode = BytesDecoder::new(bytes);
         PlayerBoost {
-            n_double_boosts  : decode.int64(),
-            n_tags           : decode.int64(),
-            n_tripple_boosts : decode.int64(),
+            n_double_boosts  : decode.uint64(),
+            n_tags           : decode.uint64(),
+            n_tripple_boosts : decode.uint64(),
             player_address   : decode.string(),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
-		encode.int64(self.n_double_boosts);
-		encode.int64(self.n_tags);
-		encode.int64(self.n_tripple_boosts);
+		encode.uint64(self.n_double_boosts);
+		encode.uint64(self.n_tags);
+		encode.uint64(self.n_tripple_boosts);
 		encode.string(&self.player_address);
         return encode.data();
     }
@@ -150,8 +150,8 @@ impl MutablePlayerBoost {
 pub struct TaggedImage {
     pub boost    : String,  // if the tags will be boosted or not
     pub h        : String,  // heights of the Tags
-    pub image_id : i32, 
-    pub player   : ScAgentID,  // player that has tagged this image
+    pub image_id : i32,  // the only signed integer (It is -1 by default)
+    pub player   : ScAddress,  // player that has tagged this image
     pub w        : String,  // widths of the Tags
     pub x        : String,  // x top-left positions of the Tags
     pub y        : String,  // y top-left positions of the Tags
@@ -164,7 +164,7 @@ impl TaggedImage {
             boost    : decode.string(),
             h        : decode.string(),
             image_id : decode.int32(),
-            player   : decode.agent_id(),
+            player   : decode.address(),
             w        : decode.string(),
             x        : decode.string(),
             y        : decode.string(),
@@ -176,7 +176,7 @@ impl TaggedImage {
 		encode.string(&self.boost);
 		encode.string(&self.h);
 		encode.int32(self.image_id);
-		encode.agent_id(&self.player);
+		encode.address(&self.player);
 		encode.string(&self.w);
 		encode.string(&self.x);
 		encode.string(&self.y);
@@ -226,26 +226,26 @@ impl MutableTaggedImage {
 
 #[derive(Clone)]
 pub struct ValidTag {
-    pub play_tag_id  : i32,  // Identifier to distinguish different tags in the same play
-    pub player       : ScAgentID,  // player placing the bet
-    pub tagged_image : i32, 
+    pub play_tag_id  : u32,  // Identifier to distinguish different tags in the same play
+    pub player       : ScAddress,  // player placing the bet
+    pub tagged_image : u32, 
 }
 
 impl ValidTag {
     pub fn from_bytes(bytes: &[u8]) -> ValidTag {
         let mut decode = BytesDecoder::new(bytes);
         ValidTag {
-            play_tag_id  : decode.int32(),
-            player       : decode.agent_id(),
-            tagged_image : decode.int32(),
+            play_tag_id  : decode.uint32(),
+            player       : decode.address(),
+            tagged_image : decode.uint32(),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut encode = BytesEncoder::new();
-		encode.int32(self.play_tag_id);
-		encode.agent_id(&self.player);
-		encode.int32(self.tagged_image);
+		encode.uint32(self.play_tag_id);
+		encode.address(&self.player);
+		encode.uint32(self.tagged_image);
         return encode.data();
     }
 }

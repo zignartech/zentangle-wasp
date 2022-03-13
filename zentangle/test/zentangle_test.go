@@ -19,7 +19,7 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := int32(10)
+	number_of_images := uint32(10)
 	const number_of_players = 3
 	const plays_required_per_image = 3
 
@@ -52,7 +52,7 @@ func TestPlay2(t *testing.T) {
 			"boost": [1, 1, 1]
 		}`)
 
-		for j := 0; int32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
+		for j := 0; uint32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
 			RequestPlay.Func.TransferIotas(10000 + int64(i)).Post()
 			SendTags.Func.TransferIotas(1).Post()
 		}
@@ -77,15 +77,15 @@ func TestPlay2(t *testing.T) {
 	require.NoError(t, ctx.Err)
 
 	getResults := zentangle.ScFuncs.GetResults(ctx)
-	for i := 0; int32(i) < number_of_images; i++ {
-		getResults.Params.ImageId().SetValue(int32(i))
+	for i := 0; uint32(i) < number_of_images; i++ {
+		getResults.Params.ImageId().SetValue(uint32(i))
 		getResults.Func.Call()
 	}
 }
 
 /*
 func TestPlay(t *testing.T) {
-	numberOfImages := int32(22)
+	numberOfImages := uint32(22)
 
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
 

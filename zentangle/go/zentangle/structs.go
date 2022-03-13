@@ -10,26 +10,26 @@ package zentangle
 import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
 
 type Bet struct {
-	Amount  int64 
-	ImageId int32 
-	Player  wasmlib.ScAgentID  // player placing the bet
+	Amount  uint64 
+	ImageId uint32 
+	Player  wasmlib.ScAddress  // player placing the bet
 }
 
 func NewBetFromBytes(bytes []byte) *Bet {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &Bet{}
-	data.Amount  = decode.Int64()
-	data.ImageId = decode.Int32()
-	data.Player  = decode.AgentID()
+	data.Amount  = decode.Uint64()
+	data.ImageId = decode.Uint32()
+	data.Player  = decode.Address()
 	decode.Close()
 	return data
 }
 
 func (o *Bet) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
-		Int64(o.Amount).
-		Int32(o.ImageId).
-		AgentID(o.Player).
+		Uint64(o.Amount).
+		Uint32(o.ImageId).
+		Address(o.Player).
 		Data()
 }
 
@@ -68,18 +68,18 @@ func (o MutableBet) Value() *Bet {
 }
 
 type PlayerBoost struct {
-	NDoubleBoosts  int64  // Number of 2x boost used in the round
-	NTags          int64  // Number of tags made by the player in the current round
-	NTrippleBoosts int64  // Number of 3x boosts used in the round
+	NDoubleBoosts  uint64  // Number of 2x boost used in the round
+	NTags          uint64  // Number of tags made by the player in the current round
+	NTrippleBoosts uint64  // Number of 3x boosts used in the round
 	PlayerAddress  string  // The player's address
 }
 
 func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &PlayerBoost{}
-	data.NDoubleBoosts  = decode.Int64()
-	data.NTags          = decode.Int64()
-	data.NTrippleBoosts = decode.Int64()
+	data.NDoubleBoosts  = decode.Uint64()
+	data.NTags          = decode.Uint64()
+	data.NTrippleBoosts = decode.Uint64()
 	data.PlayerAddress  = decode.String()
 	decode.Close()
 	return data
@@ -87,9 +87,9 @@ func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
 
 func (o *PlayerBoost) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
-		Int64(o.NDoubleBoosts).
-		Int64(o.NTags).
-		Int64(o.NTrippleBoosts).
+		Uint64(o.NDoubleBoosts).
+		Uint64(o.NTags).
+		Uint64(o.NTrippleBoosts).
 		String(o.PlayerAddress).
 		Data()
 }
@@ -131,8 +131,8 @@ func (o MutablePlayerBoost) Value() *PlayerBoost {
 type TaggedImage struct {
 	Boost   string  // if the tags will be boosted or not
 	H       string  // heights of the Tags
-	ImageId int32 
-	Player  wasmlib.ScAgentID  // player that has tagged this image
+	ImageId int32  // the only signed integer (It is -1 by default)
+	Player  wasmlib.ScAddress  // player that has tagged this image
 	W       string  // widths of the Tags
 	X       string  // x top-left positions of the Tags
 	Y       string  // y top-left positions of the Tags
@@ -144,7 +144,7 @@ func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
 	data.Boost   = decode.String()
 	data.H       = decode.String()
 	data.ImageId = decode.Int32()
-	data.Player  = decode.AgentID()
+	data.Player  = decode.Address()
 	data.W       = decode.String()
 	data.X       = decode.String()
 	data.Y       = decode.String()
@@ -157,7 +157,7 @@ func (o *TaggedImage) Bytes() []byte {
 		String(o.Boost).
 		String(o.H).
 		Int32(o.ImageId).
-		AgentID(o.Player).
+		Address(o.Player).
 		String(o.W).
 		String(o.X).
 		String(o.Y).
@@ -199,26 +199,26 @@ func (o MutableTaggedImage) Value() *TaggedImage {
 }
 
 type ValidTag struct {
-	PlayTagId   int32  // Identifier to distinguish different tags in the same play
-	Player      wasmlib.ScAgentID  // player placing the bet
-	TaggedImage int32 
+	PlayTagId   uint32  // Identifier to distinguish different tags in the same play
+	Player      wasmlib.ScAddress  // player placing the bet
+	TaggedImage uint32 
 }
 
 func NewValidTagFromBytes(bytes []byte) *ValidTag {
 	decode := wasmlib.NewBytesDecoder(bytes)
 	data := &ValidTag{}
-	data.PlayTagId   = decode.Int32()
-	data.Player      = decode.AgentID()
-	data.TaggedImage = decode.Int32()
+	data.PlayTagId   = decode.Uint32()
+	data.Player      = decode.Address()
+	data.TaggedImage = decode.Uint32()
 	decode.Close()
 	return data
 }
 
 func (o *ValidTag) Bytes() []byte {
 	return wasmlib.NewBytesEncoder().
-		Int32(o.PlayTagId).
-		AgentID(o.Player).
-		Int32(o.TaggedImage).
+		Uint32(o.PlayTagId).
+		Address(o.Player).
+		Uint32(o.TaggedImage).
 		Data()
 }
 

@@ -13,16 +13,16 @@ type ImmutableRequestPlayResults struct {
 	id int32
 }
 
-func (s ImmutableRequestPlayResults) ImageId() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxResultImageId])
+func (s ImmutableRequestPlayResults) ImageId() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultImageId])
 }
 
 type MutableRequestPlayResults struct {
 	id int32
 }
 
-func (s MutableRequestPlayResults) ImageId() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxResultImageId])
+func (s MutableRequestPlayResults) ImageId() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultImageId])
 }
 
 type ImmutableGetOwnerResults struct {
@@ -77,16 +77,16 @@ type ImmutableGetPlaysPerImageResults struct {
 	id int32
 }
 
-func (s ImmutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxResultPlaysPerImage])
+func (s ImmutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultPlaysPerImage])
 }
 
 type MutableGetPlaysPerImageResults struct {
 	id int32
 }
 
-func (s MutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxResultPlaysPerImage])
+func (s MutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultPlaysPerImage])
 }
 
 type ImmutableGetResultsResults struct {

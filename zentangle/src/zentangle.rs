@@ -12,7 +12,7 @@ use crate::*;
 // Defining default configuration parameters
 
 // The default amount of players to tag an image for it to be considered processed
-pub const DEFAULT_TAGS_REQUIRED_PER_IMAGE: i32 = 10;
+pub const DEFAULT_TAGS_REQUIRED_PER_IMAGE: u32 = 10;
 // The distance required for two clusters of tags to remain separate and not merge into one
 pub const MIN_INTER_CLUSTER_DISTANCE: f64 = 100.0;
 // The percentage of players on an image that have to agree on a tag for it to be valid
@@ -43,7 +43,7 @@ pub fn func_set_owner(_ctx: &ScFuncContext, f: &SetOwnerContext) {
 pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
     // No game can be in progress in order to be able to crate a new one
     ctx.require(
-        f.state.reward().value() == 0_i64,
+        f.state.reward().value() == 0_u64,
         "Error: Game already in progress",
     );
 
@@ -52,33 +52,30 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
 
     // Set the state variables of the game.
     f.state.processed_images().clear();
-    let reward = incoming.balance(&ScColor::IOTA);
+    let reward = incoming.balance(&ScColor::IOTA) as u64;
     let number_of_images = f.params.number_of_images().value();
     let description = &f.params.description().value();
-    let mut tags_required_per_image = f.params.tags_required_per_image().value();
-
-    if tags_required_per_image < 1 {
-        tags_required_per_image = DEFAULT_TAGS_REQUIRED_PER_IMAGE;
+    let mut tags_required_per_image = DEFAULT_TAGS_REQUIRED_PER_IMAGE;
+    if f.params.tags_required_per_image().exists() {
+        tags_required_per_image = f.params.tags_required_per_image().value();
     }
     f.state.reward().set_value(reward);
     f.state.number_of_images().set_value(number_of_images);
     f.state.description().set_value(description);
-    f.state
-        .tags_required_per_image()
-        .set_value(tags_required_per_image);
+    f.state.tags_required_per_image().set_value(tags_required_per_image);
     f.state.creator().set_value(&ctx.caller());
 
     // Reward must be at least one iota per tag
     ctx.require(
-        reward >= tags_required_per_image as i64 * number_of_images as i64,
+        reward >= tags_required_per_image as u64 * number_of_images as u64,
         "Error: Reward too low!",
     );
 
-    // Now, we have to initialize the taggedimages and the playsPerImage with default values.
+    // Now, we have to initialize the taggedImages and the playsPerImage with default values.
     let default_tagged_image = TaggedImage {
         image_id: -1,
         boost: "".to_string(),
-        player: ctx.account_id(),
+        player: ctx.account_id().address(),
         x: "".to_string(),
         y: "".to_string(),
         h: "".to_string(),
@@ -87,11 +84,11 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
     for i in 0..tags_required_per_image * number_of_images {
         f.state
             .tagged_images()
-            .get_tagged_image(i)
+            .get_tagged_image(i as i32)
             .set_value(&default_tagged_image);
     }
     for i in 0..number_of_images {
-        f.state.plays_per_image().get_int32(i).set_value(0);
+        f.state.plays_per_image().get_uint32(i as i32).set_value(0);
     }
 
     f.events.game_started(
@@ -122,7 +119,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
     // Also, a game has to be in progress.
     ctx.require(
-        f.state.reward().value() != 0_i64,
+        f.state.reward().value() != 0_u64,
         "Error: No game in progress",
     );
 
@@ -131,8 +128,8 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     let number_of_images = f.state.number_of_images().value();
 
     // For every image, we apply Aglomerative Hierarchical Clustering
-    for image in 0..number_of_images {
-        let centers_in_image = find_image_centers(image, f, ctx);
+    for image_id in 0..number_of_images {
+        let centers_in_image = find_image_centers(image_id, f, ctx);
 
         // We append the clusters coordinate to the centers vector (a vector of centers for every image)
         centers.push(centers_in_image);
@@ -152,19 +149,18 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
-    let n_rewards = f.state.valid_tags().length() as i64;
+    let n_rewards = f.state.valid_tags().length() as u64;
     ctx.require(n_rewards > 0, "No valid tags so no rewards will be paid.");
 
     let individual_reward = f.state.reward().value() / n_rewards;
-    let transfers: ScTransfers = ScTransfers::iotas(individual_reward);
+    let transfers: ScTransfers = ScTransfers::iotas(individual_reward as i64);
     for i in 0..f.state.valid_tags().length() {
         let address = f
             .state
             .valid_tags()
             .get_valid_tag(i)
             .value()
-            .player
-            .address();
+            .player;
         ctx.transfer_to_address(&address, transfers);
     }
 
@@ -175,19 +171,19 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // Finding the total value placed in the game's bets
     let mut total_payout: i64 = 0_i64;
     for bet in &betters_top {
-        total_payout += bet.amount;
+        total_payout += bet.amount as i64;
     }
 
     // 'points' represents by how much the betting money has to be divided.
     // We have to fit the amount betted to the sum of all the prices.
     // We need "position" because if there are a number of repeated accuracies, their position must be the same.
-    let mut points: i64 = 0_i64;
+    let mut points: u64 = 0_u64;
     let mut position = 1;
     for i in 0..betters_top.len() {
         // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
         // Tags that were boosted and resulted to be the players best tag, recieve a 2x or 3x boost.
         points +=
-            ((position) * (position)) as i64 * betters_top[i].amount * betters_top[i].boost as i64;
+            ((position) * (position)) as u64 * betters_top[i].amount * betters_top[i].boost as u64;
         if i + 1 < betters_top.len() && betters_top[i].accuracy != betters_top[i + 1].accuracy {
             position += 1;
         }
@@ -213,12 +209,12 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         }
 
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
-        ctx.transfer_to_address(&betters_top[i].player.address(), transfers);
+        ctx.transfer_to_address(&betters_top[i].player, transfers);
         ctx.log(&format!(
             "{ } PAID { } IOTAS TO { } Accuracy: { } Boost: { }",
             i.to_string(),
             (payout as i64).to_string(),
-            betters_top[i].player.address().to_string(),
+            betters_top[i].player.to_string(),
             betters_top[i].accuracy.to_string(),
             betters_top[i].boost.to_string()
         ));
@@ -238,7 +234,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     f.state.bets().clear();
     f.state.plays_per_image().clear();
     f.state.tagged_images().clear();
-    f.state.reward().set_value(0_i64);
+    f.state.reward().set_value(0_u64);
     clear_pending_play(f);
     f.state.valid_tags().clear();
 
@@ -277,20 +273,19 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
     'image: for i in 0..number_of_images {
-        if plays_per_image.get_int32(i).value() >= tags_required_per_image {
+        if plays_per_image.get_uint32(i as i32).value() >= tags_required_per_image {
             counter += 1;
             continue;
         }
-        for j in i * tags_required_per_image as i32..(i + 1) * tags_required_per_image as i32 {
-            if f.state.tagged_images().get_tagged_image(j).value().image_id == -1 {
+        for j in i * tags_required_per_image as u32..(i + 1) * tags_required_per_image as u32 {
+            if f.state.tagged_images().get_tagged_image(j as i32).value().image_id == -1 {
                 continue;
             }
             if f.state
                 .tagged_images()
-                .get_tagged_image(j)
+                .get_tagged_image(j as i32)
                 .value()
                 .player
-                .address()
                 == player.address()
             {
                 counter += 1;
@@ -310,24 +305,23 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // This loop checks if the image has been tagged the required amount of times,
     // or if it has already been tagged by the player. If so, we choose another one.
     // Note that the loop is not infinite, as we have checked that there is at least an image available to tag.
-    let mut image_id: i32;
+    let mut image_id: u32;
     'outer: loop {
-        image_id = ctx.random((number_of_images) as i64) as i32;
+        image_id = ctx.random((number_of_images) as i64) as u32;
         // has the image the maximum amount of plays?
-        if plays_per_image.get_int32(image_id).value() == tags_required_per_image {
+        if plays_per_image.get_uint32(image_id as i32).value() == tags_required_per_image {
             continue;
         }
         // has the image been tagged by this player before?
-        for i in image_id * tags_required_per_image as i32
-            ..(image_id + 1) * tags_required_per_image as i32
+        for i in image_id * tags_required_per_image
+            ..(image_id + 1) * tags_required_per_image
         {
-            if f.state.tagged_images().get_tagged_image(i).value().image_id != -1 {
+            if f.state.tagged_images().get_tagged_image(i as i32).value().image_id != -1 {
                 if f.state
                     .tagged_images()
-                    .get_tagged_image(i)
+                    .get_tagged_image(i as i32)
                     .value()
                     .player
-                    .address()
                     == player.address()
                 {
                     continue 'outer;
@@ -340,9 +334,9 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // Create ScBalances proxy to the incoming balances for this request.
     let incoming: ScBalances = ctx.incoming();
     let bet = Bet {
-        amount: incoming.balance(&ScColor::IOTA),
-        player: ctx.caller(),
-        image_id: image_id,
+        amount: incoming.balance(&ScColor::IOTA) as u64,
+        player: ctx.caller().address(),
+        image_id: image_id as u32,
     };
 
     // Append the bet data to the bets array and to the pending plays map.
@@ -357,7 +351,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         .set_value(&bet);
 
     f.events
-        .play_requested(&bet.player.address().to_string(), bet.amount, bet.image_id);
+        .play_requested(&bet.player.to_string(), bet.amount, bet.image_id);
 
     f.results.image_id().set_value(image_id);
 }
@@ -383,7 +377,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         y: Vec<f64>,
         h: Vec<f64>,
         w: Vec<f64>,
-        boost: Vec<i32>,
+        boost: Vec<u32>,
     }
 
     // convert input as strings to vectors of integers
@@ -405,8 +399,8 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     }
 
     // Get the image_id and the number of times a play has been made for this image.
-    let image_id = bet.value().image_id;
-    let plays_per_image: i32 = f.state.plays_per_image().get_int32(image_id).value();
+    let image_id = bet.value().image_id as i32;
+    let plays_per_image: u32 = f.state.plays_per_image().get_uint32(image_id).value();
 
     // We delete the bet from the pending plays
     bet.delete();
@@ -420,8 +414,8 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     // We gather all the information into this struct
     let tagged_image = TaggedImage {
         image_id: image_id,
-        player: ctx.caller(),
-        boost: veci32_to_str(annotations.boost.clone()),
+        player: ctx.caller().address(),
+        boost: vecu32_to_str(annotations.boost.clone()),
         x: vecf64_to_str(annotations.x),
         y: vecf64_to_str(annotations.y),
         h: vecf64_to_str(annotations.h),
@@ -432,26 +426,26 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     // of serializing the taggedImage struct into a bytes representation.
     f.state
         .tagged_images()
-        .get_tagged_image(image_id * tags_req_per_image + plays_per_image as i32)
+        .get_tagged_image(image_id * tags_req_per_image as i32 + plays_per_image as i32)
         .set_value(&tagged_image);
 
     // Add one to the number of times this image has been tagged
-    let playsfor_this_image: i32 = f
+    let playsfor_this_image: u32 = f
         .state
         .plays_per_image()
-        .get_int32(tagged_image.image_id)
+        .get_uint32(tagged_image.image_id)
         .value();
     f.state
         .plays_per_image()
-        .get_int32(tagged_image.image_id)
+        .get_uint32(tagged_image.image_id)
         .set_value(playsfor_this_image + 1);
 
     f.events.imagetagged(
-        &tagged_image.player.address().to_string(),
-        tagged_image.image_id,
+        &tagged_image.player.to_string(),
+        tagged_image.image_id as u32,
         f.state
             .plays_per_image()
-            .get_int32(tagged_image.image_id)
+            .get_uint32(tagged_image.image_id)
             .value(), // nr of times the image has been tagged, plays_per_image)
     );
 }
@@ -464,7 +458,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 // The 'withdraw' function takes no parameters
 pub fn func_withdraw(ctx: &ScFuncContext, f: &WithdrawContext) {
     // No game can be in progress in order to be able withdraw the remaining balance
-    ctx.require(f.state.reward().value() == 0_i64, "Error: Game in progress");
+    ctx.require(f.state.reward().value() == 0_u64, "Error: Game in progress");
 
     // Send any remainig funds to the owner
     let color = &ctx.balances().colors().get_color(0).value();
@@ -480,7 +474,7 @@ pub fn view_get_owner(_ctx: &ScViewContext, f: &GetOwnerContext) {
 
 pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext) {
     let image_id = f.params.image_id().value();
-    let plays = f.state.plays_per_image().get_int32(image_id).value();
+    let plays = f.state.plays_per_image().get_uint32(image_id as i32).value();
 
     ctx.log(&format!("PLAYS PER IMAGE: {0}", plays.to_string()));
     f.results.plays_per_image().set_value(plays);
@@ -491,7 +485,7 @@ pub fn view_get_results(ctx: &ScViewContext, f: &GetResultsContext) {
     let tagged_image = f
         .state
         .processed_images()
-        .get_tagged_image(image_id)
+        .get_tagged_image(image_id as i32)
         .value();
 
     let coords = unsafe_input_tgimg_to_vecs(&tagged_image);
@@ -511,8 +505,8 @@ pub fn view_get_results(ctx: &ScViewContext, f: &GetResultsContext) {
 
 pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
     struct Bet {
-        player: ScAgentID,
-        amount: i64,
+        player: ScAddress,
+        amount: u64,
     }
 
     let mut player_bets: Vec<Bet> = Vec::new();
@@ -539,7 +533,7 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
         player_bet_string.push_str("{\n\"amount\": \"");
         player_bet_string.push_str(&player_bet.amount.to_string());
         player_bet_string.push_str("\",\n\"address\": \"");
-        player_bet_string.push_str(&player_bet.player.address().to_string());
+        player_bet_string.push_str(&player_bet.player.to_string());
         player_bet_string.push_str("\"\n}");
         player_bet_strings.push(player_bet_string);
     }
@@ -558,10 +552,10 @@ pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
     let mut total_player_tags = 0;
     if f.state.
     total_player_tags().
-    get_int64(&player_address).
+    get_uint64(&player_address).
     exists()
     {
-        total_player_tags = f.state.total_player_tags().get_int64(&player_address).value();
+        total_player_tags = f.state.total_player_tags().get_uint64(&player_address).value();
     }
     
     // In case player_boost map exists for this address, get its value. Else, leave it as zero.

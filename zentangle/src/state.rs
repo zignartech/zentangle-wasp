@@ -68,17 +68,17 @@ impl ArrayOfImmutablePlayerBoost {
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfImmutableInt32 {
+pub struct ArrayOfImmutableUint32 {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfImmutableInt32 {
+impl ArrayOfImmutableUint32 {
     pub fn length(&self) -> i32 {
         get_length(self.obj_id)
     }
 
-    pub fn get_int32(&self, index: i32) -> ScImmutableInt32 {
-        ScImmutableInt32::new(self.obj_id, Key32(index))
+    pub fn get_uint32(&self, index: i32) -> ScImmutableUint32 {
+        ScImmutableUint32::new(self.obj_id, Key32(index))
     }
 }
 
@@ -98,13 +98,13 @@ impl ArrayOfImmutableTaggedImage {
 }
 
 #[derive(Clone, Copy)]
-pub struct MapStringToImmutableInt64 {
+pub struct MapStringToImmutableUint64 {
 	pub(crate) obj_id: i32,
 }
 
-impl MapStringToImmutableInt64 {
-    pub fn get_int64(&self, key: &str) -> ScImmutableInt64 {
-        ScImmutableInt64::new(self.obj_id, key.get_key_id())
+impl MapStringToImmutableUint64 {
+    pub fn get_uint64(&self, key: &str) -> ScImmutableUint64 {
+        ScImmutableUint64::new(self.obj_id, key.get_key_id())
     }
 }
 
@@ -142,8 +142,8 @@ impl ImmutablezentangleState {
 		ScImmutableString::new(self.id, idx_map(IDX_STATE_DESCRIPTION))
 	}
 
-    pub fn number_of_images(&self) -> ScImmutableInt32 {
-		ScImmutableInt32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
+    pub fn number_of_images(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
 	}
 
     pub fn owner(&self) -> ScImmutableAgentID {
@@ -170,9 +170,9 @@ impl ImmutablezentangleState {
 		ArrayOfImmutablePlayerBoost { obj_id: arr_id }
 	}
 
-    pub fn plays_per_image(&self) -> ArrayOfImmutableInt32 {
+    pub fn plays_per_image(&self) -> ArrayOfImmutableUint32 {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
-		ArrayOfImmutableInt32 { obj_id: arr_id }
+		ArrayOfImmutableUint32 { obj_id: arr_id }
 	}
 
     pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
@@ -180,8 +180,8 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableTaggedImage { obj_id: arr_id }
 	}
 
-    pub fn reward(&self) -> ScImmutableInt64 {
-		ScImmutableInt64::new(self.id, idx_map(IDX_STATE_REWARD))
+    pub fn reward(&self) -> ScImmutableUint64 {
+		ScImmutableUint64::new(self.id, idx_map(IDX_STATE_REWARD))
 	}
 
     pub fn tagged_images(&self) -> ArrayOfImmutableTaggedImage {
@@ -189,13 +189,13 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableTaggedImage { obj_id: arr_id }
 	}
 
-    pub fn tags_required_per_image(&self) -> ScImmutableInt32 {
-		ScImmutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
 	}
 
-    pub fn total_player_tags(&self) -> MapStringToImmutableInt64 {
+    pub fn total_player_tags(&self) -> MapStringToImmutableUint64 {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
-		MapStringToImmutableInt64 { obj_id: map_id }
+		MapStringToImmutableUint64 { obj_id: map_id }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfImmutableValidTag {
@@ -273,11 +273,11 @@ impl ArrayOfMutablePlayerBoost {
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfMutableInt32 {
+pub struct ArrayOfMutableUint32 {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfMutableInt32 {
+impl ArrayOfMutableUint32 {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
@@ -286,8 +286,8 @@ impl ArrayOfMutableInt32 {
         get_length(self.obj_id)
     }
 
-    pub fn get_int32(&self, index: i32) -> ScMutableInt32 {
-        ScMutableInt32::new(self.obj_id, Key32(index))
+    pub fn get_uint32(&self, index: i32) -> ScMutableUint32 {
+        ScMutableUint32::new(self.obj_id, Key32(index))
     }
 }
 
@@ -311,17 +311,17 @@ impl ArrayOfMutableTaggedImage {
 }
 
 #[derive(Clone, Copy)]
-pub struct MapStringToMutableInt64 {
+pub struct MapStringToMutableUint64 {
 	pub(crate) obj_id: i32,
 }
 
-impl MapStringToMutableInt64 {
+impl MapStringToMutableUint64 {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
 
-    pub fn get_int64(&self, key: &str) -> ScMutableInt64 {
-        ScMutableInt64::new(self.obj_id, key.get_key_id())
+    pub fn get_uint64(&self, key: &str) -> ScMutableUint64 {
+        ScMutableUint64::new(self.obj_id, key.get_key_id())
     }
 }
 
@@ -367,8 +367,8 @@ impl MutablezentangleState {
 		ScMutableString::new(self.id, idx_map(IDX_STATE_DESCRIPTION))
 	}
 
-    pub fn number_of_images(&self) -> ScMutableInt32 {
-		ScMutableInt32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
+    pub fn number_of_images(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
 	}
 
     pub fn owner(&self) -> ScMutableAgentID {
@@ -395,9 +395,9 @@ impl MutablezentangleState {
 		ArrayOfMutablePlayerBoost { obj_id: arr_id }
 	}
 
-    pub fn plays_per_image(&self) -> ArrayOfMutableInt32 {
+    pub fn plays_per_image(&self) -> ArrayOfMutableUint32 {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
-		ArrayOfMutableInt32 { obj_id: arr_id }
+		ArrayOfMutableUint32 { obj_id: arr_id }
 	}
 
     pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
@@ -405,8 +405,8 @@ impl MutablezentangleState {
 		ArrayOfMutableTaggedImage { obj_id: arr_id }
 	}
 
-    pub fn reward(&self) -> ScMutableInt64 {
-		ScMutableInt64::new(self.id, idx_map(IDX_STATE_REWARD))
+    pub fn reward(&self) -> ScMutableUint64 {
+		ScMutableUint64::new(self.id, idx_map(IDX_STATE_REWARD))
 	}
 
     pub fn tagged_images(&self) -> ArrayOfMutableTaggedImage {
@@ -414,13 +414,13 @@ impl MutablezentangleState {
 		ArrayOfMutableTaggedImage { obj_id: arr_id }
 	}
 
-    pub fn tags_required_per_image(&self) -> ScMutableInt32 {
-		ScMutableInt32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
+    pub fn tags_required_per_image(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
 	}
 
-    pub fn total_player_tags(&self) -> MapStringToMutableInt64 {
+    pub fn total_player_tags(&self) -> MapStringToMutableUint64 {
 		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
-		MapStringToMutableInt64 { obj_id: map_id }
+		MapStringToMutableUint64 { obj_id: map_id }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfMutableValidTag {

@@ -15,13 +15,13 @@ use crate::structs::*;
 #[derive(Clone)]
 pub struct Better {
     pub accuracy: f64,
-    pub player: ScAgentID,
-    pub amount: i64,
-    pub boost: i32,
+    pub player: ScAddress,
+    pub amount: u64,
+    pub boost: u32,
 }
 
 impl Better {
-    pub fn new(accuracy: f64, player: ScAgentID, amount: i64, boost: i32) -> Self {
+    pub fn new(accuracy: f64, player: ScAddress, amount: u64, boost: u32) -> Self {
         Better {
             accuracy,
             player,
@@ -32,7 +32,7 @@ impl Better {
 }
 
 // An internal function to check if the boost entered by a player are valid or not
-pub fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
+pub fn check_boost(boost: Vec<u32>, f: &SendTagsContext, ctx: &ScFuncContext) {
     // initialize mutable variables of the player
     let mut total_player_tags = 0;
     let mut n_double_boosts = 0;
@@ -40,7 +40,7 @@ pub fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
     let mut n_tags = 0;
     let player_address = &ctx.caller().address().to_string();
 
-    let sc_total_player_tags = f.state.total_player_tags().get_int64(player_address);
+    let sc_total_player_tags = f.state.total_player_tags().get_uint64(player_address);
     // get the total tags made by the player if it has any
     if sc_total_player_tags.exists() {
         total_player_tags = sc_total_player_tags.value();
@@ -94,7 +94,7 @@ pub fn check_boost(boost: Vec<i32>, f: &SendTagsContext, ctx: &ScFuncContext) {
             .players_boost()
             .get_player_boost(f.state.players_boost().length())
             .set_value(&player);
-        f.state.total_player_tags().get_int64(player_address).set_value(total_player_tags);
+        f.state.total_player_tags().get_uint64(player_address).set_value(total_player_tags);
     }
 }
 
@@ -105,8 +105,8 @@ pub fn check_ingots(amount_betted: i64, f: &RequestPlayContext, ctx: &ScFuncCont
 
     let player_address = &ctx.caller().address().to_string();
     let mut total_player_tags = 0;
-    if f.state.total_player_tags().get_int64(player_address).exists() {
-        total_player_tags = f.state.total_player_tags().get_int64(player_address).value();
+    if f.state.total_player_tags().get_uint64(player_address).exists() {
+        total_player_tags = f.state.total_player_tags().get_uint64(player_address).value();
     }
     let ingots = total_player_tags / 576;
 
@@ -159,7 +159,6 @@ pub fn clear_pending_play(f: &EndGameContext) {
             .get_bet(player_id)
             .value()
             .player
-            .address()
             .to_string();
         let bet = f.state.pending_play().get_bet(&player_address);
         if bet.exists() {
@@ -242,10 +241,10 @@ pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
 }
 
 // An internal function to calculate the average position of a tag (center) inside an image.
-pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec<TaggedImage> {
+pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec<TaggedImage> {
     let tags_req_per_image = f.state.tags_required_per_image().value();
-    let mut hash_image_id: HashMap<i64, i32> = HashMap::new(); // a hashmap to retrieve an image_id from a tag_id
-    let mut hash_play_tag_id: HashMap<i64, i32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id
+    let mut hash_image_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an image_id from a tag_id
+    let mut hash_play_tag_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id
 
     let mut clusters: Vec<Vec<f64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
     let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
@@ -253,10 +252,10 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
                                      // it will be used to calculate the amount of players needed to agree for a valid tag
     for i in image * tags_req_per_image..(image + 1) * tags_req_per_image {
         // I'm forced to do this is because there are no nested arrays in schema yet
-        if f.state.tagged_images().get_tagged_image(i).value().image_id == -1 {
+        if f.state.tagged_images().get_tagged_image(i as i32).value().image_id == -1 {
             break;
         }
-        let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
+        let tagged_image = f.state.tagged_images().get_tagged_image(i as i32).value();
         // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
         let x = input_str_to_vecf64(&tagged_image.x, ctx);
         let y = input_str_to_vecf64(&tagged_image.y, ctx);
@@ -267,14 +266,14 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
             // [x, y, h, w, tag_id1. tag_id2, tag_id3, ... ],
             // where x, y, h and w are the center coordinates of the cluster
             let cluster = vec![
-                x[j as usize],
-                y[j as usize],
-                h[j as usize],
-                w[j as usize],
+                x[j],
+                y[j],
+                h[j],
+                w[j],
                 clusters.len() as f64,
             ];
-            hash_image_id.insert(clusters.len() as i64, i);
-            hash_play_tag_id.insert(clusters.len() as i64, j as i32);
+            hash_image_id.insert(clusters.len() as u64, i);
+            hash_play_tag_id.insert(clusters.len() as u64, j as u32);
             clusters.push(cluster);
         }
         playsfor_this_image += 1;
@@ -296,16 +295,16 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
         } else {
             // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
             for j in 4..clusters[id].len() {
-                let tagged_image = *hash_image_id.get(&(clusters[id][j] as i64)).unwrap();
+                let tagged_image = *hash_image_id.get(&(clusters[id][j] as u64)).unwrap();
                 let vaid_tag = ValidTag {
                     player: f
                         .state
                         .tagged_images()
-                        .get_tagged_image(tagged_image)
+                        .get_tagged_image(tagged_image as i32)
                         .value()
                         .player,
                     tagged_image: tagged_image,
-                    play_tag_id: *hash_play_tag_id.get(&(clusters[id][j] as  i64)).unwrap(),
+                    play_tag_id: *hash_play_tag_id.get(&(clusters[id][j] as u64)).unwrap(),
                 };
                 f.state
                     .valid_tags()
@@ -326,8 +325,8 @@ pub fn find_image_centers(image: i32, f: &EndGameContext, ctx: &ScFuncContext) -
     let mut centers: Vec<TaggedImage> = Vec::new();
     for i in 0..clusters.len() {
         let center = TaggedImage {
-            player: f.state.creator().value(), // the constructor requires a creator. This time it's not used tho.
-            image_id: image,
+            player: f.state.creator().value().address(), // the constructor requires a creator. This time it's not used tho.
+            image_id: image as i32,
             boost: 1.to_string(), // this is only the default value, same as player, and can change later
             x: clusters[i][0].to_string(),
             y: clusters[i][1].to_string(),
@@ -353,11 +352,11 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
         let tagged_image = f
             .state
             .tagged_images()
-            .get_tagged_image(valid_tag.tagged_image)
+            .get_tagged_image(valid_tag.tagged_image as i32)
             .value();
         let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
         let tagged_image_point = &tagged_image_coords[player_tag_id];
-        let boost = input_str_to_veci32(&tagged_image.boost, ctx)[player_tag_id];
+        let boost = input_str_to_vecu32(&tagged_image.boost, ctx)[player_tag_id];
         let clusters_centers = f
             .state
             .processed_images()
@@ -446,11 +445,11 @@ pub fn input_str_to_vecf64(string: &String, ctx: &ScFuncContext) -> Vec<f64> {
 
 // An internal function to convert inputs to the smart contract as strings that contain
 // int32 variables separated by spaces into a vector of those int32 variables.
-pub fn input_str_to_veci32(string: &String, ctx: &ScFuncContext) -> Vec<i32> {
+pub fn input_str_to_vecu32(string: &String, ctx: &ScFuncContext) -> Vec<u32> {
     let iterator = string.split_whitespace();
-    let mut vec32: Vec<i32> = Vec::new();
+    let mut vec32: Vec<u32> = Vec::new();
     for i in iterator {
-        let input = i.parse::<i32>();
+        let input = i.parse::<u32>();
         match input {
             Ok(integer) => vec32.push(integer),
             Err(_error) => {
@@ -463,7 +462,7 @@ pub fn input_str_to_veci32(string: &String, ctx: &ScFuncContext) -> Vec<i32> {
 
 // An internal function to convert a vector of i32 variables into a string
 // containing those variables, separated by spaces
-pub fn veci32_to_str(vec32: Vec<i32>) -> String {
+pub fn vecu32_to_str(vec32: Vec<u32>) -> String {
     let mut string = "".to_string();
     for i in 0..vec32.len() {
         if i != 0 {
@@ -494,22 +493,22 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
     let mut y: Vec<f64> = Vec::new();
     let mut h: Vec<f64> = Vec::new();
     let mut w: Vec<f64> = Vec::new();
-    let mut boost: Vec<i32> = Vec::new();
+    let mut boost: Vec<u32> = Vec::new();
     for point in &vec {
         x.push(input_str_to_vecf64(&point.x, ctx)[0]);
         y.push(input_str_to_vecf64(&point.y, ctx)[0]);
         h.push(input_str_to_vecf64(&point.h, ctx)[0]);
         w.push(input_str_to_vecf64(&point.w, ctx)[0]);
-        boost.push(input_str_to_veci32(&point.boost, ctx)[0]);
+        boost.push(input_str_to_vecu32(&point.boost, ctx)[0]);
     }
     let processed_image = TaggedImage {
         image_id: (&vec[0]).image_id,
-        player: ctx.caller(), // field is required but not used in this case
+        player: ctx.caller().address(), // field is required but not used in this case
         x: vecf64_to_str(x),
         y: vecf64_to_str(y),
         h: vecf64_to_str(h),
         w: vecf64_to_str(w),
-        boost: veci32_to_str(boost),
+        boost: vecu32_to_str(boost),
     };
 
     return processed_image;

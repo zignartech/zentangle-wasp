@@ -17,12 +17,12 @@ func (s ImmutableCreateGameParams) Description() wasmlib.ScImmutableString {
 	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamDescription])
 }
 
-func (s ImmutableCreateGameParams) NumberOfImages() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxParamNumberOfImages])
+func (s ImmutableCreateGameParams) NumberOfImages() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamNumberOfImages])
 }
 
-func (s ImmutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxParamTagsRequiredPerImage])
+func (s ImmutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamTagsRequiredPerImage])
 }
 
 type MutableCreateGameParams struct {
@@ -33,12 +33,12 @@ func (s MutableCreateGameParams) Description() wasmlib.ScMutableString {
 	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamDescription])
 }
 
-func (s MutableCreateGameParams) NumberOfImages() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamNumberOfImages])
+func (s MutableCreateGameParams) NumberOfImages() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamNumberOfImages])
 }
 
-func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamTagsRequiredPerImage])
+func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamTagsRequiredPerImage])
 }
 
 type ImmutableEndGameParams struct {
@@ -125,30 +125,30 @@ type ImmutableGetPlaysPerImageParams struct {
 	id int32
 }
 
-func (s ImmutableGetPlaysPerImageParams) ImageId() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxParamImageId])
+func (s ImmutableGetPlaysPerImageParams) ImageId() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamImageId])
 }
 
 type MutableGetPlaysPerImageParams struct {
 	id int32
 }
 
-func (s MutableGetPlaysPerImageParams) ImageId() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamImageId])
+func (s MutableGetPlaysPerImageParams) ImageId() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamImageId])
 }
 
 type ImmutableGetResultsParams struct {
 	id int32
 }
 
-func (s ImmutableGetResultsParams) ImageId() wasmlib.ScImmutableInt32 {
-	return wasmlib.NewScImmutableInt32(s.id, idxMap[IdxParamImageId])
+func (s ImmutableGetResultsParams) ImageId() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamImageId])
 }
 
 type MutableGetResultsParams struct {
 	id int32
 }
 
-func (s MutableGetResultsParams) ImageId() wasmlib.ScMutableInt32 {
-	return wasmlib.NewScMutableInt32(s.id, idxMap[IdxParamImageId])
+func (s MutableGetResultsParams) ImageId() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamImageId])
 }
