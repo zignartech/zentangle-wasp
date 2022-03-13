@@ -15,6 +15,12 @@
         },
         "gameEnded": {
         },
+        "paid": {
+            "player": "String",
+            "position": "Uint64",
+            "amount": "Uint64",
+            "boost": "Uint8"
+        },
         "playRequested": {
             "address": "String",
             "amount": "Uint64",

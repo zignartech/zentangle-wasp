@@ -35,6 +35,15 @@ func (e zentangleEvents) Imagetagged(address string, imageId uint32, playsPerIma
 		Emit()
 }
 
+func (e zentangleEvents) Paid(amount uint64, boost uint8, player string, position uint64) {
+	wasmlib.NewEventEncoder("zentangle.paid").
+		Uint64(amount).
+		Uint8(boost).
+		String(player).
+		Uint64(position).
+		Emit()
+}
+
 func (e zentangleEvents) PlayRequested(address string, amount uint64, imageId uint32) {
 	wasmlib.NewEventEncoder("zentangle.playRequested").
 		String(address).

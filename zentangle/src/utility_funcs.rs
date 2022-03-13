@@ -17,11 +17,11 @@ pub struct Better {
     pub accuracy: f64,
     pub player: ScAddress,
     pub amount: u64,
-    pub boost: u32,
+    pub boost: u8,
 }
 
 impl Better {
-    pub fn new(accuracy: f64, player: ScAddress, amount: u64, boost: u32) -> Self {
+    pub fn new(accuracy: f64, player: ScAddress, amount: u64, boost: u8) -> Self {
         Better {
             accuracy,
             player,
@@ -32,7 +32,7 @@ impl Better {
 }
 
 // An internal function to check if the boost entered by a player are valid or not
-pub fn check_boost(boost: Vec<u32>, f: &SendTagsContext, ctx: &ScFuncContext) {
+pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
     // initialize mutable variables of the player
     let mut total_player_tags = 0;
     let mut n_double_boosts = 0;
@@ -356,7 +356,7 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
             .value();
         let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
         let tagged_image_point = &tagged_image_coords[player_tag_id];
-        let boost = input_str_to_vecu32(&tagged_image.boost, ctx)[player_tag_id];
+        let boost = input_str_to_vecu8(&tagged_image.boost, ctx)[player_tag_id];
         let clusters_centers = f
             .state
             .processed_images()
@@ -445,30 +445,30 @@ pub fn input_str_to_vecf64(string: &String, ctx: &ScFuncContext) -> Vec<f64> {
 
 // An internal function to convert inputs to the smart contract as strings that contain
 // int32 variables separated by spaces into a vector of those int32 variables.
-pub fn input_str_to_vecu32(string: &String, ctx: &ScFuncContext) -> Vec<u32> {
+pub fn input_str_to_vecu8(string: &String, ctx: &ScFuncContext) -> Vec<u8> {
     let iterator = string.split_whitespace();
-    let mut vec32: Vec<u32> = Vec::new();
+    let mut vec8: Vec<u8> = Vec::new();
     for i in iterator {
-        let input = i.parse::<u32>();
+        let input = i.parse::<u8>();
         match input {
-            Ok(integer) => vec32.push(integer),
+            Ok(integer) => vec8.push(integer),
             Err(_error) => {
                 ctx.panic("Error: Input couldn't be decoded correctly. Must be an int32.")
             }
         }
     }
-    return vec32;
+    return vec8;
 }
 
 // An internal function to convert a vector of i32 variables into a string
 // containing those variables, separated by spaces
-pub fn vecu32_to_str(vec32: Vec<u32>) -> String {
+pub fn vecu8_to_str(vec8: Vec<u8>) -> String {
     let mut string = "".to_string();
-    for i in 0..vec32.len() {
+    for i in 0..vec8.len() {
         if i != 0 {
             string += " ";
         }
-        string += &((vec32[i] as u8).to_string());
+        string += &(vec8[i].to_string());
     }
     return string;
 }
@@ -493,13 +493,13 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
     let mut y: Vec<f64> = Vec::new();
     let mut h: Vec<f64> = Vec::new();
     let mut w: Vec<f64> = Vec::new();
-    let mut boost: Vec<u32> = Vec::new();
+    let mut boost: Vec<u8> = Vec::new();
     for point in &vec {
         x.push(input_str_to_vecf64(&point.x, ctx)[0]);
         y.push(input_str_to_vecf64(&point.y, ctx)[0]);
         h.push(input_str_to_vecf64(&point.h, ctx)[0]);
         w.push(input_str_to_vecf64(&point.w, ctx)[0]);
-        boost.push(input_str_to_vecu32(&point.boost, ctx)[0]);
+        boost.push(input_str_to_vecu8(&point.boost, ctx)[0]);
     }
     let processed_image = TaggedImage {
         image_id: (&vec[0]).image_id,
@@ -508,7 +508,7 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
         y: vecf64_to_str(y),
         h: vecf64_to_str(h),
         w: vecf64_to_str(w),
-        boost: vecu32_to_str(boost),
+        boost: vecu8_to_str(boost),
     };
 
     return processed_image;

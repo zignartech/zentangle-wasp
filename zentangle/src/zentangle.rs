@@ -210,6 +210,12 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
         ctx.transfer_to_address(&betters_top[i].player, transfers);
+        f.events.paid(
+            payout as u64,
+            betters_top[i].boost,
+            &betters_top[i].player.to_string(),
+            (betters_top.len()-i) as u64
+        );
         ctx.log(&format!(
             "{ } PAID { } IOTAS TO { } Accuracy: { } Boost: { }",
             i.to_string(),
@@ -377,7 +383,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         y: Vec<f64>,
         h: Vec<f64>,
         w: Vec<f64>,
-        boost: Vec<u32>,
+        boost: Vec<u8>,
     }
 
     // convert input as strings to vectors of integers
@@ -415,7 +421,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     let tagged_image = TaggedImage {
         image_id: image_id,
         player: ctx.caller().address(),
-        boost: vecu32_to_str(annotations.boost.clone()),
+        boost: vecu8_to_str(annotations.boost.clone()),
         x: vecf64_to_str(annotations.x),
         y: vecf64_to_str(annotations.y),
         h: vecf64_to_str(annotations.h),
