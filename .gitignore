@@ -2,6 +2,7 @@ wasp.log
 /wasp
 /wasp-cli
 /wasp-cluster
+/wasp-node/waspdb
 /dbinspector
 /evmemulator
 /schema

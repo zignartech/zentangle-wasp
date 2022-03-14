@@ -1,6 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use std::convert::TryFrom;
+
 use serde::de::EnumAccess;
 use serde::{Deserialize, Serialize};
 use wasmlib::*;
@@ -161,7 +163,11 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             .get_valid_tag(i)
             .value()
             .player;
-        ctx.transfer_to_address(&address, transfers);
+        //ctx.transfer_to_address(&address, transfers);
+
+        let parm = ScMutableMap::new();
+        parm.get_agent_id("a").set_value(&address.as_agent_id());
+        ctx.call(ScHname::new("accounts"), ScHname::new("deposit"), Some(parm), Some(transfers));
     }
 
     // Now, we set the winners and the rewards for the correct tags
