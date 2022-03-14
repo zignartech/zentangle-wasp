@@ -19,7 +19,8 @@
             "player": "String",
             "position": "Uint64",
             "amount": "Uint64",
-            "boost": "Uint8"
+            "boost": "Uint8",
+            "accuracy": "String"
         },
         "playRequested": {
             "address": "String",

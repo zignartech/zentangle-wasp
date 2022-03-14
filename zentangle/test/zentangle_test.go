@@ -19,7 +19,7 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := uint32(30)
+	number_of_images := uint32(50)
 	const number_of_players = 10
 	const plays_required_per_image = 10
 

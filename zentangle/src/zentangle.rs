@@ -163,7 +163,6 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             .get_valid_tag(i)
             .value()
             .player;
-        //ctx.transfer_to_address(&address, transfers);
 
         let parm = ScMutableMap::new();
         parm.get_agent_id("a").set_value(&address.as_agent_id());
@@ -215,12 +214,16 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         }
 
         let transfers: ScTransfers = ScTransfers::iotas(payout as i64);
-        ctx.transfer_to_address(&betters_top[i].player, transfers);
+        let parm = ScMutableMap::new();
+        parm.get_agent_id("a").set_value(&betters_top[i].player.as_agent_id());
+        ctx.call(ScHname::new("accounts"), ScHname::new("deposit"), Some(parm), Some(transfers));
+
         f.events.paid(
+            &betters_top[i].accuracy.to_string(),
             payout as u64,
             betters_top[i].boost,
             &betters_top[i].player.to_string(),
-            (betters_top.len()-i) as u64
+            (betters_top.len()-i) as u64,
         );
         ctx.log(&format!(
             "{ } PAID { } IOTAS TO { } Accuracy: { } Boost: { }",
