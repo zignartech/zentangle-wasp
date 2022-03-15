@@ -35,10 +35,11 @@ impl ZentangleEvents {
 		encoder.emit();
 	}
 
-	pub fn paid(&self, accuracy: &str, amount: u64, boost: u8, player: &str, position: u64) {
+	pub fn paid(&self, accuracy: &str, amount: u64, bet: u64, boost: u8, player: &str, position: u64) {
 		let mut encoder = EventEncoder::new("zentangle.paid");
 		encoder.string(&accuracy);
 		encoder.uint64(amount);
+		encoder.uint64(bet);
 		encoder.uint8(boost);
 		encoder.string(&player);
 		encoder.uint64(position);

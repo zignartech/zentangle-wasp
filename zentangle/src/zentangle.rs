@@ -154,8 +154,6 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     let n_rewards = f.state.valid_tags().length() as u64;
     ctx.require(n_rewards > 0, "No valid tags so no rewards will be paid.");
 
-    let individual_reward = f.state.reward().value() / n_rewards;
-
     for i in 0..f.state.players_boost().length() {
         // get player address
         let address = f
@@ -166,7 +164,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         
         let mut player_boost = f.state.player_boost().get_player_boost(&address).value();
 
-        let transfers: ScTransfers = ScTransfers::iotas(individual_reward as i64 * player_boost.n_valid_tags as i64);
+        let transfers: ScTransfers = ScTransfers::iotas((f.state.reward().value() * player_boost.n_valid_tags) as i64/ n_rewards as i64);
         let parm = ScMutableMap::new();
         parm.get_agent_id("a").set_value(&player_boost.player);
         ctx.call(ScHname::new("accounts"), ScHname::new("deposit"), Some(parm), Some(transfers));
@@ -191,7 +189,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     let mut points: u64 = 0_u64;
     let mut position = 1;
     for i in 0..betters_top.len() {
-        // The prices take an exponential form, where the 'i' represents the position of the player given it's acuracy.
+        // The prices take an exponential form, where the 'position' represents the position of the player given it's acuracy.
         // Tags that were boosted and resulted to be the players best tag, recieve a 2x or 3x boost.
         points +=
             ((position) * (position)) as u64 * betters_top[i].amount * betters_top[i].boost as u64;
@@ -200,16 +198,15 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         }
     }
 
-    let multiplier: f64 = total_payout as f64 / points as f64;
     position = 1;
     // here we calculate how much to betting monney to transfer to every player, and we tranfer it
     for i in 0..betters_top.len() {
-        // Again, the prices take an exponential form, where 'i'
-        // represents the position of the player given it's acuracy (higher is better)
-        let payout = multiplier
+        // Again, the prices take an exponential form, where the position of the player is given by it's acuracy (higher is better)
+        let payout = (total_payout as f64
             * ((position) * (position)) as f64
             * betters_top[i].amount as f64
-            * betters_top[i].boost as f64;
+            * betters_top[i].boost as f64)
+            / points as f64;
         if payout < 1.0 {
             continue;
         }
@@ -227,6 +224,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         f.events.paid(
             &betters_top[i].accuracy.to_string(),
             payout as u64,
+            betters_top[i].amount,
             betters_top[i].boost,
             &betters_top[i].player.to_string(),
             (betters_top.len()-i) as u64,

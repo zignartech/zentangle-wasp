@@ -20,7 +20,8 @@
             "position": "Uint64",
             "amount": "Uint64",
             "boost": "Uint8",
-            "accuracy": "String"
+            "accuracy": "String",
+            "bet": "Uint64"
         },
         "playRequested": {
             "address": "String",
