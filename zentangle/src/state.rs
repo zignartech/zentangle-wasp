@@ -53,18 +53,18 @@ impl MapStringToImmutablePlayerBoost {
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfImmutablePlayerBoost {
+pub struct ArrayOfImmutableString {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfImmutablePlayerBoost {
+impl ArrayOfImmutableString {
     pub fn length(&self) -> i32 {
         get_length(self.obj_id)
     }
 
-	pub fn get_player_boost(&self, index: i32) -> ImmutablePlayerBoost {
-		ImmutablePlayerBoost { obj_id: self.obj_id, key_id: Key32(index) }
-	}
+    pub fn get_string(&self, index: i32) -> ScImmutableString {
+        ScImmutableString::new(self.obj_id, Key32(index))
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -165,9 +165,9 @@ impl ImmutablezentangleState {
 		MapStringToImmutablePlayerBoost { obj_id: map_id }
 	}
 
-    pub fn players_boost(&self) -> ArrayOfImmutablePlayerBoost {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutablePlayerBoost { obj_id: arr_id }
+    pub fn players_boost(&self) -> ArrayOfImmutableString {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_STRING);
+		ArrayOfImmutableString { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfImmutableUint32 {
@@ -254,11 +254,11 @@ impl MapStringToMutablePlayerBoost {
 }
 
 #[derive(Clone, Copy)]
-pub struct ArrayOfMutablePlayerBoost {
+pub struct ArrayOfMutableString {
 	pub(crate) obj_id: i32,
 }
 
-impl ArrayOfMutablePlayerBoost {
+impl ArrayOfMutableString {
     pub fn clear(&self) {
         clear(self.obj_id);
     }
@@ -267,9 +267,9 @@ impl ArrayOfMutablePlayerBoost {
         get_length(self.obj_id)
     }
 
-	pub fn get_player_boost(&self, index: i32) -> MutablePlayerBoost {
-		MutablePlayerBoost { obj_id: self.obj_id, key_id: Key32(index) }
-	}
+    pub fn get_string(&self, index: i32) -> ScMutableString {
+        ScMutableString::new(self.obj_id, Key32(index))
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -390,9 +390,9 @@ impl MutablezentangleState {
 		MapStringToMutablePlayerBoost { obj_id: map_id }
 	}
 
-    pub fn players_boost(&self) -> ArrayOfMutablePlayerBoost {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutablePlayerBoost { obj_id: arr_id }
+    pub fn players_boost(&self) -> ArrayOfMutableString {
+		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_STRING);
+		ArrayOfMutableString { obj_id: arr_id }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableUint32 {

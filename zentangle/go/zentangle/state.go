@@ -37,16 +37,16 @@ func (m MapStringToImmutablePlayerBoost) GetPlayerBoost(key string) ImmutablePla
 	return ImmutablePlayerBoost{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type ArrayOfImmutablePlayerBoost struct {
+type ArrayOfImmutableString struct {
 	objID int32
 }
 
-func (a ArrayOfImmutablePlayerBoost) Length() int32 {
+func (a ArrayOfImmutableString) Length() int32 {
 	return wasmlib.GetLength(a.objID)
 }
 
-func (a ArrayOfImmutablePlayerBoost) GetPlayerBoost(index int32) ImmutablePlayerBoost {
-	return ImmutablePlayerBoost{objID: a.objID, keyID: wasmlib.Key32(index)}
+func (a ArrayOfImmutableString) GetString(index int32) wasmlib.ScImmutableString {
+	return wasmlib.NewScImmutableString(a.objID, wasmlib.Key32(index))
 }
 
 type ArrayOfImmutableUint32 struct {
@@ -133,9 +133,9 @@ func (s ImmutablezentangleState) PlayerBoost() MapStringToImmutablePlayerBoost {
 	return MapStringToImmutablePlayerBoost{objID: mapID}
 }
 
-func (s ImmutablezentangleState) PlayersBoost() ArrayOfImmutablePlayerBoost {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
-	return ArrayOfImmutablePlayerBoost{objID: arrID}
+func (s ImmutablezentangleState) PlayersBoost() ArrayOfImmutableString {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING)
+	return ArrayOfImmutableString{objID: arrID}
 }
 
 func (s ImmutablezentangleState) PlaysPerImage() ArrayOfImmutableUint32 {
@@ -211,20 +211,20 @@ func (m MapStringToMutablePlayerBoost) GetPlayerBoost(key string) MutablePlayerB
 	return MutablePlayerBoost{objID: m.objID, keyID: wasmlib.Key(key).KeyID()}
 }
 
-type ArrayOfMutablePlayerBoost struct {
+type ArrayOfMutableString struct {
 	objID int32
 }
 
-func (a ArrayOfMutablePlayerBoost) Clear() {
+func (a ArrayOfMutableString) Clear() {
 	wasmlib.Clear(a.objID)
 }
 
-func (a ArrayOfMutablePlayerBoost) Length() int32 {
+func (a ArrayOfMutableString) Length() int32 {
 	return wasmlib.GetLength(a.objID)
 }
 
-func (a ArrayOfMutablePlayerBoost) GetPlayerBoost(index int32) MutablePlayerBoost {
-	return MutablePlayerBoost{objID: a.objID, keyID: wasmlib.Key32(index)}
+func (a ArrayOfMutableString) GetString(index int32) wasmlib.ScMutableString {
+	return wasmlib.NewScMutableString(a.objID, wasmlib.Key32(index))
 }
 
 type ArrayOfMutableUint32 struct {
@@ -331,9 +331,9 @@ func (s MutablezentangleState) PlayerBoost() MapStringToMutablePlayerBoost {
 	return MapStringToMutablePlayerBoost{objID: mapID}
 }
 
-func (s MutablezentangleState) PlayersBoost() ArrayOfMutablePlayerBoost {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
-	return ArrayOfMutablePlayerBoost{objID: arrID}
+func (s MutablezentangleState) PlayersBoost() ArrayOfMutableString {
+	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING)
+	return ArrayOfMutableString{objID: arrID}
 }
 
 func (s MutablezentangleState) PlaysPerImage() ArrayOfMutableUint32 {

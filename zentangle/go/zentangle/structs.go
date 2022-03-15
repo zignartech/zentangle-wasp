@@ -71,7 +71,8 @@ type PlayerBoost struct {
 	NDoubleBoosts  uint64  // Number of 2x boost used in the round
 	NTags          uint64  // Number of tags made by the player in the current round
 	NTrippleBoosts uint64  // Number of 3x boosts used in the round
-	PlayerAddress  string  // The player's address
+	NValidTags     uint64  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
+	Player         wasmlib.ScAgentID  // The player's AgentId
 }
 
 func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
@@ -80,7 +81,8 @@ func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
 	data.NDoubleBoosts  = decode.Uint64()
 	data.NTags          = decode.Uint64()
 	data.NTrippleBoosts = decode.Uint64()
-	data.PlayerAddress  = decode.String()
+	data.NValidTags     = decode.Uint64()
+	data.Player         = decode.AgentID()
 	decode.Close()
 	return data
 }
@@ -90,7 +92,8 @@ func (o *PlayerBoost) Bytes() []byte {
 		Uint64(o.NDoubleBoosts).
 		Uint64(o.NTags).
 		Uint64(o.NTrippleBoosts).
-		String(o.PlayerAddress).
+		Uint64(o.NValidTags).
+		AgentID(o.Player).
 		Data()
 }
 

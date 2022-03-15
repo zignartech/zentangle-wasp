@@ -80,19 +80,24 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
         }
 
         let player = PlayerBoost {
-            player_address: ctx.caller().address().to_string(),
+            player: ctx.caller(),
             n_tags: n_tags,
             n_double_boosts: n_double_boosts,
             n_tripple_boosts: n_tripple_boosts,
+            n_valid_tags: 0
         };
 
+        // if the player isn't on the players list, add it
+        if !f.state.player_boost().get_player_boost(player_address).exists() {
+            f.state
+            .players_boost()
+            .get_string(f.state.players_boost().length())
+            .set_value(&player.player.address().to_string());
+        }
+        // update player's boost data on map
         f.state
             .player_boost()
             .get_player_boost(player_address)
-            .set_value(&player);
-        f.state
-            .players_boost()
-            .get_player_boost(f.state.players_boost().length())
             .set_value(&player);
         f.state.total_player_tags().get_uint64(player_address).set_value(total_player_tags);
     }
@@ -139,9 +144,8 @@ pub fn clear_player(f: &EndGameContext) {
         let player_address = f
             .state
             .players_boost()
-            .get_player_boost(player_id)
-            .value()
-            .player_address;
+            .get_string(player_id)
+            .value();
         let player = f.state.player_boost().get_player_boost(&player_address);
         if player.exists() {
             player.delete();
@@ -296,13 +300,19 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
             // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
             for j in 4..clusters[id].len() {
                 let tagged_image = *hash_image_id.get(&(clusters[id][j] as u64)).unwrap();
+                let player = f
+                    .state
+                    .tagged_images()
+                    .get_tagged_image(tagged_image as i32)
+                    .value()
+                    .player;
+                // increment the valid tags in the player's name. This is to calculate rewards in the end-
+                let mut player_boost = f.state.player_boost().get_player_boost(&player.to_string()).value();
+                player_boost.n_valid_tags = player_boost.n_valid_tags + 1;
+                f.state.player_boost().get_player_boost(&player.to_string()).set_value(&player_boost);
+
                 let vaid_tag = ValidTag {
-                    player: f
-                        .state
-                        .tagged_images()
-                        .get_tagged_image(tagged_image as i32)
-                        .value()
-                        .player,
+                    player: player,
                     tagged_image: tagged_image,
                     play_tag_id: *hash_play_tag_id.get(&(clusters[id][j] as u64)).unwrap(),
                 };

@@ -82,7 +82,8 @@ pub struct PlayerBoost {
     pub n_double_boosts  : u64,  // Number of 2x boost used in the round
     pub n_tags           : u64,  // Number of tags made by the player in the current round
     pub n_tripple_boosts : u64,  // Number of 3x boosts used in the round
-    pub player_address   : String,  // The player's address
+    pub n_valid_tags     : u64,  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
+    pub player           : ScAgentID,  // The player's AgentId
 }
 
 impl PlayerBoost {
@@ -92,7 +93,8 @@ impl PlayerBoost {
             n_double_boosts  : decode.uint64(),
             n_tags           : decode.uint64(),
             n_tripple_boosts : decode.uint64(),
-            player_address   : decode.string(),
+            n_valid_tags     : decode.uint64(),
+            player           : decode.agent_id(),
         }
     }
 
@@ -101,7 +103,8 @@ impl PlayerBoost {
 		encode.uint64(self.n_double_boosts);
 		encode.uint64(self.n_tags);
 		encode.uint64(self.n_tripple_boosts);
-		encode.string(&self.player_address);
+		encode.uint64(self.n_valid_tags);
+		encode.agent_id(&self.player);
         return encode.data();
     }
 }

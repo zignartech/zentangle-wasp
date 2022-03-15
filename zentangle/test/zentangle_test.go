@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/iotaledger/wasp/packages/iscp/colored"
 	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
 	"github.com/iotaledger/wasp/zentangle/go/zentangle"
 	"github.com/stretchr/testify/require"
@@ -19,7 +20,7 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := uint32(50)
+	number_of_images := uint32(40)
 	const number_of_players = 10
 	const plays_required_per_image = 10
 
@@ -53,7 +54,7 @@ func TestPlay2(t *testing.T) {
 		}`)
 
 		for j := 0; uint32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
-			RequestPlay.Func.TransferIotas(10000 + int64(i)).Post()
+			RequestPlay.Func.TransferIotas(1000).Post()
 			SendTags.Func.TransferIotas(1).Post()
 		}
 
@@ -75,6 +76,12 @@ func TestPlay2(t *testing.T) {
 	EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
 	EndGame.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
+
+	balances := 0
+	for i := 0; i < number_of_players; i++ {
+		balances += int(player[i].Env.GetAddressBalance(ctx.Chain.ChainID.AliasAddress, colored.IOTA))
+	}
+	require.EqualValues(t, 1000*400+10000, balances)
 
 	getResults := zentangle.ScFuncs.GetResults(ctx)
 	for i := 0; uint32(i) < number_of_images; i++ {

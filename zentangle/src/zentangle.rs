@@ -155,18 +155,24 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     ctx.require(n_rewards > 0, "No valid tags so no rewards will be paid.");
 
     let individual_reward = f.state.reward().value() / n_rewards;
-    let transfers: ScTransfers = ScTransfers::iotas(individual_reward as i64);
-    for i in 0..f.state.valid_tags().length() {
+
+    for i in 0..f.state.players_boost().length() {
+        // get player address
         let address = f
             .state
-            .valid_tags()
-            .get_valid_tag(i)
-            .value()
-            .player;
+            .players_boost()
+            .get_string(i)
+            .value();
+        
+        let mut player_boost = f.state.player_boost().get_player_boost(&address).value();
 
+        let transfers: ScTransfers = ScTransfers::iotas(individual_reward as i64 * player_boost.n_valid_tags as i64);
         let parm = ScMutableMap::new();
-        parm.get_agent_id("a").set_value(&address.as_agent_id());
+        parm.get_agent_id("a").set_value(&player_boost.player);
         ctx.call(ScHname::new("accounts"), ScHname::new("deposit"), Some(parm), Some(transfers));
+
+        player_boost.n_valid_tags = 0;
+        f.state.player_boost().get_player_boost(&address.to_string()).set_value(&player_boost);
     }
 
     // Now, we set the winners and the rewards for the correct tags
@@ -575,10 +581,11 @@ pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
     
     // In case player_boost map exists for this address, get its value. Else, leave it as zero.
     let mut player_boost = PlayerBoost {
-        player_address: player_address.clone(),
+        player: ctx.contract_creator(), // just a default value
         n_double_boosts: 0,
         n_tripple_boosts: 0,
         n_tags: 0,
+        n_valid_tags: 0
     };
     if f.state
         .player_boost()
