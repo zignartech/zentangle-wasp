@@ -27,24 +27,25 @@ pub(crate) const IDX_RESULT_PLAYER_BETS     : usize = 11;
 pub(crate) const IDX_RESULT_PLAYS_PER_IMAGE : usize = 12;
 pub(crate) const IDX_RESULT_RESULTS         : usize = 13;
 
-pub(crate) const IDX_STATE_BETS                    : usize = 14;
-pub(crate) const IDX_STATE_CREATOR                 : usize = 15;
-pub(crate) const IDX_STATE_DESCRIPTION             : usize = 16;
-pub(crate) const IDX_STATE_NUMBER_OF_IMAGES        : usize = 17;
-pub(crate) const IDX_STATE_OWNER                   : usize = 18;
-pub(crate) const IDX_STATE_PENDING_PLAY            : usize = 19;
-pub(crate) const IDX_STATE_PENDING_PLAYS           : usize = 20;
-pub(crate) const IDX_STATE_PLAYER_BOOST            : usize = 21;
-pub(crate) const IDX_STATE_PLAYERS_BOOST           : usize = 22;
-pub(crate) const IDX_STATE_PLAYS_PER_IMAGE         : usize = 23;
-pub(crate) const IDX_STATE_PROCESSED_IMAGES        : usize = 24;
-pub(crate) const IDX_STATE_REWARD                  : usize = 25;
-pub(crate) const IDX_STATE_TAGGED_IMAGES           : usize = 26;
-pub(crate) const IDX_STATE_TAGS_REQUIRED_PER_IMAGE : usize = 27;
-pub(crate) const IDX_STATE_TOTAL_PLAYER_TAGS       : usize = 28;
-pub(crate) const IDX_STATE_VALID_TAGS              : usize = 29;
+pub(crate) const IDX_STATE_BETS                     : usize = 14;
+pub(crate) const IDX_STATE_COMPLETE_IMAGES          : usize = 15;
+pub(crate) const IDX_STATE_CREATOR                  : usize = 16;
+pub(crate) const IDX_STATE_DESCRIPTION              : usize = 17;
+pub(crate) const IDX_STATE_NUMBER_OF_IMAGES         : usize = 18;
+pub(crate) const IDX_STATE_OWNER                    : usize = 19;
+pub(crate) const IDX_STATE_PENDING_PLAY             : usize = 20;
+pub(crate) const IDX_STATE_PENDING_PLAYS            : usize = 21;
+pub(crate) const IDX_STATE_PLAYER_BOOST             : usize = 22;
+pub(crate) const IDX_STATE_PLAYERS_BOOST            : usize = 23;
+pub(crate) const IDX_STATE_PLAYS_PER_IMAGE          : usize = 24;
+pub(crate) const IDX_STATE_PLAYS_REQUIRED_PER_IMAGE : usize = 25;
+pub(crate) const IDX_STATE_PROCESSED_IMAGES         : usize = 26;
+pub(crate) const IDX_STATE_REWARD                   : usize = 27;
+pub(crate) const IDX_STATE_TAGGED_IMAGES            : usize = 28;
+pub(crate) const IDX_STATE_TOTAL_PLAYER_TAGS        : usize = 29;
+pub(crate) const IDX_STATE_VALID_TAGS               : usize = 30;
 
-pub const KEY_MAP_LEN: usize = 30;
+pub const KEY_MAP_LEN: usize = 31;
 
 pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	PARAM_DESCRIPTION,
@@ -62,6 +63,7 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	RESULT_PLAYS_PER_IMAGE,
 	RESULT_RESULTS,
 	STATE_BETS,
+	STATE_COMPLETE_IMAGES,
 	STATE_CREATOR,
 	STATE_DESCRIPTION,
 	STATE_NUMBER_OF_IMAGES,
@@ -71,10 +73,10 @@ pub const KEY_MAP: [&str; KEY_MAP_LEN] = [
 	STATE_PLAYER_BOOST,
 	STATE_PLAYERS_BOOST,
 	STATE_PLAYS_PER_IMAGE,
+	STATE_PLAYS_REQUIRED_PER_IMAGE,
 	STATE_PROCESSED_IMAGES,
 	STATE_REWARD,
 	STATE_TAGGED_IMAGES,
-	STATE_TAGS_REQUIRED_PER_IMAGE,
 	STATE_TOTAL_PLAYER_TAGS,
 	STATE_VALID_TAGS,
 ];

@@ -246,7 +246,7 @@ pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
 
 // An internal function to calculate the average position of a tag (center) inside an image.
 pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec<TaggedImage> {
-    let tags_req_per_image = f.state.tags_required_per_image().value();
+    let tags_req_per_image = f.state.plays_required_per_image().value();
     let mut hash_image_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an image_id from a tag_id
     let mut hash_play_tag_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id
 

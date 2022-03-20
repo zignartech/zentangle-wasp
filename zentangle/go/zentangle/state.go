@@ -102,6 +102,10 @@ func (s ImmutablezentangleState) Bets() ArrayOfImmutableBet {
 	return ArrayOfImmutableBet{objID: arrID}
 }
 
+func (s ImmutablezentangleState) CompleteImages() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxStateCompleteImages])
+}
+
 func (s ImmutablezentangleState) Creator() wasmlib.ScImmutableAgentID {
 	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxStateCreator])
 }
@@ -143,6 +147,10 @@ func (s ImmutablezentangleState) PlaysPerImage() ArrayOfImmutableUint32 {
 	return ArrayOfImmutableUint32{objID: arrID}
 }
 
+func (s ImmutablezentangleState) PlaysRequiredPerImage() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxStatePlaysRequiredPerImage])
+}
+
 func (s ImmutablezentangleState) ProcessedImages() ArrayOfImmutableTaggedImage {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateProcessedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfImmutableTaggedImage{objID: arrID}
@@ -155,10 +163,6 @@ func (s ImmutablezentangleState) Reward() wasmlib.ScImmutableUint64 {
 func (s ImmutablezentangleState) TaggedImages() ArrayOfImmutableTaggedImage {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateTaggedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfImmutableTaggedImage{objID: arrID}
-}
-
-func (s ImmutablezentangleState) TagsRequiredPerImage() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxStateTagsRequiredPerImage])
 }
 
 func (s ImmutablezentangleState) TotalPlayerTags() MapStringToImmutableUint64 {
@@ -300,6 +304,10 @@ func (s MutablezentangleState) Bets() ArrayOfMutableBet {
 	return ArrayOfMutableBet{objID: arrID}
 }
 
+func (s MutablezentangleState) CompleteImages() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxStateCompleteImages])
+}
+
 func (s MutablezentangleState) Creator() wasmlib.ScMutableAgentID {
 	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxStateCreator])
 }
@@ -341,6 +349,10 @@ func (s MutablezentangleState) PlaysPerImage() ArrayOfMutableUint32 {
 	return ArrayOfMutableUint32{objID: arrID}
 }
 
+func (s MutablezentangleState) PlaysRequiredPerImage() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxStatePlaysRequiredPerImage])
+}
+
 func (s MutablezentangleState) ProcessedImages() ArrayOfMutableTaggedImage {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateProcessedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfMutableTaggedImage{objID: arrID}
@@ -353,10 +365,6 @@ func (s MutablezentangleState) Reward() wasmlib.ScMutableUint64 {
 func (s MutablezentangleState) TaggedImages() ArrayOfMutableTaggedImage {
 	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateTaggedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES)
 	return ArrayOfMutableTaggedImage{objID: arrID}
-}
-
-func (s MutablezentangleState) TagsRequiredPerImage() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxStateTagsRequiredPerImage])
 }
 
 func (s MutablezentangleState) TotalPlayerTags() MapStringToMutableUint64 {

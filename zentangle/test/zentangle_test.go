@@ -20,7 +20,7 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := uint32(40)
+	number_of_images := uint32(10)
 	const number_of_players = 10
 	const plays_required_per_image = 10
 
@@ -73,9 +73,9 @@ func TestPlay2(t *testing.T) {
 	GetPlaysPerImage.Func.Call()
 
 	// End game
-	EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
+	/*EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
 	EndGame.Func.TransferIotas(1).Post()
-	require.NoError(t, ctx.Err)
+	require.NoError(t, ctx.Err)*/
 
 	balances := 0
 	for i := 0; i < number_of_players; i++ {

@@ -7,6 +7,7 @@ use serde::de::EnumAccess;
 use serde::{Deserialize, Serialize};
 use wasmlib::*;
 
+use crate::contract::*;
 use crate::structs::*;
 use crate::utility_funcs::*;
 use crate::*;
@@ -64,7 +65,7 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
     f.state.reward().set_value(reward);
     f.state.number_of_images().set_value(number_of_images);
     f.state.description().set_value(description);
-    f.state.tags_required_per_image().set_value(tags_required_per_image);
+    f.state.plays_required_per_image().set_value(tags_required_per_image);
     f.state.creator().set_value(&ctx.caller());
 
     // Reward must be at least one iota per tag
@@ -113,11 +114,14 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
 // betters that placed this tags, win the betting monney, apart from the default reward for making
 // valid tags.
 pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
-    // The context caller has to be the game crator.
-    ctx.require(
-        f.state.creator().value() == ctx.caller(),
-        "Error: Only the game creator can end the game",
+    // unless all images are completed with it's required plays,
+    // the context caller has to be the game crator.
+    if ! f.state.complete_images().value() == f.state.plays_required_per_image().value() {
+        ctx.require(
+            f.state.creator().value() == ctx.caller(),
+            "Error: Only the game creator can end the game",
     );
+    }
 
     // Also, a game has to be in progress.
     ctx.require(
@@ -249,13 +253,14 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         }
     }
 
-    // We clear all the state variables, so a new game can begin
+    // We clear necessary state variables, so a new game can begin
     f.state.bets().clear();
     f.state.plays_per_image().clear();
     f.state.tagged_images().clear();
     f.state.reward().set_value(0_u64);
-    clear_pending_play(f);
     f.state.valid_tags().clear();
+    f.state.complete_images().delete();
+    clear_pending_play(f);
 
     f.events.game_ended();
 }
@@ -265,8 +270,13 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
 // longer be assigned to a player. Also, if all images have their required tags, no image can be assigned at all.
 // The 'requestPlay' function takes no parameters.
 pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
+    // A game has to be in progress.
+    ctx.require(
+        f.state.reward().value() != 0_u64,
+        "Error: No game in progress",
+    );
     // Defining relevant variables for the request
-    let tags_required_per_image = f.state.tags_required_per_image().value();
+    let tags_required_per_image = f.state.plays_required_per_image().value();
     let number_of_images = f.state.number_of_images().value();
     let player = ctx.caller();
     let plays_per_image = f.state.plays_per_image();
@@ -388,7 +398,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         .state
         .pending_play()
         .get_bet(&ctx.caller().address().to_string());
-    let tags_req_per_image = f.state.tags_required_per_image().value();
+    let plays_req_per_image = f.state.plays_required_per_image().value();
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
     struct Annotations {
@@ -426,7 +436,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
 
     // If the image has all it's required plays, we panic.
     // Note that the request has been removed from the pendingPlays list
-    if plays_per_image >= f.state.tags_required_per_image().value() {
+    if plays_per_image >= plays_req_per_image {
         ctx.panic("Error: All plays have been made for this image. Please request another one.");
     }
 
@@ -445,7 +455,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     // of serializing the taggedImage struct into a bytes representation.
     f.state
         .tagged_images()
-        .get_tagged_image(image_id * tags_req_per_image as i32 + plays_per_image as i32)
+        .get_tagged_image(image_id * plays_req_per_image as i32 + plays_per_image as i32)
         .set_value(&tagged_image);
 
     // Add one to the number of times this image has been tagged
@@ -458,6 +468,22 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         .plays_per_image()
         .get_uint32(tagged_image.image_id)
         .set_value(playsfor_this_image + 1);
+
+    // if this image is now played as many times as it is required, add one to the completeImages state variable
+    if playsfor_this_image + 1 == plays_req_per_image {
+        let complete_images = f.state.complete_images();
+        complete_images.set_value(complete_images.value() + 1);
+
+        // If all images have been played the required amount of times, add one to the completeImages state variable
+        // the game can no longer recieve plays, so it will come to an end.
+        if f.state.complete_images().value() == plays_req_per_image {
+            let end_game = ScFuncs::end_game(ctx);
+            end_game.params.reset_player_info().set_value(false);
+            end_game.func
+                .transfer_iotas(1)
+                .post();
+        }
+    }
 
     f.events.imagetagged(
         &tagged_image.player.to_string(),

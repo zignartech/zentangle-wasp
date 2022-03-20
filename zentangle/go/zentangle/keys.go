@@ -26,25 +26,26 @@ const (
 	IdxResultPlaysPerImage = 12
 	IdxResultResults       = 13
 
-	IdxStateBets                 = 14
-	IdxStateCreator              = 15
-	IdxStateDescription          = 16
-	IdxStateNumberOfImages       = 17
-	IdxStateOwner                = 18
-	IdxStatePendingPlay          = 19
-	IdxStatePendingPlays         = 20
-	IdxStatePlayerBoost          = 21
-	IdxStatePlayersBoost         = 22
-	IdxStatePlaysPerImage        = 23
-	IdxStateProcessedImages      = 24
-	IdxStateReward               = 25
-	IdxStateTaggedImages         = 26
-	IdxStateTagsRequiredPerImage = 27
-	IdxStateTotalPlayerTags      = 28
-	IdxStateValidTags            = 29
+	IdxStateBets                  = 14
+	IdxStateCompleteImages        = 15
+	IdxStateCreator               = 16
+	IdxStateDescription           = 17
+	IdxStateNumberOfImages        = 18
+	IdxStateOwner                 = 19
+	IdxStatePendingPlay           = 20
+	IdxStatePendingPlays          = 21
+	IdxStatePlayerBoost           = 22
+	IdxStatePlayersBoost          = 23
+	IdxStatePlaysPerImage         = 24
+	IdxStatePlaysRequiredPerImage = 25
+	IdxStateProcessedImages       = 26
+	IdxStateReward                = 27
+	IdxStateTaggedImages          = 28
+	IdxStateTotalPlayerTags       = 29
+	IdxStateValidTags             = 30
 )
 
-const keyMapLen = 30
+const keyMapLen = 31
 
 var keyMap = [keyMapLen]wasmlib.Key{
 	ParamDescription,
@@ -62,6 +63,7 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	ResultPlaysPerImage,
 	ResultResults,
 	StateBets,
+	StateCompleteImages,
 	StateCreator,
 	StateDescription,
 	StateNumberOfImages,
@@ -71,10 +73,10 @@ var keyMap = [keyMapLen]wasmlib.Key{
 	StatePlayerBoost,
 	StatePlayersBoost,
 	StatePlaysPerImage,
+	StatePlaysRequiredPerImage,
 	StateProcessedImages,
 	StateReward,
 	StateTaggedImages,
-	StateTagsRequiredPerImage,
 	StateTotalPlayerTags,
 	StateValidTags,
 }

@@ -134,6 +134,10 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableBet { obj_id: arr_id }
 	}
 
+    pub fn complete_images(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_COMPLETE_IMAGES))
+	}
+
     pub fn creator(&self) -> ScImmutableAgentID {
 		ScImmutableAgentID::new(self.id, idx_map(IDX_STATE_CREATOR))
 	}
@@ -175,6 +179,10 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableUint32 { obj_id: arr_id }
 	}
 
+    pub fn plays_required_per_image(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_PLAYS_REQUIRED_PER_IMAGE))
+	}
+
     pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfImmutableTaggedImage { obj_id: arr_id }
@@ -187,10 +195,6 @@ impl ImmutablezentangleState {
     pub fn tagged_images(&self) -> ArrayOfImmutableTaggedImage {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfImmutableTaggedImage { obj_id: arr_id }
-	}
-
-    pub fn tags_required_per_image(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
 	}
 
     pub fn total_player_tags(&self) -> MapStringToImmutableUint64 {
@@ -359,6 +363,10 @@ impl MutablezentangleState {
 		ArrayOfMutableBet { obj_id: arr_id }
 	}
 
+    pub fn complete_images(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_STATE_COMPLETE_IMAGES))
+	}
+
     pub fn creator(&self) -> ScMutableAgentID {
 		ScMutableAgentID::new(self.id, idx_map(IDX_STATE_CREATOR))
 	}
@@ -400,6 +408,10 @@ impl MutablezentangleState {
 		ArrayOfMutableUint32 { obj_id: arr_id }
 	}
 
+    pub fn plays_required_per_image(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_STATE_PLAYS_REQUIRED_PER_IMAGE))
+	}
+
     pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfMutableTaggedImage { obj_id: arr_id }
@@ -412,10 +424,6 @@ impl MutablezentangleState {
     pub fn tagged_images(&self) -> ArrayOfMutableTaggedImage {
 		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
 		ArrayOfMutableTaggedImage { obj_id: arr_id }
-	}
-
-    pub fn tags_required_per_image(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_STATE_TAGS_REQUIRED_PER_IMAGE))
 	}
 
     pub fn total_player_tags(&self) -> MapStringToMutableUint64 {
