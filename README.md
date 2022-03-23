@@ -138,17 +138,17 @@ amount_betted: the total amount betted by the player in the round
 const: calculated so that the sum of all payouts is equal to the total amount of iotas betted
 
 ## Deploy locally
-First, you want to clone the Github wasp repository from the iota foundation: GitHub - iotaledger/wasp at develop 
+First, you want to clone the GitHub wasp repository from the IOTA foundation: [GitHub - iotaledger/wasp at develop](https://github.com/iotaledger/wasp/tree/develop)
 
 You also want to have the wasm file of the smart contract you want to deploy.
 
-When that is done, you will want to build all the tools that come with the wasp repo. We will use the wasp tool to run a local node and the wasp-cli to interact with the smart contract. Make sure you have go installed and on the path.
+When that is done, you will want to build all the tools that come with the wasp repo. We will use the wasp tool to run a local node and the `wasp-cli` to interact with the smart contract. Make sure you have go installed (at least version 1.16.1+ or else you will get an error `cannot load embed: malformed module path "embed": missing dot in first path element`) and on the path.
 
 `make install`
 
 `make`
 
-After this, create a folder inside the wasp folder, called wasp-node. In this folder, we will store the database of the wasp node, the config file and also the log file. Copy the config.json file inside of this folder. The other files will be generated after initializing the server. Change the file to connect to the IF's goshimmer node by changing the nodeconn address to goshimmer.sc.iota.org:5000. This way, we won’t have to run a goshimmer node as well.
+After this, create a folder inside the wasp folder, called wasp-node. In this folder, we will store the database of the wasp node, the config file and also the log file. Copy the `config.json` file inside of this folder. The other files will be generated after initializing the server. Change the file to connect to the IF's GoShimmer node by changing the `nodeconn` address to `goshimmer.sc.iota.org:5000`. This way, we won’t have to run a GoShimmer node as well.
 
 If you are wondering why we are running our own wasp node, it’s because this way we can deploy new smart contracts. In other nodes this is usually blocked for outsiders.
 
@@ -156,7 +156,7 @@ To start the wasp node, run this command:
 
 `../wasp --logger.level="warn"`
 
-Next, let’s set up a wasp-cli wallet. Start by initializing with `./wasp-cli init` on the wasp folder. This will create a wasp-cli.json with a seed. Open the wasp-cli.json and edit it to connect to the goshimmer node of the IF and to the local wasp node. It should look something like this:
+Next, let’s set up a wasp-cli wallet. Start by initializing with `./wasp-cli init` on the wasp folder. This will create a `wasp-cli.json` with a seed. Open the `wasp-cli.json` and edit it to connect to the GoShimmer node of the IF and to the local wasp node. It should look something like this:
 
 ```{
   "goshimmer": {
@@ -174,23 +174,24 @@ Next, let’s set up a wasp-cli wallet. Start by initializing with `./wasp-cli i
   }
 }
 ```
-If goshimmer node is ok, you should be able to get iotas from the faucet. Run `./wasp-cli request-fundsand` then `./wasp-cli balance`. You should see 1 Miota in your wallet.
+If GoShimmer node is ok, you should be able to get iotas from the faucet. Run `./wasp-cli request-fundsand` then `./wasp-cli balance`. You should see 1 Miota in your wallet.
 
 Next, run the following command to deploy a chain:
 
 `./wasp-cli chain deploy --committee=0 --quorum=1 --chain=mychain --description="Test Chain"`
 
-You can see the chains with their smart contracts in http://localhost:7000/.
+You can see the chains with their smart contracts in `http://localhost:7000/`.
 
 Let’s send some balance to the chain, before deploying the smart contract:
 
 `./wasp-cli chain deposit IOTA:10000`
 
-`./wasp-cli chain deploy-contract wasmtime zentangle "Zentangle SC" ./zentangle_bg.wasm`
+`./wasp-cli chain deploy-contract wasmtime zentangle "Zentangle SC" ./zentangle/pkg/zentangle_bg.wasm`
 
-The `./zentangle/pkg/zentangle_bg.wasm` file is the compiled smart contract. If it doesn’t exist, create it by running `wasm-pack build` inside of the zentangle folder. If wasm-pack is not installed, do it with: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`.
+The `./zentangle/pkg/zentangle_bg.wasm` file is the compiled smart contract. If it doesn’t exist, create it by running `wasm-pack build` inside of the `zentangle` folder. If `wasm-pack` is not installed, do it with: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`.
+But for this you also need to install rust: https://www.rust-lang.org/tools/install
 
-Now, let’s interact with the smart contract. Fisrt, run createGame. Here we are establishing 2 images to tag, with a description saying “test game“ and a reward of 10000 iotas. We are letting the tagsRequiredPerImage parameter blank, so it will be set to the default of 10.
+Now, let’s interact with the smart contract. First, run createGame. Here we are establishing 2 images to tag, with a description saying “test game“ and a reward of 10000 iotas. We are letting the tagsRequiredPerImage parameter blank, so it will be set to the default of 10.
 
 `./wasp-cli chain post-request zentangle createGame string numberOfImages int32 2 string description string "test game" -t IOTA:10000`
 
@@ -200,13 +201,13 @@ Next, we request to play and place a bet of 10000 iotas and then send an imageTa
 
 `./wasp-cli chain post-request zentangle sendTags string inputJson string '{"x": [50, 200, 500], "y": [100, 250, 550], "h": [150, 50, 50], "w": [200, 50, 55], "boost": [1, 1, 1]}'`
 
-You can repeat this step as many times as you want, with different coordinates of tags and different bets. You can also send them form different wallets.
+You can repeat this step as many times as you want, with different coordinates of tags and different bets. You can also send them from different wallets.
 
-Finally, we end the game by running ./wasp-cli chain post-request zentangle endGame from the wallet the game was created.
+Finally, we end the game by running `./wasp-cli chain post-request zentangle endGame` from the wallet the game was created.
 
 To see the results of a particular image, run:
 
-`./wasp-cli chain call-view dtag getResults string imageId int32 0 | ./wasp-cli decode string request string`
+`./wasp-cli chain call-view zentangle getResults string imageId int32 0 | ./wasp-cli decode string results string`
  
 
 ## References: 
