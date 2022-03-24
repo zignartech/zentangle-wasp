@@ -25,6 +25,22 @@ func (s MutableRequestPlayResults) ImageId() wasmlib.ScMutableUint32 {
 	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultImageId])
 }
 
+type ImmutableSendTagsResults struct {
+	id int32
+}
+
+func (s ImmutableSendTagsResults) ImageId() wasmlib.ScImmutableUint32 {
+	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultImageId])
+}
+
+type MutableSendTagsResults struct {
+	id int32
+}
+
+func (s MutableSendTagsResults) ImageId() wasmlib.ScMutableUint32 {
+	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultImageId])
+}
+
 type ImmutableGetOwnerResults struct {
 	id int32
 }

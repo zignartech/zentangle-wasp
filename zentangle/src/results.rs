@@ -38,6 +38,28 @@ impl MutableRequestPlayResults {
 }
 
 #[derive(Clone, Copy)]
+pub struct ImmutableSendTagsResults {
+    pub(crate) id: i32,
+}
+
+impl ImmutableSendTagsResults {
+    pub fn image_id(&self) -> ScImmutableUint32 {
+		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+	}
+}
+
+#[derive(Clone, Copy)]
+pub struct MutableSendTagsResults {
+    pub(crate) id: i32,
+}
+
+impl MutableSendTagsResults {
+    pub fn image_id(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+	}
+}
+
+#[derive(Clone, Copy)]
 pub struct ImmutableGetOwnerResults {
     pub(crate) id: i32,
 }

@@ -142,6 +142,7 @@ fn func_request_play_thunk(ctx: &ScFuncContext) {
 pub struct SendTagsContext {
 	events:  ZentangleEvents,
 	params: ImmutableSendTagsParams,
+	results: MutableSendTagsResults,
 	state: MutablezentangleState,
 }
 
@@ -151,6 +152,9 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 		events:  ZentangleEvents {},
 		params: ImmutableSendTagsParams {
 			id: OBJ_ID_PARAMS,
+		},
+		results: MutableSendTagsResults {
+			id: OBJ_ID_RESULTS,
 		},
 		state: MutablezentangleState {
 			id: OBJ_ID_STATE,

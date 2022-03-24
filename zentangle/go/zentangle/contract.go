@@ -32,6 +32,7 @@ type RequestPlayCall struct {
 type SendTagsCall struct {
 	Func    *wasmlib.ScFunc
 	Params  MutableSendTagsParams
+	Results ImmutableSendTagsResults
 }
 
 type SetOwnerCall struct {
@@ -101,7 +102,7 @@ func (sc Funcs) RequestPlay(ctx wasmlib.ScFuncCallContext) *RequestPlayCall {
 
 func (sc Funcs) SendTags(ctx wasmlib.ScFuncCallContext) *SendTagsCall {
 	f := &SendTagsCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSendTags)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
 	return f
 }
 

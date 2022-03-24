@@ -276,7 +276,7 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         "Error: No game in progress",
     );
     // Defining relevant variables for the request
-    let tags_required_per_image = f.state.plays_required_per_image().value();
+    let plays_required_per_image = f.state.plays_required_per_image().value();
     let number_of_images = f.state.number_of_images().value();
     let player = ctx.caller();
     let plays_per_image = f.state.plays_per_image();
@@ -287,11 +287,6 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
 
     // Check if the player has an open request. If it does, panic.
     if pending_play.exists() {
-        // send any recieved iotas back
-        let payout: i64 = ctx.incoming().balance(&ScColor::IOTA);
-        let transfers: ScTransfers = ScTransfers::iotas(payout);
-        ctx.transfer_to_address(&ctx.caller().address(), transfers);
-
         panic("Error: Player already has an open request");
     }
 
@@ -302,20 +297,16 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
     'image: for i in 0..number_of_images {
-        if plays_per_image.get_uint32(i as i32).value() >= tags_required_per_image {
+        if plays_per_image.get_uint32(i as i32).value() >= plays_required_per_image {
             counter += 1;
             continue;
         }
-        for j in i * tags_required_per_image as u32..(i + 1) * tags_required_per_image as u32 {
-            if f.state.tagged_images().get_tagged_image(j as i32).value().image_id == -1 {
+        for j in i * plays_required_per_image as u32..(i + 1) * plays_required_per_image as u32 {
+            let tagged_image = f.state.tagged_images().get_tagged_image(j as i32).value();
+            if tagged_image.image_id == -1 {
                 continue;
             }
-            if f.state
-                .tagged_images()
-                .get_tagged_image(j as i32)
-                .value()
-                .player
-                == player.address()
+            if tagged_image.player == player.address()
             {
                 counter += 1;
                 continue 'image;
@@ -338,12 +329,12 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
     'outer: loop {
         image_id = ctx.random((number_of_images) as i64) as u32;
         // has the image the maximum amount of plays?
-        if plays_per_image.get_uint32(image_id as i32).value() == tags_required_per_image {
+        if plays_per_image.get_uint32(image_id as i32).value() == plays_required_per_image {
             continue;
         }
         // has the image been tagged by this player before?
-        for i in image_id * tags_required_per_image
-            ..(image_id + 1) * tags_required_per_image
+        for i in image_id * plays_required_per_image
+            ..(image_id + 1) * plays_required_per_image
         {
             if f.state.tagged_images().get_tagged_image(i as i32).value().image_id != -1 {
                 if f.state
@@ -368,11 +359,8 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         image_id: image_id as u32,
     };
 
-    // Append the bet data to the bets array and to the pending plays map.
-    // They will automatically take care of serializing the bet struct into a bytes representation.
-    let bets: ArrayOfMutableBet = f.state.bets();
-    let bets_nr: i32 = bets.length();
-    bets.get_bet(bets_nr).set_value(&bet);
+    add_bet(ctx, None, Some(f), image_id);
+
     pending_play.set_value(&bet);
     f.state
         .pending_plays()
@@ -440,6 +428,9 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         ctx.panic("Error: All plays have been made for this image. Please request another one.");
     }
 
+
+    add_bet(ctx, Some(f), None, image_id as u32);
+
     // We gather all the information into this struct
     let tagged_image = TaggedImage {
         image_id: image_id,
@@ -458,41 +449,43 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         .get_tagged_image(image_id * plays_req_per_image as i32 + plays_per_image as i32)
         .set_value(&tagged_image);
 
-    // Add one to the number of times this image has been tagged
-    let playsfor_this_image: u32 = f
-        .state
-        .plays_per_image()
-        .get_uint32(tagged_image.image_id)
-        .value();
+    // Get the number of times this image has been tagged and add one to it
     f.state
         .plays_per_image()
         .get_uint32(tagged_image.image_id)
-        .set_value(playsfor_this_image + 1);
+        .set_value(plays_per_image + 1);
 
+    f.events.imagetagged(
+        &tagged_image.player.to_string(),
+        image_id as u32,
+        f.state
+            .plays_per_image()
+            .get_uint32(tagged_image.image_id)
+            .value(), // nr of times the image has been tagged, plays_per_image)
+    );
+
+    // Now we just request the next image to save us time (:
+    // But first, we need to check if the request is possible
+    // in order not to revert the entire transaction in case it's not
+    
+    internal_request_play(f, ctx);
+    
+    
     // if this image is now played as many times as it is required, add one to the completeImages state variable
-    if playsfor_this_image + 1 == plays_req_per_image {
-        let complete_images = f.state.complete_images();
-        complete_images.set_value(complete_images.value() + 1);
+    if plays_per_image + 1 == plays_req_per_image {
+        let complete_images = f.state.complete_images().value();
 
         // If all images have been played the required amount of times, add one to the completeImages state variable
         // the game can no longer recieve plays, so it will come to an end.
-        if f.state.complete_images().value() == plays_req_per_image {
+        if complete_images +1 == f.state.number_of_images().value() {
             let end_game = ScFuncs::end_game(ctx);
             end_game.params.reset_player_info().set_value(false);
             end_game.func
                 .transfer_iotas(1)
                 .post();
         }
+        f.state.complete_images().set_value(complete_images + 1);
     }
-
-    f.events.imagetagged(
-        &tagged_image.player.to_string(),
-        tagged_image.image_id as u32,
-        f.state
-            .plays_per_image()
-            .get_uint32(tagged_image.image_id)
-            .value(), // nr of times the image has been tagged, plays_per_image)
-    );
 }
 
 // This function is used for a the owner of the smart contract to withdraw any

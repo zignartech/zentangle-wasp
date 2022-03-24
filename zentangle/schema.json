@@ -107,6 +107,9 @@
         "sendTags": {
             "params": {
                 "inputJson": "String // x, y, h, w and boost values for every annotaiton in the image"
+            },
+            "results": {
+                "imageId": "Uint32 // The id of the next image to tag"
             }
         },
         "endGame": {

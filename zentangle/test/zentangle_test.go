@@ -6,6 +6,7 @@ package test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/iotaledger/wasp/packages/iscp/colored"
 	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
@@ -53,9 +54,9 @@ func TestPlay2(t *testing.T) {
 			"boost": [1, 1, 1]
 		}`)
 
+		RequestPlay.Func.TransferIotas(1).Post()
 		for j := 0; uint32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
-			RequestPlay.Func.TransferIotas(1000).Post()
-			SendTags.Func.TransferIotas(1).Post()
+			SendTags.Func.TransferIotas(1000).Post()
 		}
 
 		require.NoError(t, ctx.Err)
@@ -68,9 +69,13 @@ func TestPlay2(t *testing.T) {
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
 
-	GetPlaysPerImage := zentangle.ScFuncs.GetPlaysPerImage(ctx)
-	GetPlaysPerImage.Params.ImageId().SetValue(0)
-	GetPlaysPerImage.Func.Call()
+	ctx.WaitForPendingRequests(5, 8*time.Second)
+
+	/*for i := 0; i < int(number_of_images); i++ {
+		GetPlaysPerImage := zentangle.ScFuncs.GetPlaysPerImage(ctx)
+		GetPlaysPerImage.Params.ImageId().SetValue(uint32(i))
+		GetPlaysPerImage.Func.Call()
+	}*/
 
 	// End game
 	/*EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))

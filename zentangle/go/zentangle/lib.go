@@ -115,6 +115,7 @@ func funcRequestPlayThunk(ctx wasmlib.ScFuncContext) {
 type SendTagsContext struct {
 	Events  zentangleEvents
 	Params  ImmutableSendTagsParams
+	Results MutableSendTagsResults
 	State   MutablezentangleState
 }
 
@@ -123,6 +124,9 @@ func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 	f := &SendTagsContext{
 		Params: ImmutableSendTagsParams{
 			id: wasmlib.OBJ_ID_PARAMS,
+		},
+		Results: MutableSendTagsResults{
+			id: wasmlib.OBJ_ID_RESULTS,
 		},
 		State: MutablezentangleState{
 			id: wasmlib.OBJ_ID_STATE,

@@ -31,6 +31,33 @@ impl Better {
     }
 }
 
+// An internal function that adds a send_tags or request_play funtion value to the player's game's bets
+pub fn add_bet(ctx: &ScFuncContext, f_send_tags: Option<&SendTagsContext>, f_request_play: Option<&RequestPlayContext>, image_id: u32) {
+    
+    // Create ScBalances proxy to the incoming balances for this request.
+    let incoming: ScBalances = ctx.incoming();
+    let bet = Bet {
+        amount: incoming.balance(&ScColor::IOTA) as u64,
+        player: ctx.caller().address(),
+        image_id: image_id as u32,
+    };
+    // Append the bet data to the bets array and to the pending plays map.
+    // They will automatically take care of serializing the bet struct into a bytes representation.
+    if f_send_tags.is_some() {
+        let f = f_send_tags.unwrap();
+        let bets: ArrayOfMutableBet = f.state.bets();
+        let bets_nr: i32 = bets.length();
+        bets.get_bet(bets_nr).set_value(&bet);
+    }
+    else if f_request_play.is_some() {
+        let f = f_request_play.unwrap();
+        let bets: ArrayOfMutableBet = f.state.bets();
+        let bets_nr: i32 = bets.length();
+        bets.get_bet(bets_nr).set_value(&bet);
+    }
+    
+}
+
 // An internal function to check if the boost entered by a player are valid or not
 pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
     // initialize mutable variables of the player
@@ -138,20 +165,95 @@ pub fn check_ingots(amount_betted: i64, f: &RequestPlayContext, ctx: &ScFuncCont
     }
 }
 
-// An internal function to clear the player map and the players list
-pub fn clear_player(f: &EndGameContext) {
-    for player_id in 0..f.state.players_boost().length() {
-        let player_address = f
-            .state
-            .players_boost()
-            .get_string(player_id)
-            .value();
-        let player = f.state.player_boost().get_player_boost(&player_address);
-        if player.exists() {
-            player.delete();
+// An internal funtion that checks if the player can tag more images or not. 
+// If it can, do a new request_image. It does not use the request_image function
+// so it is much quicker.
+pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
+    // Initialize variables
+    let plays_required_per_image = f.state.plays_required_per_image().value();
+    let number_of_images = f.state.number_of_images().value();
+    let plays_per_image = f.state.plays_per_image();
+    let player = ctx.caller();
+
+    // Check if any images are available for the player to tag. If all are tagged the required amount of times
+    // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
+    let mut counter = 0;
+    'image: for i in 0..number_of_images {
+        if plays_per_image.get_uint32(i as i32).value() >= plays_required_per_image {
+            counter += 1;
+            continue;
         }
+        for j in i * plays_required_per_image as u32..(i + 1) * plays_required_per_image as u32 {
+            let tagged_image = f.state.tagged_images().get_tagged_image(j as i32).value();
+            if tagged_image.image_id == -1 {
+                continue;
+            }
+            if tagged_image.player
+                == player.address()
+            {
+                counter += 1;
+                continue 'image;
+            }
+            
+        }
+        break;
     }
-    f.state.players_boost().clear();
+
+    if counter < f.state.number_of_images().value() {
+        // We choose an image randomly to assign to the player for tagging.
+        // This loop checks if the image has been tagged the required amount of times,
+        // or if it has already been tagged by the player. If so, we choose another one.
+        // Note that the loop is not infinite, as we have checked that there is at least an image available to tag.
+        let mut image_id: u32;
+        'outer: loop {
+            image_id = ctx.random((number_of_images) as i64) as u32;
+            // has the image the maximum amount of plays?
+            if plays_per_image.get_uint32(image_id as i32).value() == plays_required_per_image {
+                continue;
+            }
+            // has the image been tagged by this player before?
+            for i in image_id * plays_required_per_image
+                ..(image_id + 1) * plays_required_per_image
+            {
+                if f.state.tagged_images().get_tagged_image(i as i32).value().image_id != -1 {
+                    if f.state
+                        .tagged_images()
+                        .get_tagged_image(i as i32)
+                        .value()
+                        .player
+                        == player.address()
+                    {
+                        continue 'outer;
+                    }
+                }
+            }
+            break;
+        }
+
+        // Create ScBalances proxy to the incoming balances for this request.
+        let incoming: ScBalances = ctx.incoming();
+        let bet = Bet {
+            amount: incoming.balance(&ScColor::IOTA) as u64,
+            player: ctx.caller().address(),
+            image_id: image_id as u32,
+        };
+
+        let pending_play = f
+            .state
+            .pending_play()
+            .get_bet(&player.address().to_string());
+
+        pending_play.set_value(&bet);
+        f.state
+            .pending_plays()
+            .get_bet(f.state.pending_plays().length())
+            .set_value(&bet);
+
+        f.events
+            .play_requested(&bet.player.to_string(), bet.amount, bet.image_id);
+
+        f.results.image_id().set_value(image_id);
+    }
 }
 
 // An internal function to clear the pending_play map and the pending_plays list
@@ -172,13 +274,20 @@ pub fn clear_pending_play(f: &EndGameContext) {
     f.state.pending_plays().clear();
 }
 
-// An internal function that calculates distance between points in four dimentions (x, y, h, w)
-pub fn euclidean_distance(a: Vec<f64>, b: Vec<f64>) -> f64 {
-    (((a[0] - b[0]) * (a[0] - b[0])
-        + (a[1] - b[1]) * (a[1] - b[1])
-        + (a[2] - b[2]) * (a[2] - b[2])
-        + (a[3] - b[3]) * (a[3] - b[3])) as f64)
-        .sqrt()
+// An internal function to clear the player map and the players list
+pub fn clear_player(f: &EndGameContext) {
+    for player_id in 0..f.state.players_boost().length() {
+        let player_address = f
+            .state
+            .players_boost()
+            .get_string(player_id)
+            .value();
+        let player = f.state.player_boost().get_player_boost(&player_address);
+        if player.exists() {
+            player.delete();
+        }
+    }
+    f.state.players_boost().clear();
 }
 
 // An internal function that takes many clusters and merges them using the Aglomerative Hierarchical Clustering
@@ -242,6 +351,103 @@ pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
     }
 
     return clusters;
+}
+
+// An internal function to generate a ranking of players based on their best bet.
+// It uses the accuracy to calculate how good a bet is and the ranking is so that
+// the best players are higher up in the returning vector.
+pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better> {
+    // 'valid_bets' stores all the bets placed, including zero value ones (with the player,
+    // the accuracy of the tag and, for the moment, a total bet equal to zero)
+    let mut valid_bets: Vec<Better> = Vec::new();
+    // fill the 'valid_bets' with the bets. The bet amount will be filled later
+    for i in 0..f.state.valid_tags().length() as usize {
+        let valid_tag = f.state.valid_tags().get_valid_tag(i as i32).value();
+        let player_tag_id = valid_tag.play_tag_id as usize;
+        let tagged_image = f
+            .state
+            .tagged_images()
+            .get_tagged_image(valid_tag.tagged_image as i32)
+            .value();
+        let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
+        let tagged_image_point = &tagged_image_coords[player_tag_id];
+        let boost = input_str_to_vecu8(&tagged_image.boost, ctx)[player_tag_id];
+        let clusters_centers = f
+            .state
+            .processed_images()
+            .get_tagged_image(tagged_image.image_id)
+            .value();
+        let cluster_center_coords = input_tgimg_to_vecs(&clusters_centers, ctx);
+        let mut distance_to_cluster_center =
+            euclidean_distance(tagged_image_point.clone(), cluster_center_coords[0].clone());
+        for j in 1..cluster_center_coords.len() {
+            let cluster_center_point = &cluster_center_coords[j];
+            let distance =
+                euclidean_distance(tagged_image_point.to_vec(), cluster_center_point.to_vec());
+            if distance < distance_to_cluster_center {
+                distance_to_cluster_center = distance;
+            }
+        }
+        valid_bets.push(Better::new(
+            distance_to_cluster_center,
+            valid_tag.clone().player,
+            0,
+            boost,
+        ));
+    }
+
+    // Next, we make a list with all the betters that made a valid tag, leaving their best one
+    // and calculating how much they betted in total
+    let mut betters_top: Vec<Better> = Vec::new();
+    'all: for i in 0..valid_bets.len() {
+        let valid_bet = valid_bets[i].clone();
+
+        for better in 0..betters_top.len() {
+            if valid_bet.player == betters_top[better].player {
+                // replace the accuracy for the player's best one
+                if valid_bet.accuracy < betters_top[better].accuracy {
+                    betters_top[better].boost = valid_bet.boost;
+                    betters_top[better].accuracy = valid_bet.accuracy;
+                }
+
+                // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
+                continue 'all;
+            }
+        }
+        let new_better = Better {
+            accuracy: valid_bet.accuracy,
+            amount: valid_bet.amount,
+            boost: valid_bet.boost,
+            player: valid_bet.player,
+        };
+
+        betters_top.push(new_better);
+    }
+
+    // Here we calculate the amount of iotas betted by each player in the 'betters_top' list
+    'bet: for i in 0..f.state.bets().length() {
+        let bet = f.state.bets().get_bet(i).value();
+        for better in 0..betters_top.len() {
+            if betters_top[better].player == bet.player {
+                betters_top[better].amount += bet.amount;
+                continue 'bet;
+            }
+        }
+    }
+
+    // sort the 'top_betters' by accuracy
+    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
+
+    return betters_top;
+}
+
+// An internal function that calculates distance between points in four dimentions (x, y, h, w)
+pub fn euclidean_distance(a: Vec<f64>, b: Vec<f64>) -> f64 {
+    (((a[0] - b[0]) * (a[0] - b[0])
+        + (a[1] - b[1]) * (a[1] - b[1])
+        + (a[2] - b[2]) * (a[2] - b[2])
+        + (a[3] - b[3]) * (a[3] - b[3])) as f64)
+        .sqrt()
 }
 
 // An internal function to calculate the average position of a tag (center) inside an image.
@@ -346,94 +552,6 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
         centers.push(center);
     }
     return centers;
-}
-
-// An internal function to generate a ranking of players based on their best bet.
-// It uses the accuracy to calculate how good a bet is and the ranking is so that
-// the best players are higher up in the returning vector.
-pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better> {
-    // 'valid_bets' stores all the bets placed, including zero value ones (with the player,
-    // the accuracy of the tag and, for the moment, a total bet equal to zero)
-    let mut valid_bets: Vec<Better> = Vec::new();
-    // fill the 'valid_bets' with the bets. The bet amount will be filled later
-    for i in 0..f.state.valid_tags().length() as usize {
-        let valid_tag = f.state.valid_tags().get_valid_tag(i as i32).value();
-        let player_tag_id = valid_tag.play_tag_id as usize;
-        let tagged_image = f
-            .state
-            .tagged_images()
-            .get_tagged_image(valid_tag.tagged_image as i32)
-            .value();
-        let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
-        let tagged_image_point = &tagged_image_coords[player_tag_id];
-        let boost = input_str_to_vecu8(&tagged_image.boost, ctx)[player_tag_id];
-        let clusters_centers = f
-            .state
-            .processed_images()
-            .get_tagged_image(tagged_image.image_id)
-            .value();
-        let cluster_center_coords = input_tgimg_to_vecs(&clusters_centers, ctx);
-        let mut distance_to_cluster_center =
-            euclidean_distance(tagged_image_point.clone(), cluster_center_coords[0].clone());
-        for j in 1..cluster_center_coords.len() {
-            let cluster_center_point = &cluster_center_coords[j];
-            let distance =
-                euclidean_distance(tagged_image_point.to_vec(), cluster_center_point.to_vec());
-            if distance < distance_to_cluster_center {
-                distance_to_cluster_center = distance;
-            }
-        }
-        valid_bets.push(Better::new(
-            distance_to_cluster_center,
-            valid_tag.clone().player,
-            0,
-            boost,
-        ));
-    }
-
-    // Next, we make a list with all the betters that made a valid tag, leaving their best one
-    // and calculating how much they betted in total
-    let mut betters_top: Vec<Better> = Vec::new();
-    'all: for i in 0..valid_bets.len() {
-        let valid_bet = valid_bets[i].clone();
-
-        for better in 0..betters_top.len() {
-            if valid_bet.player == betters_top[better].player {
-                // replace the accuracy for the player's best one
-                if valid_bet.accuracy < betters_top[better].accuracy {
-                    betters_top[better].boost = valid_bet.boost;
-                    betters_top[better].accuracy = valid_bet.accuracy;
-                }
-
-                // skip to next iteration of the outer loop to avoid adding the player to the 'betters_top' again
-                continue 'all;
-            }
-        }
-        let new_better = Better {
-            accuracy: valid_bet.accuracy,
-            amount: valid_bet.amount,
-            boost: valid_bet.boost,
-            player: valid_bet.player,
-        };
-
-        betters_top.push(new_better);
-    }
-
-    // Here we calculate the amount of iotas betted by each player in the 'betters_top' list
-    'bet: for i in 0..f.state.bets().length() {
-        let bet = f.state.bets().get_bet(i).value();
-        for better in 0..betters_top.len() {
-            if betters_top[better].player == bet.player {
-                betters_top[better].amount += bet.amount;
-                continue 'bet;
-            }
-        }
-    }
-
-    // sort the 'top_betters' by accuracy
-    betters_top.sort_by(|a, b| b.accuracy.partial_cmp(&a.accuracy).unwrap());
-
-    return betters_top;
 }
 
 // An internal function to convert inputs to the smart contract as strings that contain

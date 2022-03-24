@@ -38,6 +38,7 @@ pub struct RequestPlayCall {
 pub struct SendTagsCall {
 	pub func: ScFunc,
 	pub params: MutableSendTagsParams,
+	pub results: ImmutableSendTagsResults,
 }
 
 pub struct SetOwnerCall {
@@ -121,8 +122,9 @@ impl ScFuncs {
         let mut f = SendTagsCall {
             func: ScFunc::new(HSC_NAME, HFUNC_SEND_TAGS),
             params: MutableSendTagsParams { id: 0 },
+            results: ImmutableSendTagsResults { id: 0 },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
         f
     }
 
