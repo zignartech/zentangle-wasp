@@ -21,9 +21,9 @@ func TestDeploy(t *testing.T) {
 
 func TestPlay2(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := uint32(10)
-	const number_of_players = 10
-	const plays_required_per_image = 10
+	number_of_images := uint32(3)
+	const number_of_players = 3
+	const plays_required_per_image = 3
 
 	// create game
 	creator := ctx.NewSoloAgent()
@@ -69,7 +69,7 @@ func TestPlay2(t *testing.T) {
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
 
-	ctx.WaitForPendingRequests(5, 8*time.Second)
+	ctx.WaitForPendingRequests(5, 7*time.Second) // wait for end_game to finish
 
 	/*for i := 0; i < int(number_of_images); i++ {
 		GetPlaysPerImage := zentangle.ScFuncs.GetPlaysPerImage(ctx)

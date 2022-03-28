@@ -1,0 +1,34 @@
+name: giveaway
+description: giveaway smart contract to choose the winners of the Zentangle Drangon's giveaways. Addresses should not be repeated
+events: 
+  winner:
+    evmAddress: String
+structs: {}
+typedefs: {}
+state:
+  owner: AgentID // current owner of this smart contract
+  addresses: String[]
+funcs:
+  init:
+    params:
+      owner: AgentID? // optional owner of this smart contract
+  setOwner:
+    access: owner // current owner of this smart contract
+    params:
+      owner: AgentID // new owner of this smart contract
+  ruffle:
+    access: owner // current owner of this smart contract
+    params:
+      nWinners: Int16 // The number of winners to generate
+    results: 
+      winners: String //A JSON with all the addresses that won
+  loadAddresses:
+    access: owner // current owner of this smart contract
+    params:
+      addresses: String // A JSON with all the addresses participating in the giveaway
+  unloadAddresses:
+    access: owner // current owner of this smart contract
+views:
+  getOwner:
+    results:
+      owner: AgentID // current owner of this smart contracts
