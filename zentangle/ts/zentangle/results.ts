@@ -9,14 +9,26 @@ import * as wasmlib from "wasmlib";
 import * as sc from "./index";
 
 export class ImmutableRequestPlayResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+    imageId(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
 	}
 }
 
 export class MutableRequestPlayResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+    imageId(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+	}
+}
+
+export class ImmutableSendTagsResults extends wasmlib.ScMapID {
+    imageId(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+	}
+}
+
+export class MutableSendTagsResults extends wasmlib.ScMapID {
+    imageId(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
 	}
 }
 
@@ -57,14 +69,14 @@ export class MutableGetPlayerInfoResults extends wasmlib.ScMapID {
 }
 
 export class ImmutableGetPlaysPerImageResults extends wasmlib.ScMapID {
-    playsPerImage(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
+    playsPerImage(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
 	}
 }
 
 export class MutableGetPlaysPerImageResults extends wasmlib.ScMapID {
-    playsPerImage(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
+    playsPerImage(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
 	}
 }
 

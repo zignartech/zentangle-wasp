@@ -14,28 +14,39 @@ export class zentangleEvents {
 		emit();
 	}
 
-	gameStarted(description: string, numberOfImages: i32, reward: i64, tagsRequiredPerImage: i32): void {
+	gameStarted(description: string, numberOfImages: u32, reward: u64, tagsRequiredPerImage: u32): void {
 		new wasmlib.EventEncoder("zentangle.gameStarted").
 		string(description).
-		int32(numberOfImages).
-		int64(reward).
-		int32(tagsRequiredPerImage).
+		uint32(numberOfImages).
+		uint64(reward).
+		uint32(tagsRequiredPerImage).
 		emit();
 	}
 
-	imagetagged(address: string, imageId: i32, playsPerImage: i32): void {
+	imagetagged(address: string, imageId: u32, playsPerImage: u32): void {
 		new wasmlib.EventEncoder("zentangle.imagetagged").
 		string(address).
-		int32(imageId).
-		int32(playsPerImage).
+		uint32(imageId).
+		uint32(playsPerImage).
 		emit();
 	}
 
-	playRequested(address: string, amount: i64, imageId: i32): void {
+	paid(accuracy: string, amount: u64, bet: u64, boost: u8, player: string, position: u64): void {
+		new wasmlib.EventEncoder("zentangle.paid").
+		string(accuracy).
+		uint64(amount).
+		uint64(bet).
+		uint8(boost).
+		string(player).
+		uint64(position).
+		emit();
+	}
+
+	playRequested(address: string, amount: u64, imageId: u32): void {
 		new wasmlib.EventEncoder("zentangle.playRequested").
 		string(address).
-		int64(amount).
-		int32(imageId).
+		uint64(amount).
+		uint32(imageId).
 		emit();
 	}
 }

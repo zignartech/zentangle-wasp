@@ -15,3 +15,18 @@ export function onZentangleImagetagged(event: events.EventImagetagged): void {
 
 export function onZentanglePlayRequested(event: events.EventPlayRequested): void {
 }
+
+export function onZentangleGameEnded(event: events.EventGameEnded): void {
+}
+
+export function onZentangleGameStarted(event: events.EventGameStarted): void {
+}
+
+export function onZentangleImagetagged(event: events.EventImagetagged): void {
+}
+
+export function onZentanglePaid(event: events.EventPaid): void {
+}
+
+export function onZentanglePlayRequested(event: events.EventPlayRequested): void {
+}

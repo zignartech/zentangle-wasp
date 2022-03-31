@@ -24,19 +24,23 @@ export const IdxResultPlayerBets    = 11;
 export const IdxResultPlaysPerImage = 12;
 export const IdxResultResults       = 13;
 
-export const IdxStateBets                 = 14;
-export const IdxStateCreator              = 15;
-export const IdxStateDescription          = 16;
-export const IdxStateNumberOfImages       = 17;
-export const IdxStateOwner                = 18;
-export const IdxStatePendingPlay          = 19;
-export const IdxStatePlayer               = 20;
-export const IdxStatePlaysPerImage        = 21;
-export const IdxStateProcessedImages      = 22;
-export const IdxStateReward               = 23;
-export const IdxStateTaggedImages         = 24;
-export const IdxStateTagsRequiredPerImage = 25;
-export const IdxStateValidTags            = 26;
+export const IdxStateBets                  = 14;
+export const IdxStateCompleteImages        = 15;
+export const IdxStateCreator               = 16;
+export const IdxStateDescription           = 17;
+export const IdxStateNumberOfImages        = 18;
+export const IdxStateOwner                 = 19;
+export const IdxStatePendingPlay           = 20;
+export const IdxStatePendingPlays          = 21;
+export const IdxStatePlayerBoost           = 22;
+export const IdxStatePlayersBoost          = 23;
+export const IdxStatePlaysPerImage         = 24;
+export const IdxStatePlaysRequiredPerImage = 25;
+export const IdxStateProcessedImages       = 26;
+export const IdxStateReward                = 27;
+export const IdxStateTaggedImages          = 28;
+export const IdxStateTotalPlayerTags       = 29;
+export const IdxStateValidTags             = 30;
 
 export let keyMap: string[] = [
 	sc.ParamDescription,
@@ -54,17 +58,21 @@ export let keyMap: string[] = [
 	sc.ResultPlaysPerImage,
 	sc.ResultResults,
 	sc.StateBets,
+	sc.StateCompleteImages,
 	sc.StateCreator,
 	sc.StateDescription,
 	sc.StateNumberOfImages,
 	sc.StateOwner,
 	sc.StatePendingPlay,
-	sc.StatePlayer,
+	sc.StatePendingPlays,
+	sc.StatePlayerBoost,
+	sc.StatePlayersBoost,
 	sc.StatePlaysPerImage,
+	sc.StatePlaysRequiredPerImage,
 	sc.StateProcessedImages,
 	sc.StateReward,
 	sc.StateTaggedImages,
-	sc.StateTagsRequiredPerImage,
+	sc.StateTotalPlayerTags,
 	sc.StateValidTags,
 ];
 

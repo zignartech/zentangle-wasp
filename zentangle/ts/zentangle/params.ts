@@ -13,12 +13,12 @@ export class ImmutableCreateGameParams extends wasmlib.ScMapID {
 		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxParamDescription]);
 	}
 
-    numberOfImages(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxParamNumberOfImages]);
+    numberOfImages(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxParamNumberOfImages]);
 	}
 
-    tagsRequiredPerImage(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxParamTagsRequiredPerImage]);
+    tagsRequiredPerImage(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxParamTagsRequiredPerImage]);
 	}
 }
 
@@ -27,12 +27,12 @@ export class MutableCreateGameParams extends wasmlib.ScMapID {
 		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxParamDescription]);
 	}
 
-    numberOfImages(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxParamNumberOfImages]);
+    numberOfImages(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxParamNumberOfImages]);
 	}
 
-    tagsRequiredPerImage(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxParamTagsRequiredPerImage]);
+    tagsRequiredPerImage(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxParamTagsRequiredPerImage]);
 	}
 }
 
@@ -97,25 +97,25 @@ export class MutableGetPlayerInfoParams extends wasmlib.ScMapID {
 }
 
 export class ImmutableGetPlaysPerImageParams extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
+    imageId(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
 	}
 }
 
 export class MutableGetPlaysPerImageParams extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
+    imageId(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
 	}
 }
 
 export class ImmutableGetResultsParams extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
+    imageId(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
 	}
 }
 
 export class MutableGetResultsParams extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
+    imageId(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxParamImageId]);
 	}
 }

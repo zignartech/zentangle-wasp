@@ -74,6 +74,7 @@ function funcSendTagsThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcSendTags");
 	let f = new sc.SendTagsContext();
     f.params.mapID = wasmlib.OBJ_ID_PARAMS;
+    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
     f.state.mapID = wasmlib.OBJ_ID_STATE;
 	ctx.require(f.params.inputJson().exists(), "missing mandatory inputJson");
 	sc.funcSendTags(ctx, f);

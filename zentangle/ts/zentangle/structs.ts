@@ -8,25 +8,25 @@
 import * as wasmlib from "wasmlib";
 
 export class Bet {
-    amount  : i64 = 0; 
-    imageId : i32 = 0; 
-    player  : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // player placing the bet
+    amount  : u64 = 0; 
+    imageId : u32 = 0; 
+    player  : wasmlib.ScAddress = new wasmlib.ScAddress();  // player placing the bet
 
     static fromBytes(bytes: u8[]): Bet {
         let decode = new wasmlib.BytesDecoder(bytes);
         let data = new Bet();
-        data.amount  = decode.int64();
-        data.imageId = decode.int32();
-        data.player  = decode.agentID();
+        data.amount  = decode.uint64();
+        data.imageId = decode.uint32();
+        data.player  = decode.address();
         decode.close();
         return data;
     }
 
     bytes(): u8[] {
         return new wasmlib.BytesEncoder().
-		    int64(this.amount).
-		    int32(this.imageId).
-		    agentID(this.player).
+		    uint64(this.amount).
+		    uint32(this.imageId).
+		    address(this.player).
             data();
     }
 }
@@ -75,34 +75,37 @@ export class MutableBet {
     }
 }
 
-export class Player {
-    nDoubleBoosts  : i64 = 0;  // Number of 2x boost used in the round
-    nTags          : i64 = 0;  // Number of tags made by the player in the current round
-    nTrippleBoosts : i64 = 0;  // Number of 3x boosts used in the round
-    playerId       : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // The player
+export class PlayerBoost {
+    nDoubleBoosts  : u64 = 0;  // Number of 2x boost used in the round
+    nTags          : u64 = 0;  // Number of tags made by the player in the current round
+    nTrippleBoosts : u64 = 0;  // Number of 3x boosts used in the round
+    nValidTags     : u64 = 0;  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
+    player         : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // The player's AgentId
 
-    static fromBytes(bytes: u8[]): Player {
+    static fromBytes(bytes: u8[]): PlayerBoost {
         let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new Player();
-        data.nDoubleBoosts  = decode.int64();
-        data.nTags          = decode.int64();
-        data.nTrippleBoosts = decode.int64();
-        data.playerId       = decode.agentID();
+        let data = new PlayerBoost();
+        data.nDoubleBoosts  = decode.uint64();
+        data.nTags          = decode.uint64();
+        data.nTrippleBoosts = decode.uint64();
+        data.nValidTags     = decode.uint64();
+        data.player         = decode.agentID();
         decode.close();
         return data;
     }
 
     bytes(): u8[] {
         return new wasmlib.BytesEncoder().
-		    int64(this.nDoubleBoosts).
-		    int64(this.nTags).
-		    int64(this.nTrippleBoosts).
-		    agentID(this.playerId).
+		    uint64(this.nDoubleBoosts).
+		    uint64(this.nTags).
+		    uint64(this.nTrippleBoosts).
+		    uint64(this.nValidTags).
+		    agentID(this.player).
             data();
     }
 }
 
-export class ImmutablePlayer {
+export class ImmutablePlayerBoost {
     objID: i32;
     keyID: wasmlib.Key32;
 
@@ -115,12 +118,12 @@ export class ImmutablePlayer {
         return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
     }
 
-    value(): Player {
-        return Player.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
+    value(): PlayerBoost {
+        return PlayerBoost.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
     }
 }
 
-export class MutablePlayer {
+export class MutablePlayerBoost {
     objID: i32;
     keyID: wasmlib.Key32;
 
@@ -137,20 +140,20 @@ export class MutablePlayer {
         return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
     }
 
-    setValue(value: Player): void {
+    setValue(value: PlayerBoost): void {
         wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
     }
 
-    value(): Player {
-        return Player.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
+    value(): PlayerBoost {
+        return PlayerBoost.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
     }
 }
 
 export class TaggedImage {
     boost   : string = "";  // if the tags will be boosted or not
     h       : string = "";  // heights of the Tags
-    imageId : i32 = 0; 
-    player  : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // player that has tagged this image
+    imageId : i32 = 0;  // the only signed integer (It is -1 by default)
+    player  : wasmlib.ScAddress = new wasmlib.ScAddress();  // player that has tagged this image
     w       : string = "";  // widths of the Tags
     x       : string = "";  // x top-left positions of the Tags
     y       : string = "";  // y top-left positions of the Tags
@@ -161,7 +164,7 @@ export class TaggedImage {
         data.boost   = decode.string();
         data.h       = decode.string();
         data.imageId = decode.int32();
-        data.player  = decode.agentID();
+        data.player  = decode.address();
         data.w       = decode.string();
         data.x       = decode.string();
         data.y       = decode.string();
@@ -174,7 +177,7 @@ export class TaggedImage {
 		    string(this.boost).
 		    string(this.h).
 		    int32(this.imageId).
-		    agentID(this.player).
+		    address(this.player).
 		    string(this.w).
 		    string(this.x).
 		    string(this.y).
@@ -227,25 +230,25 @@ export class MutableTaggedImage {
 }
 
 export class ValidTag {
-    playTagId   : i32 = 0;  // Identifier to distinguish different tags in the same play
-    player      : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // player placing the bet
-    taggedImage : i32 = 0; 
+    playTagId   : u32 = 0;  // Identifier to distinguish different tags in the same play
+    player      : wasmlib.ScAddress = new wasmlib.ScAddress();  // player placing the bet
+    taggedImage : u32 = 0; 
 
     static fromBytes(bytes: u8[]): ValidTag {
         let decode = new wasmlib.BytesDecoder(bytes);
         let data = new ValidTag();
-        data.playTagId   = decode.int32();
-        data.player      = decode.agentID();
-        data.taggedImage = decode.int32();
+        data.playTagId   = decode.uint32();
+        data.player      = decode.address();
+        data.taggedImage = decode.uint32();
         decode.close();
         return data;
     }
 
     bytes(): u8[] {
         return new wasmlib.BytesEncoder().
-		    int32(this.playTagId).
-		    agentID(this.player).
-		    int32(this.taggedImage).
+		    uint32(this.playTagId).
+		    address(this.player).
+		    uint32(this.taggedImage).
             data();
     }
 }
