@@ -12,6 +12,7 @@ export const eventHandlers: wasmclient.EventHandlers = {
 	"zentangle.gameEnded": (msg: string[]) => app.onZentangleGameEnded(new EventGameEnded(msg)),
 	"zentangle.gameStarted": (msg: string[]) => app.onZentangleGameStarted(new EventGameStarted(msg)),
 	"zentangle.imagetagged": (msg: string[]) => app.onZentangleImagetagged(new EventImagetagged(msg)),
+	"zentangle.paid": (msg: string[]) => app.onZentanglePaid(new EventPaid(msg)),
 	"zentangle.playRequested": (msg: string[]) => app.onZentanglePlayRequested(new EventPlayRequested(msg)),
 };
 
@@ -24,41 +25,60 @@ export class EventGameEnded extends wasmclient.Event {
 
 export class EventGameStarted extends wasmclient.Event {
 	public readonly description: wasmclient.String;
-	public readonly numberOfImages: wasmclient.Int32;
-	public readonly reward: wasmclient.Int64;
-	public readonly tagsRequiredPerImage: wasmclient.Int32;
+	public readonly numberOfImages: wasmclient.Uint32;
+	public readonly reward: wasmclient.Uint64;
+	public readonly tagsRequiredPerImage: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
 		super(msg)
 		this.description = this.nextString();
-		this.numberOfImages = this.nextInt32();
-		this.reward = this.nextInt64();
-		this.tagsRequiredPerImage = this.nextInt32();
+		this.numberOfImages = this.nextUint32();
+		this.reward = this.nextUint64();
+		this.tagsRequiredPerImage = this.nextUint32();
 	}
 }
 
 export class EventImagetagged extends wasmclient.Event {
 	public readonly address: wasmclient.String;
-	public readonly imageId: wasmclient.Int32;
-	public readonly playsPerImage: wasmclient.Int32;
+	public readonly imageId: wasmclient.Uint32;
+	public readonly playsPerImage: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
 		super(msg)
 		this.address = this.nextString();
-		this.imageId = this.nextInt32();
-		this.playsPerImage = this.nextInt32();
+		this.imageId = this.nextUint32();
+		this.playsPerImage = this.nextUint32();
+	}
+}
+
+export class EventPaid extends wasmclient.Event {
+	public readonly accuracy: wasmclient.String;
+	public readonly amount: wasmclient.Uint64;
+	public readonly bet: wasmclient.Uint64;
+	public readonly boost: wasmclient.Uint8;
+	public readonly player: wasmclient.String;
+	public readonly position: wasmclient.Uint64;
+	
+	public constructor(msg: string[]) {
+		super(msg)
+		this.accuracy = this.nextString();
+		this.amount = this.nextUint64();
+		this.bet = this.nextUint64();
+		this.boost = this.nextUint8();
+		this.player = this.nextString();
+		this.position = this.nextUint64();
 	}
 }
 
 export class EventPlayRequested extends wasmclient.Event {
 	public readonly address: wasmclient.String;
-	public readonly amount: wasmclient.Int64;
-	public readonly imageId: wasmclient.Int32;
+	public readonly amount: wasmclient.Uint64;
+	public readonly imageId: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
 		super(msg)
 		this.address = this.nextString();
-		this.amount = this.nextInt64();
-		this.imageId = this.nextInt32();
+		this.amount = this.nextUint64();
+		this.imageId = this.nextUint32();
 	}
 }

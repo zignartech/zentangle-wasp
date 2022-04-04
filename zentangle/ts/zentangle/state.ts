@@ -36,19 +36,19 @@ export class MapStringToImmutableBet {
     }
 }
 
-export class MapStringToImmutablePlayer {
+export class MapStringToImmutablePlayerBoost {
 	objID: i32;
 
     constructor(objID: i32) {
         this.objID = objID;
     }
 
-    getPlayer(key: string): sc.ImmutablePlayer {
-        return new sc.ImmutablePlayer(this.objID, wasmlib.Key32.fromString(key));
+    getPlayerBoost(key: string): sc.ImmutablePlayerBoost {
+        return new sc.ImmutablePlayerBoost(this.objID, wasmlib.Key32.fromString(key));
     }
 }
 
-export class ArrayOfImmutableInt32 {
+export class ArrayOfImmutableString {
 	objID: i32;
 
     constructor(objID: i32) {
@@ -59,8 +59,24 @@ export class ArrayOfImmutableInt32 {
         return wasmlib.getLength(this.objID);
     }
 
-    getInt32(index: i32): wasmlib.ScImmutableInt32 {
-        return new wasmlib.ScImmutableInt32(this.objID, new wasmlib.Key32(index));
+    getString(index: i32): wasmlib.ScImmutableString {
+        return new wasmlib.ScImmutableString(this.objID, new wasmlib.Key32(index));
+    }
+}
+
+export class ArrayOfImmutableUint32 {
+	objID: i32;
+
+    constructor(objID: i32) {
+        this.objID = objID;
+    }
+
+    length(): i32 {
+        return wasmlib.getLength(this.objID);
+    }
+
+    getUint32(index: i32): wasmlib.ScImmutableUint32 {
+        return new wasmlib.ScImmutableUint32(this.objID, new wasmlib.Key32(index));
     }
 }
 
@@ -78,6 +94,18 @@ export class ArrayOfImmutableTaggedImage {
 	getTaggedImage(index: i32): sc.ImmutableTaggedImage {
 		return new sc.ImmutableTaggedImage(this.objID, new wasmlib.Key32(index));
 	}
+}
+
+export class MapStringToImmutableUint64 {
+	objID: i32;
+
+    constructor(objID: i32) {
+        this.objID = objID;
+    }
+
+    getUint64(key: string): wasmlib.ScImmutableUint64 {
+        return new wasmlib.ScImmutableUint64(this.objID, wasmlib.Key32.fromString(key));
+    }
 }
 
 export class ArrayOfImmutableValidTag {
@@ -102,6 +130,10 @@ export class ImmutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfImmutableBet(arrID);
 	}
 
+    completeImages(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStateCompleteImages]);
+	}
+
     creator(): wasmlib.ScImmutableAgentID {
 		return new wasmlib.ScImmutableAgentID(this.mapID, sc.idxMap[sc.IdxStateCreator]);
 	}
@@ -110,8 +142,8 @@ export class ImmutablezentangleState extends wasmlib.ScMapID {
 		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxStateDescription]);
 	}
 
-    numberOfImages(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
+    numberOfImages(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
 	}
 
     owner(): wasmlib.ScImmutableAgentID {
@@ -123,14 +155,28 @@ export class ImmutablezentangleState extends wasmlib.ScMapID {
 		return new sc.MapStringToImmutableBet(mapID);
 	}
 
-    player(): sc.MapStringToImmutablePlayer {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayer], wasmlib.TYPE_MAP);
-		return new sc.MapStringToImmutablePlayer(mapID);
+    pendingPlays(): sc.ArrayOfImmutableBet {
+		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
+		return new sc.ArrayOfImmutableBet(arrID);
 	}
 
-    playsPerImage(): sc.ArrayOfImmutableInt32 {
+    playerBoost(): sc.MapStringToImmutablePlayerBoost {
+		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayerBoost], wasmlib.TYPE_MAP);
+		return new sc.MapStringToImmutablePlayerBoost(mapID);
+	}
+
+    playersBoost(): sc.ArrayOfImmutableString {
+		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING);
+		return new sc.ArrayOfImmutableString(arrID);
+	}
+
+    playsPerImage(): sc.ArrayOfImmutableUint32 {
 		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlaysPerImage], wasmlib.TYPE_ARRAY|wasmlib.TYPE_INT32);
-		return new sc.ArrayOfImmutableInt32(arrID);
+		return new sc.ArrayOfImmutableUint32(arrID);
+	}
+
+    playsRequiredPerImage(): wasmlib.ScImmutableUint32 {
+		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStatePlaysRequiredPerImage]);
 	}
 
     processedImages(): sc.ArrayOfImmutableTaggedImage {
@@ -138,8 +184,8 @@ export class ImmutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfImmutableTaggedImage(arrID);
 	}
 
-    reward(): wasmlib.ScImmutableInt64 {
-		return new wasmlib.ScImmutableInt64(this.mapID, sc.idxMap[sc.IdxStateReward]);
+    reward(): wasmlib.ScImmutableUint64 {
+		return new wasmlib.ScImmutableUint64(this.mapID, sc.idxMap[sc.IdxStateReward]);
 	}
 
     taggedImages(): sc.ArrayOfImmutableTaggedImage {
@@ -147,8 +193,9 @@ export class ImmutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfImmutableTaggedImage(arrID);
 	}
 
-    tagsRequiredPerImage(): wasmlib.ScImmutableInt32 {
-		return new wasmlib.ScImmutableInt32(this.mapID, sc.idxMap[sc.IdxStateTagsRequiredPerImage]);
+    totalPlayerTags(): sc.MapStringToImmutableUint64 {
+		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTotalPlayerTags], wasmlib.TYPE_MAP);
+		return new sc.MapStringToImmutableUint64(mapID);
 	}
 
     validTags(): sc.ArrayOfImmutableValidTag {
@@ -193,7 +240,7 @@ export class MapStringToMutableBet {
     }
 }
 
-export class MapStringToMutablePlayer {
+export class MapStringToMutablePlayerBoost {
 	objID: i32;
 
     constructor(objID: i32) {
@@ -204,12 +251,12 @@ export class MapStringToMutablePlayer {
         wasmlib.clear(this.objID);
     }
 
-    getPlayer(key: string): sc.MutablePlayer {
-        return new sc.MutablePlayer(this.objID, wasmlib.Key32.fromString(key));
+    getPlayerBoost(key: string): sc.MutablePlayerBoost {
+        return new sc.MutablePlayerBoost(this.objID, wasmlib.Key32.fromString(key));
     }
 }
 
-export class ArrayOfMutableInt32 {
+export class ArrayOfMutableString {
 	objID: i32;
 
     constructor(objID: i32) {
@@ -224,8 +271,28 @@ export class ArrayOfMutableInt32 {
         return wasmlib.getLength(this.objID);
     }
 
-    getInt32(index: i32): wasmlib.ScMutableInt32 {
-        return new wasmlib.ScMutableInt32(this.objID, new wasmlib.Key32(index));
+    getString(index: i32): wasmlib.ScMutableString {
+        return new wasmlib.ScMutableString(this.objID, new wasmlib.Key32(index));
+    }
+}
+
+export class ArrayOfMutableUint32 {
+	objID: i32;
+
+    constructor(objID: i32) {
+        this.objID = objID;
+    }
+
+    clear(): void {
+        wasmlib.clear(this.objID);
+    }
+
+    length(): i32 {
+        return wasmlib.getLength(this.objID);
+    }
+
+    getUint32(index: i32): wasmlib.ScMutableUint32 {
+        return new wasmlib.ScMutableUint32(this.objID, new wasmlib.Key32(index));
     }
 }
 
@@ -247,6 +314,22 @@ export class ArrayOfMutableTaggedImage {
 	getTaggedImage(index: i32): sc.MutableTaggedImage {
 		return new sc.MutableTaggedImage(this.objID, new wasmlib.Key32(index));
 	}
+}
+
+export class MapStringToMutableUint64 {
+	objID: i32;
+
+    constructor(objID: i32) {
+        this.objID = objID;
+    }
+
+    clear(): void {
+        wasmlib.clear(this.objID);
+    }
+
+    getUint64(key: string): wasmlib.ScMutableUint64 {
+        return new wasmlib.ScMutableUint64(this.objID, wasmlib.Key32.fromString(key));
+    }
 }
 
 export class ArrayOfMutableValidTag {
@@ -281,6 +364,10 @@ export class MutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfMutableBet(arrID);
 	}
 
+    completeImages(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStateCompleteImages]);
+	}
+
     creator(): wasmlib.ScMutableAgentID {
 		return new wasmlib.ScMutableAgentID(this.mapID, sc.idxMap[sc.IdxStateCreator]);
 	}
@@ -289,8 +376,8 @@ export class MutablezentangleState extends wasmlib.ScMapID {
 		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxStateDescription]);
 	}
 
-    numberOfImages(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
+    numberOfImages(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
 	}
 
     owner(): wasmlib.ScMutableAgentID {
@@ -302,14 +389,28 @@ export class MutablezentangleState extends wasmlib.ScMapID {
 		return new sc.MapStringToMutableBet(mapID);
 	}
 
-    player(): sc.MapStringToMutablePlayer {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayer], wasmlib.TYPE_MAP);
-		return new sc.MapStringToMutablePlayer(mapID);
+    pendingPlays(): sc.ArrayOfMutableBet {
+		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
+		return new sc.ArrayOfMutableBet(arrID);
 	}
 
-    playsPerImage(): sc.ArrayOfMutableInt32 {
+    playerBoost(): sc.MapStringToMutablePlayerBoost {
+		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayerBoost], wasmlib.TYPE_MAP);
+		return new sc.MapStringToMutablePlayerBoost(mapID);
+	}
+
+    playersBoost(): sc.ArrayOfMutableString {
+		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING);
+		return new sc.ArrayOfMutableString(arrID);
+	}
+
+    playsPerImage(): sc.ArrayOfMutableUint32 {
 		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlaysPerImage], wasmlib.TYPE_ARRAY|wasmlib.TYPE_INT32);
-		return new sc.ArrayOfMutableInt32(arrID);
+		return new sc.ArrayOfMutableUint32(arrID);
+	}
+
+    playsRequiredPerImage(): wasmlib.ScMutableUint32 {
+		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStatePlaysRequiredPerImage]);
 	}
 
     processedImages(): sc.ArrayOfMutableTaggedImage {
@@ -317,8 +418,8 @@ export class MutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfMutableTaggedImage(arrID);
 	}
 
-    reward(): wasmlib.ScMutableInt64 {
-		return new wasmlib.ScMutableInt64(this.mapID, sc.idxMap[sc.IdxStateReward]);
+    reward(): wasmlib.ScMutableUint64 {
+		return new wasmlib.ScMutableUint64(this.mapID, sc.idxMap[sc.IdxStateReward]);
 	}
 
     taggedImages(): sc.ArrayOfMutableTaggedImage {
@@ -326,8 +427,9 @@ export class MutablezentangleState extends wasmlib.ScMapID {
 		return new sc.ArrayOfMutableTaggedImage(arrID);
 	}
 
-    tagsRequiredPerImage(): wasmlib.ScMutableInt32 {
-		return new wasmlib.ScMutableInt32(this.mapID, sc.idxMap[sc.IdxStateTagsRequiredPerImage]);
+    totalPlayerTags(): sc.MapStringToMutableUint64 {
+		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTotalPlayerTags], wasmlib.TYPE_MAP);
+		return new sc.MapStringToMutableUint64(mapID);
 	}
 
     validTags(): sc.ArrayOfMutableValidTag {

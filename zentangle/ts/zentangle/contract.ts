@@ -55,11 +55,13 @@ export class RequestPlayContext {
 export class SendTagsCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncSendTags);
 	params: sc.MutableSendTagsParams = new sc.MutableSendTagsParams();
+	results: sc.ImmutableSendTagsResults = new sc.ImmutableSendTagsResults();
 }
 
 export class SendTagsContext {
 	events:  sc.zentangleEvents = new sc.zentangleEvents();
 	params: sc.ImmutableSendTagsParams = new sc.ImmutableSendTagsParams();
+	results: sc.MutableSendTagsResults = new sc.MutableSendTagsResults();
 	state: sc.MutablezentangleState = new sc.MutablezentangleState();
 }
 
@@ -166,7 +168,7 @@ export class ScFuncs {
 
     static sendTags(ctx: wasmlib.ScFuncCallContext): SendTagsCall {
         let f = new SendTagsCall();
-        f.func.setPtrs(f.params, null);
+        f.func.setPtrs(f.params, f.results);
         return f;
     }
 

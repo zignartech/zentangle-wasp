@@ -33,12 +33,12 @@ export class CreateGameFunc extends wasmclient.ClientFunc {
 		this.args.setString(ArgDescription, v);
 	}
 	
-	public numberOfImages(v: wasmclient.Int32): void {
-		this.args.setInt32(ArgNumberOfImages, v);
+	public numberOfImages(v: wasmclient.Uint32): void {
+		this.args.setUint32(ArgNumberOfImages, v);
 	}
 	
-	public tagsRequiredPerImage(v: wasmclient.Int32): void {
-		this.args.setInt32(ArgTagsRequiredPerImage, v);
+	public tagsRequiredPerImage(v: wasmclient.Uint32): void {
+		this.args.setUint32(ArgTagsRequiredPerImage, v);
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -87,8 +87,8 @@ export class RequestPlayFunc extends wasmclient.ClientFunc {
 
 export class RequestPlayResults extends wasmclient.ViewResults {
 
-	imageId(): wasmclient.Int32 {
-		return this.res.getInt32(ResImageId);
+	imageId(): wasmclient.Uint32 {
+		return this.res.getUint32(ResImageId);
 	}
 }
 
@@ -104,6 +104,13 @@ export class SendTagsFunc extends wasmclient.ClientFunc {
 	public async post(): Promise<wasmclient.RequestID> {
 		this.args.mandatory(ArgInputJson);
 		return await super.post(0xc31816cb, this.args);
+	}
+}
+
+export class SendTagsResults extends wasmclient.ViewResults {
+
+	imageId(): wasmclient.Uint32 {
+		return this.res.getUint32(ResImageId);
 	}
 }
 
@@ -190,8 +197,8 @@ export class GetPlayerInfoResults extends wasmclient.ViewResults {
 export class GetPlaysPerImageView extends wasmclient.ClientView {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
-	public imageId(v: wasmclient.Int32): void {
-		this.args.setInt32(ArgImageId, v);
+	public imageId(v: wasmclient.Uint32): void {
+		this.args.setUint32(ArgImageId, v);
 	}
 
 	public async call(): Promise<GetPlaysPerImageResults> {
@@ -202,8 +209,8 @@ export class GetPlaysPerImageView extends wasmclient.ClientView {
 
 export class GetPlaysPerImageResults extends wasmclient.ViewResults {
 
-	playsPerImage(): wasmclient.Int32 {
-		return this.res.getInt32(ResPlaysPerImage);
+	playsPerImage(): wasmclient.Uint32 {
+		return this.res.getUint32(ResPlaysPerImage);
 	}
 }
 
@@ -212,8 +219,8 @@ export class GetPlaysPerImageResults extends wasmclient.ViewResults {
 export class GetResultsView extends wasmclient.ClientView {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
-	public imageId(v: wasmclient.Int32): void {
-		this.args.setInt32(ArgImageId, v);
+	public imageId(v: wasmclient.Uint32): void {
+		this.args.setUint32(ArgImageId, v);
 	}
 
 	public async call(): Promise<GetResultsResults> {
