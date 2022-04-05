@@ -7,12 +7,12 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 const (
 	ScName        = "zentangle"
 	ScDescription = "Incentivized AI Training Casino"
-	HScName       = wasmlib.ScHname(0xf707a9c6)
+	HScName       = wasmtypes.ScHname(0xf707a9c6)
 )
 
 const (
@@ -71,16 +71,16 @@ const (
 )
 
 const (
-	HFuncCreateGame       = wasmlib.ScHname(0x585dcce2)
-	HFuncEndGame          = wasmlib.ScHname(0xb2303ef2)
-	HFuncInit             = wasmlib.ScHname(0x1f44d644)
-	HFuncRequestPlay      = wasmlib.ScHname(0x74f0bf82)
-	HFuncSendTags         = wasmlib.ScHname(0xc31816cb)
-	HFuncSetOwner         = wasmlib.ScHname(0x2a15fe7b)
-	HFuncWithdraw         = wasmlib.ScHname(0x9dcc0f41)
-	HViewGetOwner         = wasmlib.ScHname(0x137107a6)
-	HViewGetPlayerBets    = wasmlib.ScHname(0x842b0ef5)
-	HViewGetPlayerInfo    = wasmlib.ScHname(0x504151da)
-	HViewGetPlaysPerImage = wasmlib.ScHname(0x749519e8)
-	HViewGetResults       = wasmlib.ScHname(0xc2ed9edb)
+	HFuncCreateGame       = wasmtypes.ScHname(0x585dcce2)
+	HFuncEndGame          = wasmtypes.ScHname(0xb2303ef2)
+	HFuncInit             = wasmtypes.ScHname(0x1f44d644)
+	HFuncRequestPlay      = wasmtypes.ScHname(0x74f0bf82)
+	HFuncSendTags         = wasmtypes.ScHname(0xc31816cb)
+	HFuncSetOwner         = wasmtypes.ScHname(0x2a15fe7b)
+	HFuncWithdraw         = wasmtypes.ScHname(0x9dcc0f41)
+	HViewGetOwner         = wasmtypes.ScHname(0x137107a6)
+	HViewGetPlayerBets    = wasmtypes.ScHname(0x842b0ef5)
+	HViewGetPlayerInfo    = wasmtypes.ScHname(0x504151da)
+	HViewGetPlaysPerImage = wasmtypes.ScHname(0x749519e8)
+	HViewGetResults       = wasmtypes.ScHname(0xc2ed9edb)
 )

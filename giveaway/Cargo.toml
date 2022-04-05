@@ -3,7 +3,7 @@
 
 [package]
 name = "giveaway"
-description = "giveaway smart contract to choose the winners of the Zentangle Drangon's giveaways. Addresses should not be repeated"
+description = "giveaway smart contract to choose the winners of the Zentangle Drangon's giveaways"
 license = "Apache-2.0"
 version = "0.1.0"
 authors = ["John Doe <john@doe.org>"]

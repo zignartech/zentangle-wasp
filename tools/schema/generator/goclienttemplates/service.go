@@ -1,9 +1,18 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 package goclienttemplates
 
 var serviceGo = map[string]string{
 	// *******************************
 	"service.go": `
-$#emit clientHeader
+package $package$+client
+$#if funcs emitContract
+`,
+	// *******************************
+	"emitContract": `
+
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmclient"
 
 const (
 $#each params constArg
@@ -20,9 +29,10 @@ type $PkgName$+Service struct {
 
 func New$PkgName$+Service(cl *wasmclient.ServiceClient, chainID string) (*$PkgName$+Service, error) {
 	s := &$PkgName$+Service{}
-	err := s.Service.Init(cl, chainID, 0x$hscName, EventHandlers)
+	err := s.Service.Init(cl, chainID, 0x$hscName)
 	return s, err
 }
+$#if events newEventHandler
 $#each func serviceFunction
 `,
 	// *******************************
@@ -32,6 +42,13 @@ $#each func serviceFunction
 	// *******************************
 	"constRes": `
 	Res$FldName = "$fldAlias"
+`,
+	// *******************************
+	"newEventHandler": `
+
+func (s *$PkgName$+Service) NewEventHandler() *$PkgName$+Events {
+	return &$PkgName$+Events{}
+}
 `,
 	// *******************************
 	"funcStruct": `
@@ -57,7 +74,7 @@ $#if array funcArgSetterArray funcArgSetterBasic
 	"funcArgSetterBasic": `
 
 func (f *$FuncName$Kind) $FldName(v $fldLangType) {
-	f.args.Set$FldType(Arg$FldName, v)
+	f.args.Set(Arg$FldName, f.args.From$FldType(v))
 }
 `,
 	// *******************************
@@ -65,9 +82,9 @@ func (f *$FuncName$Kind) $FldName(v $fldLangType) {
 
 func (f *$FuncName$Kind) $FldName(a []$fldLangType) {
 	for i, v := range a {
-		f.args.Set$FldType(f.args.IndexedKey(Arg$FldName, i), v)
+		f.args.Set(f.args.IndexedKey(Arg$FldName, i), f.args.From$FldType(v))
 	}
-	f.args.SetInt32(Arg$FldName, int32(len(a)))
+	f.args.Set(Arg$FldName, f.args.SetInt32(int32(len(a))))
 }
 `,
 	// *******************************
@@ -86,7 +103,7 @@ func (f *$FuncName$Kind) Call() $FuncName$+Results {
 $#each mandatory mandatoryCheck
 $#if param execWithArgs execNoArgs
 	f.ClientView.Call("$funcName", $args)
-	return $FuncName$+Results { res: f.Results() }
+	return $FuncName$+Results{res: f.Results()}
 }
 $#if result resultStruct
 `,
@@ -110,12 +127,39 @@ type $FuncName$+Results struct {
 }
 $#each result callResultGetter
 `,
+	// TODO array and map abstraction on key/value results
 	// *******************************
 	"callResultGetter": `
+$#if map callResultGetterMap callResultGetter2
+`,
+	// *******************************
+	"callResultGetter2": `
+$#if basetype callResultGetterBasic callResultGetterStruct
+`,
+	// *******************************
+	"callResultGetterMap": `
+
+func (r *$FuncName$+Results) $FldName() map[$fldKeyLangType]$fldLangType {
+    res := make(map[$fldKeyLangType]$fldLangType)
+    r.res.ForEach(func(key []byte, val []byte) {
+        res[r.res.To$FldMapKey(key)] = r.res.To$FldType(val)
+    })
+	return res
+}
+`,
+	// *******************************
+	"callResultGetterBasic": `
 $#if mandatory else callResultOptional
 
 func (r *$FuncName$+Results) $FldName() $fldLangType {
-	return r.res.Get$FldType(Res$FldName)
+	return r.res.To$FldType(r.res.Get(Res$FldName))
+}
+`,
+	// *******************************
+	"callResultGetterStruct": `
+
+func (r *$FuncName$+Results) $FldName() *$FldType {
+	return New$FldType$+FromBytes(r.res.Get(Res$FldName))
 }
 `,
 	// *******************************
@@ -139,7 +183,7 @@ func (r *$FuncName$+Results) $FldName$+Exists() bool {
 	"serviceFunction": `
 
 func (s *$PkgName$+Service) $FuncName() $FuncName$Kind {
-	return $FuncName$Kind{ Client$Kind: s.AsClient$Kind() }
+	return $FuncName$Kind{Client$Kind: s.AsClient$Kind()}
 }
 `,
 }

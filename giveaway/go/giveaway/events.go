@@ -8,13 +8,14 @@
 //nolint:gocritic
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type giveawayEvents struct {
 }
 
 func (e giveawayEvents) Winner(evmAddress string) {
-	wasmlib.NewEventEncoder("giveaway.winner").
-		String(evmAddress).
-		Emit()
+	evt := wasmlib.NewEventEncoder("giveaway.winner")
+	evt.Encode(wasmtypes.StringToString(evmAddress))
+	evt.Emit()
 }

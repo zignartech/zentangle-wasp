@@ -30,10 +30,12 @@
 	{{ $title := index . 0 }}
 	{{ $href := index . 1 }}
 	{{ $active := index . 2 }}
+
 	<a href="{{$href}}" class="button"
-		{{- if $active -}}
-			style="background-color: var(--header-hover-back-color)"
-		{{- end -}}
+			{{- if $active -}}
+				style="background-color: var(--header-hover-back-color)"
+			{{- end -}}
+
 	>
 		{{- $title -}}
 	</a>
@@ -42,6 +44,14 @@
 {{define "longStringCell"}}
 	{{ $longString := anythingToString . }}
 	<td title="{{$longString}}">{{ trim 100 (replace $longString "\n" "" -1) }}</td>
+{{end}}
+
+{{define "booleanValue"}}
+	<input type="checkbox" disabled ="true"
+		{{- if . -}}
+			checked
+		{{- end -}}
+	>
 {{end}}
 
 {{define "base"}}
@@ -129,16 +139,33 @@
 			.card {
 				padding: 1em;
 			}
+
+			.login_error {
+				margin: var(--universal-margin);
+				padding: calc(2 * var(--universal-padding)) var(--universal-padding);
+				border: 1px solid #d10d2f;
+				background-color: #f2bbc5;
+			}
 		</style>
 
 		<header>
 				<a class="logo" href="#" style="color: var(--light-green)">Wasp <span style="font-size: small; color: var(--gray2)">{{.Version}}</span></a>
 				{{$path := .Path}}
+				{{$isAuthenticated := .IsAuthenticated}}
 				{{range $_, $tab := .NavPages}}
-					{{ template "tab" (args $tab.Title $tab.Href (eq $path $tab.Path)) }}
+
+					{{- if $isAuthenticated}}
+						{{- if ne $tab.Title "Auth" -}}
+							{{ template "tab" (args $tab.Title $tab.Href (eq $path $tab.Path)  ) }}
+						{{end}}
+					{{else}}
+						{{- if eq $tab.Title "Auth" -}}
+							{{ template "tab" (args $tab.Title $tab.Href (eq $path $tab.Path) ) }}
+						{{end}}
+					{{end}}
 				{{end}}
 				{{range $_, $tab := .Breadcrumbs}}
-					{{ template "tab" (args (printf "🢒 %s" $tab.Title) $tab.Href (eq $path $tab.Path)) }}
+					{{ template "tab" (args (printf "🢒 %s" $tab.Title) $tab.Href (eq $path $tab.Path))}}
 				{{end}}
 		</header>
 		<main>

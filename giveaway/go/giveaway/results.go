@@ -7,36 +7,36 @@
 
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type ImmutableRuffleResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableRuffleResults) Winners() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxResultWinners])
+func (s ImmutableRuffleResults) Winners() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ResultWinners))
 }
 
 type MutableRuffleResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableRuffleResults) Winners() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultWinners])
+func (s MutableRuffleResults) Winners() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ResultWinners))
 }
 
 type ImmutableGetOwnerResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetOwnerResults) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxResultOwner])
+func (s ImmutableGetOwnerResults) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ResultOwner))
 }
 
 type MutableGetOwnerResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetOwnerResults) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxResultOwner])
+func (s MutableGetOwnerResults) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ResultOwner))
 }

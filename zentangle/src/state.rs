@@ -9,430 +9,433 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
 
 use crate::*;
-use crate::keys::*;
-use crate::structs::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableBet {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableBet {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_bet(&self, index: i32) -> ImmutableBet {
-		ImmutableBet { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_bet(&self, index: u32) -> ImmutableBet {
+		ImmutableBet { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToImmutableBet {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToImmutableBet {
     pub fn get_bet(&self, key: &str) -> ImmutableBet {
-        ImmutableBet { obj_id: self.obj_id, key_id: key.get_key_id() }
+        ImmutableBet { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToImmutablePlayerBoost {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToImmutablePlayerBoost {
     pub fn get_player_boost(&self, key: &str) -> ImmutablePlayerBoost {
-        ImmutablePlayerBoost { obj_id: self.obj_id, key_id: key.get_key_id() }
+        ImmutablePlayerBoost { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableString {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableString {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_string(&self, index: i32) -> ScImmutableString {
-        ScImmutableString::new(self.obj_id, Key32(index))
+    pub fn get_string(&self, index: u32) -> ScImmutableString {
+        ScImmutableString::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableUint32 {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableUint32 {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_uint32(&self, index: i32) -> ScImmutableUint32 {
-        ScImmutableUint32::new(self.obj_id, Key32(index))
+    pub fn get_uint32(&self, index: u32) -> ScImmutableUint32 {
+        ScImmutableUint32::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableTaggedImage {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableTaggedImage {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_tagged_image(&self, index: i32) -> ImmutableTaggedImage {
-		ImmutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_tagged_image(&self, index: u32) -> ImmutableTaggedImage {
+		ImmutableTaggedImage { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToImmutableUint64 {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToImmutableUint64 {
     pub fn get_uint64(&self, key: &str) -> ScImmutableUint64 {
-        ScImmutableUint64::new(self.obj_id, key.get_key_id())
+        ScImmutableUint64::new(self.proxy.key(&string_to_bytes(key)))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableValidTag {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableValidTag {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_valid_tag(&self, index: i32) -> ImmutableValidTag {
-		ImmutableValidTag { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_valid_tag(&self, index: u32) -> ImmutableValidTag {
+		ImmutableValidTag { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutablezentangleState {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutablezentangleState {
     pub fn bets(&self) -> ArrayOfImmutableBet {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_BETS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutableBet { obj_id: arr_id }
+		ArrayOfImmutableBet { proxy: self.proxy.root(STATE_BETS) }
 	}
 
     pub fn complete_images(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_COMPLETE_IMAGES))
+		ScImmutableUint32::new(self.proxy.root(STATE_COMPLETE_IMAGES))
 	}
 
     pub fn creator(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_STATE_CREATOR))
+		ScImmutableAgentID::new(self.proxy.root(STATE_CREATOR))
 	}
 
     pub fn description(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_STATE_DESCRIPTION))
+		ScImmutableString::new(self.proxy.root(STATE_DESCRIPTION))
 	}
 
     pub fn number_of_images(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
+		ScImmutableUint32::new(self.proxy.root(STATE_NUMBER_OF_IMAGES))
 	}
 
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(STATE_OWNER))
 	}
 
     pub fn pending_play(&self) -> MapStringToImmutableBet {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAY), TYPE_MAP);
-		MapStringToImmutableBet { obj_id: map_id }
+		MapStringToImmutableBet { proxy: self.proxy.root(STATE_PENDING_PLAY) }
 	}
 
     pub fn pending_plays(&self) -> ArrayOfImmutableBet {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutableBet { obj_id: arr_id }
+		ArrayOfImmutableBet { proxy: self.proxy.root(STATE_PENDING_PLAYS) }
 	}
 
     pub fn player_boost(&self) -> MapStringToImmutablePlayerBoost {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER_BOOST), TYPE_MAP);
-		MapStringToImmutablePlayerBoost { obj_id: map_id }
+		MapStringToImmutablePlayerBoost { proxy: self.proxy.root(STATE_PLAYER_BOOST) }
 	}
 
     pub fn players_boost(&self) -> ArrayOfImmutableString {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_STRING);
-		ArrayOfImmutableString { obj_id: arr_id }
+		ArrayOfImmutableString { proxy: self.proxy.root(STATE_PLAYERS_BOOST) }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfImmutableUint32 {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
-		ArrayOfImmutableUint32 { obj_id: arr_id }
+		ArrayOfImmutableUint32 { proxy: self.proxy.root(STATE_PLAYS_PER_IMAGE) }
 	}
 
     pub fn plays_required_per_image(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_STATE_PLAYS_REQUIRED_PER_IMAGE))
+		ScImmutableUint32::new(self.proxy.root(STATE_PLAYS_REQUIRED_PER_IMAGE))
 	}
 
     pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutableTaggedImage { obj_id: arr_id }
+		ArrayOfImmutableTaggedImage { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
 	}
 
     pub fn reward(&self) -> ScImmutableUint64 {
-		ScImmutableUint64::new(self.id, idx_map(IDX_STATE_REWARD))
+		ScImmutableUint64::new(self.proxy.root(STATE_REWARD))
 	}
 
     pub fn tagged_images(&self) -> ArrayOfImmutableTaggedImage {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutableTaggedImage { obj_id: arr_id }
+		ArrayOfImmutableTaggedImage { proxy: self.proxy.root(STATE_TAGGED_IMAGES) }
 	}
 
     pub fn total_player_tags(&self) -> MapStringToImmutableUint64 {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
-		MapStringToImmutableUint64 { obj_id: map_id }
+		MapStringToImmutableUint64 { proxy: self.proxy.root(STATE_TOTAL_PLAYER_TAGS) }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfImmutableValidTag {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_VALID_TAGS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfImmutableValidTag { obj_id: arr_id }
+		ArrayOfImmutableValidTag { proxy: self.proxy.root(STATE_VALID_TAGS) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableBet {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableBet {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+
+	pub fn append_bet(&self) -> MutableBet {
+		MutableBet { proxy: self.proxy.append() }
+	}
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_bet(&self, index: i32) -> MutableBet {
-		MutableBet { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_bet(&self, index: u32) -> MutableBet {
+		MutableBet { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToMutableBet {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToMutableBet {
     pub fn clear(&self) {
-        clear(self.obj_id);
+        self.proxy.clear_map();
     }
 
     pub fn get_bet(&self, key: &str) -> MutableBet {
-        MutableBet { obj_id: self.obj_id, key_id: key.get_key_id() }
+        MutableBet { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToMutablePlayerBoost {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToMutablePlayerBoost {
     pub fn clear(&self) {
-        clear(self.obj_id);
+        self.proxy.clear_map();
     }
 
     pub fn get_player_boost(&self, key: &str) -> MutablePlayerBoost {
-        MutablePlayerBoost { obj_id: self.obj_id, key_id: key.get_key_id() }
+        MutablePlayerBoost { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableString {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableString {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+	pub fn append_string(&self) -> ScMutableString {
+		ScMutableString::new(self.proxy.append())
+	}
+
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_string(&self, index: i32) -> ScMutableString {
-        ScMutableString::new(self.obj_id, Key32(index))
+    pub fn get_string(&self, index: u32) -> ScMutableString {
+        ScMutableString::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableUint32 {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableUint32 {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+	pub fn append_uint32(&self) -> ScMutableUint32 {
+		ScMutableUint32::new(self.proxy.append())
+	}
+
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_uint32(&self, index: i32) -> ScMutableUint32 {
-        ScMutableUint32::new(self.obj_id, Key32(index))
+    pub fn get_uint32(&self, index: u32) -> ScMutableUint32 {
+        ScMutableUint32::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableTaggedImage {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableTaggedImage {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+
+	pub fn append_tagged_image(&self) -> MutableTaggedImage {
+		MutableTaggedImage { proxy: self.proxy.append() }
+	}
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_tagged_image(&self, index: i32) -> MutableTaggedImage {
-		MutableTaggedImage { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_tagged_image(&self, index: u32) -> MutableTaggedImage {
+		MutableTaggedImage { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MapStringToMutableUint64 {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MapStringToMutableUint64 {
     pub fn clear(&self) {
-        clear(self.obj_id);
+        self.proxy.clear_map();
     }
 
     pub fn get_uint64(&self, key: &str) -> ScMutableUint64 {
-        ScMutableUint64::new(self.obj_id, key.get_key_id())
+        ScMutableUint64::new(self.proxy.key(&string_to_bytes(key)))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableValidTag {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableValidTag {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+
+	pub fn append_valid_tag(&self) -> MutableValidTag {
+		MutableValidTag { proxy: self.proxy.append() }
+	}
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-	pub fn get_valid_tag(&self, index: i32) -> MutableValidTag {
-		MutableValidTag { obj_id: self.obj_id, key_id: Key32(index) }
+
+	pub fn get_valid_tag(&self, index: u32) -> MutableValidTag {
+		MutableValidTag { proxy: self.proxy.index(index) }
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutablezentangleState {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutablezentangleState {
     pub fn as_immutable(&self) -> ImmutablezentangleState {
-		ImmutablezentangleState { id: self.id }
+		ImmutablezentangleState { proxy: self.proxy.root("") }
 	}
 
     pub fn bets(&self) -> ArrayOfMutableBet {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_BETS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutableBet { obj_id: arr_id }
+		ArrayOfMutableBet { proxy: self.proxy.root(STATE_BETS) }
 	}
 
     pub fn complete_images(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_STATE_COMPLETE_IMAGES))
+		ScMutableUint32::new(self.proxy.root(STATE_COMPLETE_IMAGES))
 	}
 
     pub fn creator(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_STATE_CREATOR))
+		ScMutableAgentID::new(self.proxy.root(STATE_CREATOR))
 	}
 
     pub fn description(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_STATE_DESCRIPTION))
+		ScMutableString::new(self.proxy.root(STATE_DESCRIPTION))
 	}
 
     pub fn number_of_images(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_STATE_NUMBER_OF_IMAGES))
+		ScMutableUint32::new(self.proxy.root(STATE_NUMBER_OF_IMAGES))
 	}
 
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
+		ScMutableAgentID::new(self.proxy.root(STATE_OWNER))
 	}
 
     pub fn pending_play(&self) -> MapStringToMutableBet {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAY), TYPE_MAP);
-		MapStringToMutableBet { obj_id: map_id }
+		MapStringToMutableBet { proxy: self.proxy.root(STATE_PENDING_PLAY) }
 	}
 
     pub fn pending_plays(&self) -> ArrayOfMutableBet {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PENDING_PLAYS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutableBet { obj_id: arr_id }
+		ArrayOfMutableBet { proxy: self.proxy.root(STATE_PENDING_PLAYS) }
 	}
 
     pub fn player_boost(&self) -> MapStringToMutablePlayerBoost {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYER_BOOST), TYPE_MAP);
-		MapStringToMutablePlayerBoost { obj_id: map_id }
+		MapStringToMutablePlayerBoost { proxy: self.proxy.root(STATE_PLAYER_BOOST) }
 	}
 
     pub fn players_boost(&self) -> ArrayOfMutableString {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYERS_BOOST), TYPE_ARRAY | TYPE_STRING);
-		ArrayOfMutableString { obj_id: arr_id }
+		ArrayOfMutableString { proxy: self.proxy.root(STATE_PLAYERS_BOOST) }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableUint32 {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PLAYS_PER_IMAGE), TYPE_ARRAY | TYPE_INT32);
-		ArrayOfMutableUint32 { obj_id: arr_id }
+		ArrayOfMutableUint32 { proxy: self.proxy.root(STATE_PLAYS_PER_IMAGE) }
 	}
 
     pub fn plays_required_per_image(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_STATE_PLAYS_REQUIRED_PER_IMAGE))
+		ScMutableUint32::new(self.proxy.root(STATE_PLAYS_REQUIRED_PER_IMAGE))
 	}
 
     pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_PROCESSED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutableTaggedImage { obj_id: arr_id }
+		ArrayOfMutableTaggedImage { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
 	}
 
     pub fn reward(&self) -> ScMutableUint64 {
-		ScMutableUint64::new(self.id, idx_map(IDX_STATE_REWARD))
+		ScMutableUint64::new(self.proxy.root(STATE_REWARD))
 	}
 
     pub fn tagged_images(&self) -> ArrayOfMutableTaggedImage {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_TAGGED_IMAGES), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutableTaggedImage { obj_id: arr_id }
+		ArrayOfMutableTaggedImage { proxy: self.proxy.root(STATE_TAGGED_IMAGES) }
 	}
 
     pub fn total_player_tags(&self) -> MapStringToMutableUint64 {
-		let map_id = get_object_id(self.id, idx_map(IDX_STATE_TOTAL_PLAYER_TAGS), TYPE_MAP);
-		MapStringToMutableUint64 { obj_id: map_id }
+		MapStringToMutableUint64 { proxy: self.proxy.root(STATE_TOTAL_PLAYER_TAGS) }
 	}
 
     pub fn valid_tags(&self) -> ArrayOfMutableValidTag {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_VALID_TAGS), TYPE_ARRAY | TYPE_BYTES);
-		ArrayOfMutableValidTag { obj_id: arr_id }
+		ArrayOfMutableValidTag { proxy: self.proxy.root(STATE_VALID_TAGS) }
 	}
 }

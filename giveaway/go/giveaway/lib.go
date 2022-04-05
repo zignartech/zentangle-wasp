@@ -8,20 +8,36 @@
 //nolint:dupl
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 
-func OnLoad() {
-	exports := wasmlib.NewScExports()
-	exports.AddFunc(FuncInit,            funcInitThunk)
-	exports.AddFunc(FuncLoadAddresses,   funcLoadAddressesThunk)
-	exports.AddFunc(FuncRuffle,          funcRuffleThunk)
-	exports.AddFunc(FuncSetOwner,        funcSetOwnerThunk)
-	exports.AddFunc(FuncUnloadAddresses, funcUnloadAddressesThunk)
-	exports.AddView(ViewGetOwner,        viewGetOwnerThunk)
+var exportMap = wasmlib.ScExportMap{
+	Names: []string{
+    	FuncInit,
+    	FuncLoadAddresses,
+    	FuncRuffle,
+    	FuncSetOwner,
+    	FuncUnloadAddresses,
+    	ViewGetOwner,
+	},
+	Funcs: []wasmlib.ScFuncContextFunction{
+    	funcInitThunk,
+    	funcLoadAddressesThunk,
+    	funcRuffleThunk,
+    	funcSetOwnerThunk,
+    	funcUnloadAddressesThunk,
+	},
+	Views: []wasmlib.ScViewContextFunction{
+    	viewGetOwnerThunk,
+	},
+}
 
-	for i, key := range keyMap {
-		idxMap[i] = key.KeyID()
+func OnLoad(index int32) {
+	if index >= 0 {
+		wasmlib.ScExportsCall(index, &exportMap)
+		return
 	}
+
+	wasmlib.ScExportsExport(&exportMap)
 }
 
 type InitContext struct {
@@ -34,10 +50,10 @@ func funcInitThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("giveaway.funcInit")
 	f := &InitContext{
 		Params: ImmutableInitParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		State: MutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	funcInit(ctx, f)
@@ -52,20 +68,20 @@ type LoadAddressesContext struct {
 
 func funcLoadAddressesThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("giveaway.funcLoadAddresses")
+	f := &LoadAddressesContext{
+		Params: ImmutableLoadAddressesParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablegiveawayState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &LoadAddressesContext{
-		Params: ImmutableLoadAddressesParams{
-			id: wasmlib.OBJ_ID_PARAMS,
-		},
-		State: MutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	ctx.Require(f.Params.Addresses().Exists(), "missing mandatory addresses")
 	funcLoadAddresses(ctx, f)
 	ctx.Log("giveaway.funcLoadAddresses ok")
@@ -80,25 +96,27 @@ type RuffleContext struct {
 
 func funcRuffleThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("giveaway.funcRuffle")
+	results := wasmlib.NewScDict()
+	f := &RuffleContext{
+		Params: ImmutableRuffleParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		Results: MutableRuffleResults{
+			proxy: results.AsProxy(),
+		},
+		State: MutablegiveawayState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &RuffleContext{
-		Params: ImmutableRuffleParams{
-			id: wasmlib.OBJ_ID_PARAMS,
-		},
-		Results: MutableRuffleResults{
-			id: wasmlib.OBJ_ID_RESULTS,
-		},
-		State: MutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	ctx.Require(f.Params.NWinners().Exists(), "missing mandatory nWinners")
 	funcRuffle(ctx, f)
+	ctx.Results(results)
 	ctx.Log("giveaway.funcRuffle ok")
 }
 
@@ -110,20 +128,20 @@ type SetOwnerContext struct {
 
 func funcSetOwnerThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("giveaway.funcSetOwner")
+	f := &SetOwnerContext{
+		Params: ImmutableSetOwnerParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablegiveawayState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &SetOwnerContext{
-		Params: ImmutableSetOwnerParams{
-			id: wasmlib.OBJ_ID_PARAMS,
-		},
-		State: MutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	ctx.Require(f.Params.Owner().Exists(), "missing mandatory owner")
 	funcSetOwner(ctx, f)
 	ctx.Log("giveaway.funcSetOwner ok")
@@ -136,17 +154,17 @@ type UnloadAddressesContext struct {
 
 func funcUnloadAddressesThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("giveaway.funcUnloadAddresses")
+	f := &UnloadAddressesContext{
+		State: MutablegiveawayState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &UnloadAddressesContext{
-		State: MutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	funcUnloadAddresses(ctx, f)
 	ctx.Log("giveaway.funcUnloadAddresses ok")
 }
@@ -158,14 +176,16 @@ type GetOwnerContext struct {
 
 func viewGetOwnerThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("giveaway.viewGetOwner")
+	results := wasmlib.NewScDict()
 	f := &GetOwnerContext{
 		Results: MutableGetOwnerResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablegiveawayState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	viewGetOwner(ctx, f)
+	ctx.Results(results)
 	ctx.Log("giveaway.viewGetOwner ok")
 }

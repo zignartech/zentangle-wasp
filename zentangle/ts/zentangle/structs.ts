@@ -5,294 +5,238 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 
 export class Bet {
-    amount  : u64 = 0; 
-    imageId : u32 = 0; 
-    player  : wasmlib.ScAddress = new wasmlib.ScAddress();  // player placing the bet
+	amount  : u64 = 0; 
+	imageId : u32 = 0; 
+	player  : wasmtypes.ScAddress = new wasmtypes.ScAddress();  // player placing the bet
 
-    static fromBytes(bytes: u8[]): Bet {
-        let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new Bet();
-        data.amount  = decode.uint64();
-        data.imageId = decode.uint32();
-        data.player  = decode.address();
-        decode.close();
-        return data;
-    }
+	static fromBytes(buf: u8[]): Bet {
+		const dec = new wasmtypes.WasmDecoder(buf);
+		const data = new Bet();
+		data.amount  = wasmtypes.uint64Decode(dec);
+		data.imageId = wasmtypes.uint32Decode(dec);
+		data.player  = wasmtypes.addressDecode(dec);
+		dec.close();
+		return data;
+	}
 
-    bytes(): u8[] {
-        return new wasmlib.BytesEncoder().
-		    uint64(this.amount).
-		    uint32(this.imageId).
-		    address(this.player).
-            data();
-    }
+	bytes(): u8[] {
+		const enc = new wasmtypes.WasmEncoder();
+		wasmtypes.uint64Encode(enc, this.amount);
+		wasmtypes.uint32Encode(enc, this.imageId);
+		wasmtypes.addressEncode(enc, this.player);
+		return enc.buf();
+	}
 }
 
-export class ImmutableBet {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class ImmutableBet extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
-
-    value(): Bet {
-        return Bet.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): Bet {
+		return Bet.fromBytes(this.proxy.get());
+	}
 }
 
-export class MutableBet {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class MutableBet extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	delete(): void {
+		this.proxy.delete();
+	}
 
-    delete(): void {
-        wasmlib.delKey(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	setValue(value: Bet): void {
+		this.proxy.set(value.bytes());
+	}
 
-    setValue(value: Bet): void {
-        wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
-    }
-
-    value(): Bet {
-        return Bet.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): Bet {
+		return Bet.fromBytes(this.proxy.get());
+	}
 }
 
 export class PlayerBoost {
-    nDoubleBoosts  : u64 = 0;  // Number of 2x boost used in the round
-    nTags          : u64 = 0;  // Number of tags made by the player in the current round
-    nTrippleBoosts : u64 = 0;  // Number of 3x boosts used in the round
-    nValidTags     : u64 = 0;  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
-    player         : wasmlib.ScAgentID = new wasmlib.ScAgentID();  // The player's AgentId
+	nDoubleBoosts  : u64 = 0;  // Number of 2x boost used in the round
+	nTags          : u64 = 0;  // Number of tags made by the player in the current round
+	nTrippleBoosts : u64 = 0;  // Number of 3x boosts used in the round
+	nValidTags     : u64 = 0;  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
+	player         : wasmtypes.ScAgentID = wasmtypes.agentIDFromBytes([]);  // The player's AgentId
 
-    static fromBytes(bytes: u8[]): PlayerBoost {
-        let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new PlayerBoost();
-        data.nDoubleBoosts  = decode.uint64();
-        data.nTags          = decode.uint64();
-        data.nTrippleBoosts = decode.uint64();
-        data.nValidTags     = decode.uint64();
-        data.player         = decode.agentID();
-        decode.close();
-        return data;
-    }
+	static fromBytes(buf: u8[]): PlayerBoost {
+		const dec = new wasmtypes.WasmDecoder(buf);
+		const data = new PlayerBoost();
+		data.nDoubleBoosts  = wasmtypes.uint64Decode(dec);
+		data.nTags          = wasmtypes.uint64Decode(dec);
+		data.nTrippleBoosts = wasmtypes.uint64Decode(dec);
+		data.nValidTags     = wasmtypes.uint64Decode(dec);
+		data.player         = wasmtypes.agentIDDecode(dec);
+		dec.close();
+		return data;
+	}
 
-    bytes(): u8[] {
-        return new wasmlib.BytesEncoder().
-		    uint64(this.nDoubleBoosts).
-		    uint64(this.nTags).
-		    uint64(this.nTrippleBoosts).
-		    uint64(this.nValidTags).
-		    agentID(this.player).
-            data();
-    }
+	bytes(): u8[] {
+		const enc = new wasmtypes.WasmEncoder();
+		wasmtypes.uint64Encode(enc, this.nDoubleBoosts);
+		wasmtypes.uint64Encode(enc, this.nTags);
+		wasmtypes.uint64Encode(enc, this.nTrippleBoosts);
+		wasmtypes.uint64Encode(enc, this.nValidTags);
+		wasmtypes.agentIDEncode(enc, this.player);
+		return enc.buf();
+	}
 }
 
-export class ImmutablePlayerBoost {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class ImmutablePlayerBoost extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
-
-    value(): PlayerBoost {
-        return PlayerBoost.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): PlayerBoost {
+		return PlayerBoost.fromBytes(this.proxy.get());
+	}
 }
 
-export class MutablePlayerBoost {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class MutablePlayerBoost extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	delete(): void {
+		this.proxy.delete();
+	}
 
-    delete(): void {
-        wasmlib.delKey(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	setValue(value: PlayerBoost): void {
+		this.proxy.set(value.bytes());
+	}
 
-    setValue(value: PlayerBoost): void {
-        wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
-    }
-
-    value(): PlayerBoost {
-        return PlayerBoost.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): PlayerBoost {
+		return PlayerBoost.fromBytes(this.proxy.get());
+	}
 }
 
 export class TaggedImage {
-    boost   : string = "";  // if the tags will be boosted or not
-    h       : string = "";  // heights of the Tags
-    imageId : i32 = 0;  // the only signed integer (It is -1 by default)
-    player  : wasmlib.ScAddress = new wasmlib.ScAddress();  // player that has tagged this image
-    w       : string = "";  // widths of the Tags
-    x       : string = "";  // x top-left positions of the Tags
-    y       : string = "";  // y top-left positions of the Tags
+	boost   : string = "";  // if the tags will be boosted or not
+	h       : string = "";  // heights of the Tags
+	imageId : i32 = 0;  // the only signed integer (It is -1 by default)
+	player  : wasmtypes.ScAddress = new wasmtypes.ScAddress();  // player that has tagged this image
+	w       : string = "";  // widths of the Tags
+	x       : string = "";  // x top-left positions of the Tags
+	y       : string = "";  // y top-left positions of the Tags
 
-    static fromBytes(bytes: u8[]): TaggedImage {
-        let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new TaggedImage();
-        data.boost   = decode.string();
-        data.h       = decode.string();
-        data.imageId = decode.int32();
-        data.player  = decode.address();
-        data.w       = decode.string();
-        data.x       = decode.string();
-        data.y       = decode.string();
-        decode.close();
-        return data;
-    }
+	static fromBytes(buf: u8[]): TaggedImage {
+		const dec = new wasmtypes.WasmDecoder(buf);
+		const data = new TaggedImage();
+		data.boost   = wasmtypes.stringDecode(dec);
+		data.h       = wasmtypes.stringDecode(dec);
+		data.imageId = wasmtypes.int32Decode(dec);
+		data.player  = wasmtypes.addressDecode(dec);
+		data.w       = wasmtypes.stringDecode(dec);
+		data.x       = wasmtypes.stringDecode(dec);
+		data.y       = wasmtypes.stringDecode(dec);
+		dec.close();
+		return data;
+	}
 
-    bytes(): u8[] {
-        return new wasmlib.BytesEncoder().
-		    string(this.boost).
-		    string(this.h).
-		    int32(this.imageId).
-		    address(this.player).
-		    string(this.w).
-		    string(this.x).
-		    string(this.y).
-            data();
-    }
+	bytes(): u8[] {
+		const enc = new wasmtypes.WasmEncoder();
+		wasmtypes.stringEncode(enc, this.boost);
+		wasmtypes.stringEncode(enc, this.h);
+		wasmtypes.int32Encode(enc, this.imageId);
+		wasmtypes.addressEncode(enc, this.player);
+		wasmtypes.stringEncode(enc, this.w);
+		wasmtypes.stringEncode(enc, this.x);
+		wasmtypes.stringEncode(enc, this.y);
+		return enc.buf();
+	}
 }
 
-export class ImmutableTaggedImage {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class ImmutableTaggedImage extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
-
-    value(): TaggedImage {
-        return TaggedImage.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): TaggedImage {
+		return TaggedImage.fromBytes(this.proxy.get());
+	}
 }
 
-export class MutableTaggedImage {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class MutableTaggedImage extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	delete(): void {
+		this.proxy.delete();
+	}
 
-    delete(): void {
-        wasmlib.delKey(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	setValue(value: TaggedImage): void {
+		this.proxy.set(value.bytes());
+	}
 
-    setValue(value: TaggedImage): void {
-        wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
-    }
-
-    value(): TaggedImage {
-        return TaggedImage.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): TaggedImage {
+		return TaggedImage.fromBytes(this.proxy.get());
+	}
 }
 
 export class ValidTag {
-    playTagId   : u32 = 0;  // Identifier to distinguish different tags in the same play
-    player      : wasmlib.ScAddress = new wasmlib.ScAddress();  // player placing the bet
-    taggedImage : u32 = 0; 
+	playTagId   : u32 = 0;  // Identifier to distinguish different tags in the same play
+	player      : wasmtypes.ScAddress = new wasmtypes.ScAddress();  // player placing the bet
+	taggedImage : u32 = 0; 
 
-    static fromBytes(bytes: u8[]): ValidTag {
-        let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new ValidTag();
-        data.playTagId   = decode.uint32();
-        data.player      = decode.address();
-        data.taggedImage = decode.uint32();
-        decode.close();
-        return data;
-    }
+	static fromBytes(buf: u8[]): ValidTag {
+		const dec = new wasmtypes.WasmDecoder(buf);
+		const data = new ValidTag();
+		data.playTagId   = wasmtypes.uint32Decode(dec);
+		data.player      = wasmtypes.addressDecode(dec);
+		data.taggedImage = wasmtypes.uint32Decode(dec);
+		dec.close();
+		return data;
+	}
 
-    bytes(): u8[] {
-        return new wasmlib.BytesEncoder().
-		    uint32(this.playTagId).
-		    address(this.player).
-		    uint32(this.taggedImage).
-            data();
-    }
+	bytes(): u8[] {
+		const enc = new wasmtypes.WasmEncoder();
+		wasmtypes.uint32Encode(enc, this.playTagId);
+		wasmtypes.addressEncode(enc, this.player);
+		wasmtypes.uint32Encode(enc, this.taggedImage);
+		return enc.buf();
+	}
 }
 
-export class ImmutableValidTag {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class ImmutableValidTag extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
-
-    value(): ValidTag {
-        return ValidTag.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): ValidTag {
+		return ValidTag.fromBytes(this.proxy.get());
+	}
 }
 
-export class MutableValidTag {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class MutableValidTag extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	delete(): void {
+		this.proxy.delete();
+	}
 
-    delete(): void {
-        wasmlib.delKey(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	setValue(value: ValidTag): void {
+		this.proxy.set(value.bytes());
+	}
 
-    setValue(value: ValidTag): void {
-        wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
-    }
-
-    value(): ValidTag {
-        return ValidTag.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): ValidTag {
+		return ValidTag.fromBytes(this.proxy.get());
+	}
 }

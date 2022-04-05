@@ -7,7 +7,7 @@
 
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 
 type InitCall struct {
 	Func    *wasmlib.ScInitFunc
@@ -44,26 +44,27 @@ type Funcs struct{}
 var ScFuncs Funcs
 
 func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
-	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit, keyMap[:], idxMap[:])}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
 func (sc Funcs) LoadAddresses(ctx wasmlib.ScFuncCallContext) *LoadAddressesCall {
 	f := &LoadAddressesCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncLoadAddresses)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
 func (sc Funcs) Ruffle(ctx wasmlib.ScFuncCallContext) *RuffleCall {
 	f := &RuffleCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncRuffle)}
-	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
+	wasmlib.NewCallResultsProxy(&f.Func.ScView, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
 	f := &SetOwnerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetOwner)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
@@ -73,6 +74,6 @@ func (sc Funcs) UnloadAddresses(ctx wasmlib.ScFuncCallContext) *UnloadAddressesC
 
 func (sc Funcs) GetOwner(ctx wasmlib.ScViewCallContext) *GetOwnerCall {
 	f := &GetOwnerCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetOwner)}
-	f.Func.SetPtrs(nil, &f.Results.id)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }

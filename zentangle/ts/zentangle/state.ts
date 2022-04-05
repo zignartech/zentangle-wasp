@@ -5,435 +5,353 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 import * as sc from "./index";
 
-export class ArrayOfImmutableBet {
-	objID: i32;
+export class ArrayOfImmutableBet extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
+	length(): u32 {
+		return this.proxy.length();
+	}
 
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getBet(index: i32): sc.ImmutableBet {
-		return new sc.ImmutableBet(this.objID, new wasmlib.Key32(index));
+	getBet(index: u32): sc.ImmutableBet {
+		return new sc.ImmutableBet(this.proxy.index(index));
 	}
 }
 
-export class MapStringToImmutableBet {
-	objID: i32;
+export class MapStringToImmutableBet extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    getBet(key: string): sc.ImmutableBet {
-        return new sc.ImmutableBet(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class MapStringToImmutablePlayerBoost {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    getPlayerBoost(key: string): sc.ImmutablePlayerBoost {
-        return new sc.ImmutablePlayerBoost(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class ArrayOfImmutableString {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-    getString(index: i32): wasmlib.ScImmutableString {
-        return new wasmlib.ScImmutableString(this.objID, new wasmlib.Key32(index));
-    }
-}
-
-export class ArrayOfImmutableUint32 {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-    getUint32(index: i32): wasmlib.ScImmutableUint32 {
-        return new wasmlib.ScImmutableUint32(this.objID, new wasmlib.Key32(index));
-    }
-}
-
-export class ArrayOfImmutableTaggedImage {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getTaggedImage(index: i32): sc.ImmutableTaggedImage {
-		return new sc.ImmutableTaggedImage(this.objID, new wasmlib.Key32(index));
+	getBet(key: string): sc.ImmutableBet {
+		return new sc.ImmutableBet(this.proxy.key(wasmtypes.stringToBytes(key)));
 	}
 }
 
-export class MapStringToImmutableUint64 {
-	objID: i32;
+export class MapStringToImmutablePlayerBoost extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    getUint64(key: string): wasmlib.ScImmutableUint64 {
-        return new wasmlib.ScImmutableUint64(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class ArrayOfImmutableValidTag {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getValidTag(index: i32): sc.ImmutableValidTag {
-		return new sc.ImmutableValidTag(this.objID, new wasmlib.Key32(index));
+	getPlayerBoost(key: string): sc.ImmutablePlayerBoost {
+		return new sc.ImmutablePlayerBoost(this.proxy.key(wasmtypes.stringToBytes(key)));
 	}
 }
 
-export class ImmutablezentangleState extends wasmlib.ScMapID {
-    bets(): sc.ArrayOfImmutableBet {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateBets], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfImmutableBet(arrID);
+export class ArrayOfImmutableString extends wasmtypes.ScProxy {
+
+	length(): u32 {
+		return this.proxy.length();
 	}
 
-    completeImages(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStateCompleteImages]);
-	}
-
-    creator(): wasmlib.ScImmutableAgentID {
-		return new wasmlib.ScImmutableAgentID(this.mapID, sc.idxMap[sc.IdxStateCreator]);
-	}
-
-    description(): wasmlib.ScImmutableString {
-		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxStateDescription]);
-	}
-
-    numberOfImages(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
-	}
-
-    owner(): wasmlib.ScImmutableAgentID {
-		return new wasmlib.ScImmutableAgentID(this.mapID, sc.idxMap[sc.IdxStateOwner]);
-	}
-
-    pendingPlay(): sc.MapStringToImmutableBet {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlay], wasmlib.TYPE_MAP);
-		return new sc.MapStringToImmutableBet(mapID);
-	}
-
-    pendingPlays(): sc.ArrayOfImmutableBet {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfImmutableBet(arrID);
-	}
-
-    playerBoost(): sc.MapStringToImmutablePlayerBoost {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayerBoost], wasmlib.TYPE_MAP);
-		return new sc.MapStringToImmutablePlayerBoost(mapID);
-	}
-
-    playersBoost(): sc.ArrayOfImmutableString {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING);
-		return new sc.ArrayOfImmutableString(arrID);
-	}
-
-    playsPerImage(): sc.ArrayOfImmutableUint32 {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlaysPerImage], wasmlib.TYPE_ARRAY|wasmlib.TYPE_INT32);
-		return new sc.ArrayOfImmutableUint32(arrID);
-	}
-
-    playsRequiredPerImage(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxStatePlaysRequiredPerImage]);
-	}
-
-    processedImages(): sc.ArrayOfImmutableTaggedImage {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateProcessedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfImmutableTaggedImage(arrID);
-	}
-
-    reward(): wasmlib.ScImmutableUint64 {
-		return new wasmlib.ScImmutableUint64(this.mapID, sc.idxMap[sc.IdxStateReward]);
-	}
-
-    taggedImages(): sc.ArrayOfImmutableTaggedImage {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTaggedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfImmutableTaggedImage(arrID);
-	}
-
-    totalPlayerTags(): sc.MapStringToImmutableUint64 {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTotalPlayerTags], wasmlib.TYPE_MAP);
-		return new sc.MapStringToImmutableUint64(mapID);
-	}
-
-    validTags(): sc.ArrayOfImmutableValidTag {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateValidTags], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfImmutableValidTag(arrID);
+	getString(index: u32): wasmtypes.ScImmutableString {
+		return new wasmtypes.ScImmutableString(this.proxy.index(index));
 	}
 }
 
-export class ArrayOfMutableBet {
-	objID: i32;
+export class ArrayOfImmutableUint32 extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
+	length(): u32 {
+		return this.proxy.length();
+	}
 
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getBet(index: i32): sc.MutableBet {
-		return new sc.MutableBet(this.objID, new wasmlib.Key32(index));
+	getUint32(index: u32): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.index(index));
 	}
 }
 
-export class MapStringToMutableBet {
-	objID: i32;
+export class ArrayOfImmutableTaggedImage extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
+	length(): u32 {
+		return this.proxy.length();
+	}
 
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    getBet(key: string): sc.MutableBet {
-        return new sc.MutableBet(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class MapStringToMutablePlayerBoost {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    getPlayerBoost(key: string): sc.MutablePlayerBoost {
-        return new sc.MutablePlayerBoost(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class ArrayOfMutableString {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-    getString(index: i32): wasmlib.ScMutableString {
-        return new wasmlib.ScMutableString(this.objID, new wasmlib.Key32(index));
-    }
-}
-
-export class ArrayOfMutableUint32 {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-    getUint32(index: i32): wasmlib.ScMutableUint32 {
-        return new wasmlib.ScMutableUint32(this.objID, new wasmlib.Key32(index));
-    }
-}
-
-export class ArrayOfMutableTaggedImage {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getTaggedImage(index: i32): sc.MutableTaggedImage {
-		return new sc.MutableTaggedImage(this.objID, new wasmlib.Key32(index));
+	getTaggedImage(index: u32): sc.ImmutableTaggedImage {
+		return new sc.ImmutableTaggedImage(this.proxy.index(index));
 	}
 }
 
-export class MapStringToMutableUint64 {
-	objID: i32;
+export class MapStringToImmutableUint64 extends wasmtypes.ScProxy {
 
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    getUint64(key: string): wasmlib.ScMutableUint64 {
-        return new wasmlib.ScMutableUint64(this.objID, wasmlib.Key32.fromString(key));
-    }
-}
-
-export class ArrayOfMutableValidTag {
-	objID: i32;
-
-    constructor(objID: i32) {
-        this.objID = objID;
-    }
-
-    clear(): void {
-        wasmlib.clear(this.objID);
-    }
-
-    length(): i32 {
-        return wasmlib.getLength(this.objID);
-    }
-
-	getValidTag(index: i32): sc.MutableValidTag {
-		return new sc.MutableValidTag(this.objID, new wasmlib.Key32(index));
+	getUint64(key: string): wasmtypes.ScImmutableUint64 {
+		return new wasmtypes.ScImmutableUint64(this.proxy.key(wasmtypes.stringToBytes(key)));
 	}
 }
 
-export class MutablezentangleState extends wasmlib.ScMapID {
-    asImmutable(): sc.ImmutablezentangleState {
-		const imm = new sc.ImmutablezentangleState();
-		imm.mapID = this.mapID;
-		return imm;
+export class ArrayOfImmutableValidTag extends wasmtypes.ScProxy {
+
+	length(): u32 {
+		return this.proxy.length();
 	}
 
-    bets(): sc.ArrayOfMutableBet {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateBets], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfMutableBet(arrID);
+	getValidTag(index: u32): sc.ImmutableValidTag {
+		return new sc.ImmutableValidTag(this.proxy.index(index));
+	}
+}
+
+export class ImmutablezentangleState extends wasmtypes.ScProxy {
+	bets(): sc.ArrayOfImmutableBet {
+		return new sc.ArrayOfImmutableBet(this.proxy.root(sc.StateBets));
 	}
 
-    completeImages(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStateCompleteImages]);
+	completeImages(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.StateCompleteImages));
 	}
 
-    creator(): wasmlib.ScMutableAgentID {
-		return new wasmlib.ScMutableAgentID(this.mapID, sc.idxMap[sc.IdxStateCreator]);
+	creator(): wasmtypes.ScImmutableAgentID {
+		return new wasmtypes.ScImmutableAgentID(this.proxy.root(sc.StateCreator));
 	}
 
-    description(): wasmlib.ScMutableString {
-		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxStateDescription]);
+	description(): wasmtypes.ScImmutableString {
+		return new wasmtypes.ScImmutableString(this.proxy.root(sc.StateDescription));
 	}
 
-    numberOfImages(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStateNumberOfImages]);
+	numberOfImages(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.StateNumberOfImages));
 	}
 
-    owner(): wasmlib.ScMutableAgentID {
-		return new wasmlib.ScMutableAgentID(this.mapID, sc.idxMap[sc.IdxStateOwner]);
+	owner(): wasmtypes.ScImmutableAgentID {
+		return new wasmtypes.ScImmutableAgentID(this.proxy.root(sc.StateOwner));
 	}
 
-    pendingPlay(): sc.MapStringToMutableBet {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlay], wasmlib.TYPE_MAP);
-		return new sc.MapStringToMutableBet(mapID);
+	pendingPlay(): sc.MapStringToImmutableBet {
+		return new sc.MapStringToImmutableBet(this.proxy.root(sc.StatePendingPlay));
 	}
 
-    pendingPlays(): sc.ArrayOfMutableBet {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePendingPlays], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfMutableBet(arrID);
+	pendingPlays(): sc.ArrayOfImmutableBet {
+		return new sc.ArrayOfImmutableBet(this.proxy.root(sc.StatePendingPlays));
 	}
 
-    playerBoost(): sc.MapStringToMutablePlayerBoost {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayerBoost], wasmlib.TYPE_MAP);
-		return new sc.MapStringToMutablePlayerBoost(mapID);
+	playerBoost(): sc.MapStringToImmutablePlayerBoost {
+		return new sc.MapStringToImmutablePlayerBoost(this.proxy.root(sc.StatePlayerBoost));
 	}
 
-    playersBoost(): sc.ArrayOfMutableString {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlayersBoost], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING);
-		return new sc.ArrayOfMutableString(arrID);
+	playersBoost(): sc.ArrayOfImmutableString {
+		return new sc.ArrayOfImmutableString(this.proxy.root(sc.StatePlayersBoost));
 	}
 
-    playsPerImage(): sc.ArrayOfMutableUint32 {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStatePlaysPerImage], wasmlib.TYPE_ARRAY|wasmlib.TYPE_INT32);
-		return new sc.ArrayOfMutableUint32(arrID);
+	playsPerImage(): sc.ArrayOfImmutableUint32 {
+		return new sc.ArrayOfImmutableUint32(this.proxy.root(sc.StatePlaysPerImage));
 	}
 
-    playsRequiredPerImage(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxStatePlaysRequiredPerImage]);
+	playsRequiredPerImage(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.StatePlaysRequiredPerImage));
 	}
 
-    processedImages(): sc.ArrayOfMutableTaggedImage {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateProcessedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfMutableTaggedImage(arrID);
+	processedImages(): sc.ArrayOfImmutableTaggedImage {
+		return new sc.ArrayOfImmutableTaggedImage(this.proxy.root(sc.StateProcessedImages));
 	}
 
-    reward(): wasmlib.ScMutableUint64 {
-		return new wasmlib.ScMutableUint64(this.mapID, sc.idxMap[sc.IdxStateReward]);
+	reward(): wasmtypes.ScImmutableUint64 {
+		return new wasmtypes.ScImmutableUint64(this.proxy.root(sc.StateReward));
 	}
 
-    taggedImages(): sc.ArrayOfMutableTaggedImage {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTaggedImages], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfMutableTaggedImage(arrID);
+	taggedImages(): sc.ArrayOfImmutableTaggedImage {
+		return new sc.ArrayOfImmutableTaggedImage(this.proxy.root(sc.StateTaggedImages));
 	}
 
-    totalPlayerTags(): sc.MapStringToMutableUint64 {
-		let mapID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateTotalPlayerTags], wasmlib.TYPE_MAP);
-		return new sc.MapStringToMutableUint64(mapID);
+	totalPlayerTags(): sc.MapStringToImmutableUint64 {
+		return new sc.MapStringToImmutableUint64(this.proxy.root(sc.StateTotalPlayerTags));
 	}
 
-    validTags(): sc.ArrayOfMutableValidTag {
-		let arrID = wasmlib.getObjectID(this.mapID, sc.idxMap[sc.IdxStateValidTags], wasmlib.TYPE_ARRAY|wasmlib.TYPE_BYTES);
-		return new sc.ArrayOfMutableValidTag(arrID);
+	validTags(): sc.ArrayOfImmutableValidTag {
+		return new sc.ArrayOfImmutableValidTag(this.proxy.root(sc.StateValidTags));
+	}
+}
+
+export class ArrayOfMutableBet extends wasmtypes.ScProxy {
+
+	appendBet(): sc.MutableBet {
+		return new sc.MutableBet(this.proxy.append());
+	}
+
+	clear(): void {
+		this.proxy.clearArray();
+	}
+
+	length(): u32 {
+		return this.proxy.length();
+	}
+
+	getBet(index: u32): sc.MutableBet {
+		return new sc.MutableBet(this.proxy.index(index));
+	}
+}
+
+export class MapStringToMutableBet extends wasmtypes.ScProxy {
+
+	clear(): void {
+		this.proxy.clearMap();
+	}
+
+	getBet(key: string): sc.MutableBet {
+		return new sc.MutableBet(this.proxy.key(wasmtypes.stringToBytes(key)));
+	}
+}
+
+export class MapStringToMutablePlayerBoost extends wasmtypes.ScProxy {
+
+	clear(): void {
+		this.proxy.clearMap();
+	}
+
+	getPlayerBoost(key: string): sc.MutablePlayerBoost {
+		return new sc.MutablePlayerBoost(this.proxy.key(wasmtypes.stringToBytes(key)));
+	}
+}
+
+export class ArrayOfMutableString extends wasmtypes.ScProxy {
+
+	appendString(): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.append());
+	}
+
+	clear(): void {
+		this.proxy.clearArray();
+	}
+
+	length(): u32 {
+		return this.proxy.length();
+	}
+
+	getString(index: u32): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.index(index));
+	}
+}
+
+export class ArrayOfMutableUint32 extends wasmtypes.ScProxy {
+
+	appendUint32(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.append());
+	}
+
+	clear(): void {
+		this.proxy.clearArray();
+	}
+
+	length(): u32 {
+		return this.proxy.length();
+	}
+
+	getUint32(index: u32): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.index(index));
+	}
+}
+
+export class ArrayOfMutableTaggedImage extends wasmtypes.ScProxy {
+
+	appendTaggedImage(): sc.MutableTaggedImage {
+		return new sc.MutableTaggedImage(this.proxy.append());
+	}
+
+	clear(): void {
+		this.proxy.clearArray();
+	}
+
+	length(): u32 {
+		return this.proxy.length();
+	}
+
+	getTaggedImage(index: u32): sc.MutableTaggedImage {
+		return new sc.MutableTaggedImage(this.proxy.index(index));
+	}
+}
+
+export class MapStringToMutableUint64 extends wasmtypes.ScProxy {
+
+	clear(): void {
+		this.proxy.clearMap();
+	}
+
+	getUint64(key: string): wasmtypes.ScMutableUint64 {
+		return new wasmtypes.ScMutableUint64(this.proxy.key(wasmtypes.stringToBytes(key)));
+	}
+}
+
+export class ArrayOfMutableValidTag extends wasmtypes.ScProxy {
+
+	appendValidTag(): sc.MutableValidTag {
+		return new sc.MutableValidTag(this.proxy.append());
+	}
+
+	clear(): void {
+		this.proxy.clearArray();
+	}
+
+	length(): u32 {
+		return this.proxy.length();
+	}
+
+	getValidTag(index: u32): sc.MutableValidTag {
+		return new sc.MutableValidTag(this.proxy.index(index));
+	}
+}
+
+export class MutablezentangleState extends wasmtypes.ScProxy {
+	asImmutable(): sc.ImmutablezentangleState {
+		return new sc.ImmutablezentangleState(this.proxy);
+	}
+
+	bets(): sc.ArrayOfMutableBet {
+		return new sc.ArrayOfMutableBet(this.proxy.root(sc.StateBets));
+	}
+
+	completeImages(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.StateCompleteImages));
+	}
+
+	creator(): wasmtypes.ScMutableAgentID {
+		return new wasmtypes.ScMutableAgentID(this.proxy.root(sc.StateCreator));
+	}
+
+	description(): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.root(sc.StateDescription));
+	}
+
+	numberOfImages(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.StateNumberOfImages));
+	}
+
+	owner(): wasmtypes.ScMutableAgentID {
+		return new wasmtypes.ScMutableAgentID(this.proxy.root(sc.StateOwner));
+	}
+
+	pendingPlay(): sc.MapStringToMutableBet {
+		return new sc.MapStringToMutableBet(this.proxy.root(sc.StatePendingPlay));
+	}
+
+	pendingPlays(): sc.ArrayOfMutableBet {
+		return new sc.ArrayOfMutableBet(this.proxy.root(sc.StatePendingPlays));
+	}
+
+	playerBoost(): sc.MapStringToMutablePlayerBoost {
+		return new sc.MapStringToMutablePlayerBoost(this.proxy.root(sc.StatePlayerBoost));
+	}
+
+	playersBoost(): sc.ArrayOfMutableString {
+		return new sc.ArrayOfMutableString(this.proxy.root(sc.StatePlayersBoost));
+	}
+
+	playsPerImage(): sc.ArrayOfMutableUint32 {
+		return new sc.ArrayOfMutableUint32(this.proxy.root(sc.StatePlaysPerImage));
+	}
+
+	playsRequiredPerImage(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.StatePlaysRequiredPerImage));
+	}
+
+	processedImages(): sc.ArrayOfMutableTaggedImage {
+		return new sc.ArrayOfMutableTaggedImage(this.proxy.root(sc.StateProcessedImages));
+	}
+
+	reward(): wasmtypes.ScMutableUint64 {
+		return new wasmtypes.ScMutableUint64(this.proxy.root(sc.StateReward));
+	}
+
+	taggedImages(): sc.ArrayOfMutableTaggedImage {
+		return new sc.ArrayOfMutableTaggedImage(this.proxy.root(sc.StateTaggedImages));
+	}
+
+	totalPlayerTags(): sc.MapStringToMutableUint64 {
+		return new sc.MapStringToMutableUint64(this.proxy.root(sc.StateTotalPlayerTags));
+	}
+
+	validTags(): sc.ArrayOfMutableValidTag {
+		return new sc.ArrayOfMutableValidTag(this.proxy.root(sc.StateValidTags));
 	}
 }

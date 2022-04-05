@@ -31,4 +31,4 @@ funcs:
 views:
   getOwner:
     results:
-      owner: AgentID // current owner of this smart contracts
+      owner: AgentID // current owner of this smart contract

@@ -9,95 +9,92 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
-
 use crate::*;
-use crate::keys::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableInitParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableInitParams {
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableInitParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableInitParams {
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScMutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableLoadAddressesParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableLoadAddressesParams {
     pub fn addresses(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_ADDRESSES))
+		ScImmutableString::new(self.proxy.root(PARAM_ADDRESSES))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableLoadAddressesParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableLoadAddressesParams {
     pub fn addresses(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_ADDRESSES))
+		ScMutableString::new(self.proxy.root(PARAM_ADDRESSES))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableRuffleParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableRuffleParams {
     pub fn n_winners(&self) -> ScImmutableInt16 {
-		ScImmutableInt16::new(self.id, idx_map(IDX_PARAM_N_WINNERS))
+		ScImmutableInt16::new(self.proxy.root(PARAM_N_WINNERS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableRuffleParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableRuffleParams {
     pub fn n_winners(&self) -> ScMutableInt16 {
-		ScMutableInt16::new(self.id, idx_map(IDX_PARAM_N_WINNERS))
+		ScMutableInt16::new(self.proxy.root(PARAM_N_WINNERS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableSetOwnerParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableSetOwnerParams {
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableSetOwnerParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableSetOwnerParams {
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScMutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }

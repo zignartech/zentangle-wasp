@@ -5,11 +5,11 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 
 export const ScName        = "zentangle";
 export const ScDescription = "Incentivized AI Training Casino";
-export const HScName       = new wasmlib.ScHname(0xf707a9c6);
+export const HScName       = new wasmtypes.ScHname(0xf707a9c6);
 
 export const ParamDescription          = "description";
 export const ParamImageId              = "imageId";
@@ -58,15 +58,15 @@ export const ViewGetPlayerInfo    = "getPlayerInfo";
 export const ViewGetPlaysPerImage = "getPlaysPerImage";
 export const ViewGetResults       = "getResults";
 
-export const HFuncCreateGame       = new wasmlib.ScHname(0x585dcce2);
-export const HFuncEndGame          = new wasmlib.ScHname(0xb2303ef2);
-export const HFuncInit             = new wasmlib.ScHname(0x1f44d644);
-export const HFuncRequestPlay      = new wasmlib.ScHname(0x74f0bf82);
-export const HFuncSendTags         = new wasmlib.ScHname(0xc31816cb);
-export const HFuncSetOwner         = new wasmlib.ScHname(0x2a15fe7b);
-export const HFuncWithdraw         = new wasmlib.ScHname(0x9dcc0f41);
-export const HViewGetOwner         = new wasmlib.ScHname(0x137107a6);
-export const HViewGetPlayerBets    = new wasmlib.ScHname(0x842b0ef5);
-export const HViewGetPlayerInfo    = new wasmlib.ScHname(0x504151da);
-export const HViewGetPlaysPerImage = new wasmlib.ScHname(0x749519e8);
-export const HViewGetResults       = new wasmlib.ScHname(0xc2ed9edb);
+export const HFuncCreateGame       = new wasmtypes.ScHname(0x585dcce2);
+export const HFuncEndGame          = new wasmtypes.ScHname(0xb2303ef2);
+export const HFuncInit             = new wasmtypes.ScHname(0x1f44d644);
+export const HFuncRequestPlay      = new wasmtypes.ScHname(0x74f0bf82);
+export const HFuncSendTags         = new wasmtypes.ScHname(0xc31816cb);
+export const HFuncSetOwner         = new wasmtypes.ScHname(0x2a15fe7b);
+export const HFuncWithdraw         = new wasmtypes.ScHname(0x9dcc0f41);
+export const HViewGetOwner         = new wasmtypes.ScHname(0x137107a6);
+export const HViewGetPlayerBets    = new wasmtypes.ScHname(0x842b0ef5);
+export const HViewGetPlayerInfo    = new wasmtypes.ScHname(0x504151da);
+export const HViewGetPlaysPerImage = new wasmtypes.ScHname(0x749519e8);
+export const HViewGetResults       = new wasmtypes.ScHname(0xc2ed9edb);

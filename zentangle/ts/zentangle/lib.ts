@@ -8,35 +8,50 @@
 import * as wasmlib from "wasmlib";
 import * as sc from "./index";
 
+const exportMap: wasmlib.ScExportMap = {
+	names: [
+		sc.FuncCreateGame,
+		sc.FuncEndGame,
+		sc.FuncInit,
+		sc.FuncRequestPlay,
+		sc.FuncSendTags,
+		sc.FuncSetOwner,
+		sc.FuncWithdraw,
+		sc.ViewGetOwner,
+		sc.ViewGetPlayerBets,
+		sc.ViewGetPlayerInfo,
+		sc.ViewGetPlaysPerImage,
+		sc.ViewGetResults,
+	],
+	funcs: [
+		funcCreateGameThunk,
+		funcEndGameThunk,
+		funcInitThunk,
+		funcRequestPlayThunk,
+		funcSendTagsThunk,
+		funcSetOwnerThunk,
+		funcWithdrawThunk,
+	],
+	views: [
+		viewGetOwnerThunk,
+		viewGetPlayerBetsThunk,
+		viewGetPlayerInfoThunk,
+		viewGetPlaysPerImageThunk,
+		viewGetResultsThunk,
+	],
+};
+
 export function on_call(index: i32): void {
-    return wasmlib.onCall(index);
+	wasmlib.ScExports.call(index, exportMap);
 }
 
 export function on_load(): void {
-    let exports = new wasmlib.ScExports();
-    exports.addFunc(sc.FuncCreateGame,       funcCreateGameThunk);
-    exports.addFunc(sc.FuncEndGame,          funcEndGameThunk);
-    exports.addFunc(sc.FuncInit,             funcInitThunk);
-    exports.addFunc(sc.FuncRequestPlay,      funcRequestPlayThunk);
-    exports.addFunc(sc.FuncSendTags,         funcSendTagsThunk);
-    exports.addFunc(sc.FuncSetOwner,         funcSetOwnerThunk);
-    exports.addFunc(sc.FuncWithdraw,         funcWithdrawThunk);
-    exports.addView(sc.ViewGetOwner,         viewGetOwnerThunk);
-    exports.addView(sc.ViewGetPlayerBets,    viewGetPlayerBetsThunk);
-    exports.addView(sc.ViewGetPlayerInfo,    viewGetPlayerInfoThunk);
-    exports.addView(sc.ViewGetPlaysPerImage, viewGetPlaysPerImageThunk);
-    exports.addView(sc.ViewGetResults,       viewGetResultsThunk);
-
-    for (let i = 0; i < sc.keyMap.length; i++) {
-        sc.idxMap[i] = wasmlib.Key32.fromString(sc.keyMap[i]);
-    }
+	wasmlib.ScExports.export(exportMap);
 }
 
 function funcCreateGameThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcCreateGame");
 	let f = new sc.CreateGameContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
 	ctx.require(f.params.description().exists(), "missing mandatory description");
 	ctx.require(f.params.numberOfImages().exists(), "missing mandatory numberOfImages");
 	sc.funcCreateGame(ctx, f);
@@ -46,8 +61,6 @@ function funcCreateGameThunk(ctx: wasmlib.ScFuncContext): void {
 function funcEndGameThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcEndGame");
 	let f = new sc.EndGameContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
 	sc.funcEndGame(ctx, f);
 	ctx.log("zentangle.funcEndGame ok");
 }
@@ -55,8 +68,6 @@ function funcEndGameThunk(ctx: wasmlib.ScFuncContext): void {
 function funcInitThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcInit");
 	let f = new sc.InitContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
 	sc.funcInit(ctx, f);
 	ctx.log("zentangle.funcInit ok");
 }
@@ -64,34 +75,33 @@ function funcInitThunk(ctx: wasmlib.ScFuncContext): void {
 function funcRequestPlayThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcRequestPlay");
 	let f = new sc.RequestPlayContext();
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableRequestPlayResults(results.asProxy());
 	sc.funcRequestPlay(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.funcRequestPlay ok");
 }
 
 function funcSendTagsThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcSendTags");
 	let f = new sc.SendTagsContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableSendTagsResults(results.asProxy());
 	ctx.require(f.params.inputJson().exists(), "missing mandatory inputJson");
 	sc.funcSendTags(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.funcSendTags ok");
 }
 
 function funcSetOwnerThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcSetOwner");
+	let f = new sc.SetOwnerContext();
 
 	// current owner of this smart contract
-	let access = ctx.state().getAgentID(wasmlib.Key32.fromString("owner"));
+	const access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller().equals(access.value()), "no permission");
 
-	let f = new sc.SetOwnerContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
 	ctx.require(f.params.owner().exists(), "missing mandatory owner");
 	sc.funcSetOwner(ctx, f);
 	ctx.log("zentangle.funcSetOwner ok");
@@ -99,14 +109,13 @@ function funcSetOwnerThunk(ctx: wasmlib.ScFuncContext): void {
 
 function funcWithdrawThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcWithdraw");
+	let f = new sc.WithdrawContext();
 
 	// current owner of this smart contract
-	let access = ctx.state().getAgentID(wasmlib.Key32.fromString("owner"));
+	const access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller().equals(access.value()), "no permission");
 
-	let f = new sc.WithdrawContext();
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
 	sc.funcWithdraw(ctx, f);
 	ctx.log("zentangle.funcWithdraw ok");
 }
@@ -114,50 +123,52 @@ function funcWithdrawThunk(ctx: wasmlib.ScFuncContext): void {
 function viewGetOwnerThunk(ctx: wasmlib.ScViewContext): void {
 	ctx.log("zentangle.viewGetOwner");
 	let f = new sc.GetOwnerContext();
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableGetOwnerResults(results.asProxy());
 	sc.viewGetOwner(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.viewGetOwner ok");
 }
 
 function viewGetPlayerBetsThunk(ctx: wasmlib.ScViewContext): void {
 	ctx.log("zentangle.viewGetPlayerBets");
 	let f = new sc.GetPlayerBetsContext();
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableGetPlayerBetsResults(results.asProxy());
 	sc.viewGetPlayerBets(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.viewGetPlayerBets ok");
 }
 
 function viewGetPlayerInfoThunk(ctx: wasmlib.ScViewContext): void {
 	ctx.log("zentangle.viewGetPlayerInfo");
 	let f = new sc.GetPlayerInfoContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableGetPlayerInfoResults(results.asProxy());
 	ctx.require(f.params.playerAddress().exists(), "missing mandatory playerAddress");
 	sc.viewGetPlayerInfo(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.viewGetPlayerInfo ok");
 }
 
 function viewGetPlaysPerImageThunk(ctx: wasmlib.ScViewContext): void {
 	ctx.log("zentangle.viewGetPlaysPerImage");
 	let f = new sc.GetPlaysPerImageContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableGetPlaysPerImageResults(results.asProxy());
 	ctx.require(f.params.imageId().exists(), "missing mandatory imageId");
 	sc.viewGetPlaysPerImage(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.viewGetPlaysPerImage ok");
 }
 
 function viewGetResultsThunk(ctx: wasmlib.ScViewContext): void {
 	ctx.log("zentangle.viewGetResults");
 	let f = new sc.GetResultsContext();
-    f.params.mapID = wasmlib.OBJ_ID_PARAMS;
-    f.results.mapID = wasmlib.OBJ_ID_RESULTS;
-    f.state.mapID = wasmlib.OBJ_ID_STATE;
+	const results = new wasmlib.ScDict([]);
+	f.results = new sc.MutableGetResultsResults(results.asProxy());
 	ctx.require(f.params.imageId().exists(), "missing mandatory imageId");
 	sc.viewGetResults(ctx, f);
+	ctx.results(results);
 	ctx.log("zentangle.viewGetResults ok");
 }

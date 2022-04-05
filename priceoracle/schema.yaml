@@ -1,0 +1,39 @@
+name: priceoracle
+description: priceoracle description
+events:
+  priceSet:
+    price: Int64 // MIOTA price (In cents)
+  price:
+    price: Int64 // MIOTA price (In cents)
+structs: {}
+typedefs: {}
+state:
+  owner: AgentID // current owner of this smart contract
+  approvedMap: map[AgentID]Bool
+  approvedList: AgentID[]
+  oraclePrice: map[AgentID]Int64
+  oracleLastUpdate: map[AgentID]Uint64
+  lastPrice: Int64 // MIOTA price (In cents)
+funcs:
+  init:
+    params:
+      owner: AgentID? // optional owner of this smart contract
+  setOwner:
+    access: owner // current owner of this smart contract
+    params:
+      owner: AgentID // new owner of this smart contract
+  setMiotaPrice:
+    params:
+      price: Int64 // MIOTA price (In cents)
+  approveOracle:
+    access: owner // current owner of this smart contract
+    params:
+      agentid: AgentID // AgentID to be aproved as an oracle to the smart contract
+  
+views:
+  getOwner:
+    results:
+      owner: AgentID // current owner of this smart contract
+  getMiotaPrice:
+    results:
+      price: Int64 // MIOTA price (In cents)

@@ -7,59 +7,57 @@
 
 package testwasmlib
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type Location struct {
 	X int32
 	Y int32
 }
 
-func NewLocationFromBytes(bytes []byte) *Location {
-	decode := wasmlib.NewBytesDecoder(bytes)
+func NewLocationFromBytes(buf []byte) *Location {
+	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &Location{}
-	data.X = decode.Int32()
-	data.Y = decode.Int32()
-	decode.Close()
+	data.X = wasmtypes.Int32Decode(dec)
+	data.Y = wasmtypes.Int32Decode(dec)
+	dec.Close()
 	return data
 }
 
 func (o *Location) Bytes() []byte {
-	return wasmlib.NewBytesEncoder().
-		Int32(o.X).
-		Int32(o.Y).
-		Data()
+	enc := wasmtypes.NewWasmEncoder()
+	wasmtypes.Int32Encode(enc, o.X)
+	wasmtypes.Int32Encode(enc, o.Y)
+	return enc.Buf()
 }
 
 type ImmutableLocation struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o ImmutableLocation) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o ImmutableLocation) Value() *Location {
-	return NewLocationFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewLocationFromBytes(o.proxy.Get())
 }
 
 type MutableLocation struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o MutableLocation) Delete() {
-	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	o.proxy.Delete()
 }
 
 func (o MutableLocation) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o MutableLocation) SetValue(value *Location) {
-	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+	o.proxy.Set(value.Bytes())
 }
 
 func (o MutableLocation) Value() *Location {
-	return NewLocationFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewLocationFromBytes(o.proxy.Get())
 }

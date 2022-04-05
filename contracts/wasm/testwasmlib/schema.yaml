@@ -2,47 +2,117 @@ name: TestWasmLib
 description: Exercise several aspects of WasmLib
 
 # ##################################
+
 events:
-# ##################################
   test:
     name: String
     address: Address
 
 # ##################################
+
 structs:
-# ##################################
-# Location:
-#   x: Int32
-#   y: Int32
+  Location:
+    x: Int32
+    y: Int32
 
 # ##################################
+
 typedefs:
-# ##################################
+  ### Array
   StringArray: String[]
-# Longitude: map[Int32]Location
+  Int32Array: Int32[]
+  Int64Array: Int64[]
+  Uint64Array: Uint64[]
+  BytesArray: Bytes[]
+  AddressArray: Address[]
+  AgentIDArray: AgentID[]
+  ChainIDArray: ChainID[]
+  ColorArray: Color[]
+  HashArray: Hash[]
+  HnameArray: Hname[]
+  RequestIDArray: RequestID[]
+  ### Map
+  StringMap: map[String]String
+  Int32Map: map[Int32]Int32
+  Int64Map: map[Int64]Int64
+  Uint64Map: map[Uint64]Uint64
+  BytesMap: map[Bytes]Bytes
+  AddressMap: map[Address]Address
+  AgentIDMap: map[AgentID]AgentID
+  ChainIDMap: map[ChainID]ChainID
+  ColorMap: map[Color]Color
+  HashMap: map[Hash]Hash
+  HnameMap: map[Hname]Hname
+  RequestIDMap: map[RequestID]RequestID
+  Longitude: map[Int32]Location
 
 # ##################################
+
 state:
-# ##################################
-  arrays: map[String]StringArray
-  random: Int64
-# latLong: map[Int32]Longitude
+  # basic value datatypes
+  stringMapOfArrays: map[String]StringArray
+  stringMapOfMaps: map[String]StringMap
+  stringArrayOfMaps: StringMap[]
+  stringArrayOfArrays: StringArray[]
+  # contracts-specific value datatypes
+  AddressArrays: map[Address]AddressArray
+  AddressMaps: map[Address]AddressMap
+  AddressMapArrays: AddressMap[]
+  AddressArrayArrays: AddressArray[]
+  # Other
+  random: Uint64
+  latLong: map[Int32]Longitude
+  # LongID: map[Longitude]Int32 # FIXME Map with struct key would cause error
+  
 
 # ##################################
+
 funcs:
-# ##################################
-  arrayClear:
+  mapOfArraysAppend:
+    params:
+      name: String
+      value: String
+
+  arrayOfArraysAppend:
+    params:
+      index: Uint32
+      value: String[]
+
+  mapOfArraysClear:
+    params:
+      name: String
+  
+  # Clear all the arrays of the array
+  arrayOfArraysClear:
+
+  mapOfArraysSet:
+    params:
+      index: Uint32
+      name: String
+      value: String
+
+  arrayOfArraysSet:
+    params:
+      index0: Uint32
+      index1: Uint32
+      value: String
+
+  mapOfMapsClear:
     params:
       name: String
 
-  arrayCreate:
+  mapOfMapsSet:
     params:
       name: String
+      key: String
+      value: String
 
-  arraySet:
+  arrayOfMapsClear:
+
+  arrayOfMapsSet:
     params:
-      index: Int32
-      name: String
+      index: Uint32
+      key: String
       value: String
 
   paramTypes:
@@ -75,38 +145,63 @@ funcs:
       address: Address
 
 # ##################################
+
 views:
-# ##################################
-  arrayLength:
+  mapOfArraysLength:
     params:
       name: String
     results:
-      length: Int32
+      length: Uint32
 
-  arrayValue:
+  arrayOfArraysLength:
+    results:
+      length: Uint32
+
+  mapOfArraysValue:
     params:
-      index: Int32
+      index: Uint32
       name: String
+    results:
+      value: String
+  
+  arrayOfArraysValue:
+    params:
+      index0: Uint32
+      index1: Uint32
+    results:
+      value: String
+
+  mapOfMapsValue:
+    params:
+      name: String
+      key: String
+    results:
+      value: String
+
+  arrayOfMapsValue:
+    params:
+      index: Uint32
+      key: String
     results:
       value: String
 
   blockRecord:
     params:
-      blockIndex: Int32
-      recordIndex: Int32
+      blockIndex: Uint32
+      recordIndex: Uint32
     results:
       record: Bytes
 
   blockRecords:
     params:
-      blockIndex: Int32
+      blockIndex: Uint32
     results:
-      count: Int32
+      count: Uint32
 
   iotaBalance:
     results:
-      iotas: Int64
+      iotas: Uint64
 
   getRandom:
     results:
-      random: Int64
+      random: Uint64

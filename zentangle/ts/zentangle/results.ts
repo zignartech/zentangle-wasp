@@ -5,89 +5,89 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 import * as sc from "./index";
 
-export class ImmutableRequestPlayResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+export class ImmutableRequestPlayResults extends wasmtypes.ScProxy {
+	imageId(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.ResultImageId));
 	}
 }
 
-export class MutableRequestPlayResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+export class MutableRequestPlayResults extends wasmtypes.ScProxy {
+	imageId(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.ResultImageId));
 	}
 }
 
-export class ImmutableSendTagsResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+export class ImmutableSendTagsResults extends wasmtypes.ScProxy {
+	imageId(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.ResultImageId));
 	}
 }
 
-export class MutableSendTagsResults extends wasmlib.ScMapID {
-    imageId(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultImageId]);
+export class MutableSendTagsResults extends wasmtypes.ScProxy {
+	imageId(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.ResultImageId));
 	}
 }
 
-export class ImmutableGetOwnerResults extends wasmlib.ScMapID {
-    owner(): wasmlib.ScImmutableAgentID {
-		return new wasmlib.ScImmutableAgentID(this.mapID, sc.idxMap[sc.IdxResultOwner]);
+export class ImmutableGetOwnerResults extends wasmtypes.ScProxy {
+	owner(): wasmtypes.ScImmutableAgentID {
+		return new wasmtypes.ScImmutableAgentID(this.proxy.root(sc.ResultOwner));
 	}
 }
 
-export class MutableGetOwnerResults extends wasmlib.ScMapID {
-    owner(): wasmlib.ScMutableAgentID {
-		return new wasmlib.ScMutableAgentID(this.mapID, sc.idxMap[sc.IdxResultOwner]);
+export class MutableGetOwnerResults extends wasmtypes.ScProxy {
+	owner(): wasmtypes.ScMutableAgentID {
+		return new wasmtypes.ScMutableAgentID(this.proxy.root(sc.ResultOwner));
 	}
 }
 
-export class ImmutableGetPlayerBetsResults extends wasmlib.ScMapID {
-    playerBets(): wasmlib.ScImmutableString {
-		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxResultPlayerBets]);
+export class ImmutableGetPlayerBetsResults extends wasmtypes.ScProxy {
+	playerBets(): wasmtypes.ScImmutableString {
+		return new wasmtypes.ScImmutableString(this.proxy.root(sc.ResultPlayerBets));
 	}
 }
 
-export class MutableGetPlayerBetsResults extends wasmlib.ScMapID {
-    playerBets(): wasmlib.ScMutableString {
-		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxResultPlayerBets]);
+export class MutableGetPlayerBetsResults extends wasmtypes.ScProxy {
+	playerBets(): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.root(sc.ResultPlayerBets));
 	}
 }
 
-export class ImmutableGetPlayerInfoResults extends wasmlib.ScMapID {
-    info(): wasmlib.ScImmutableString {
-		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxResultInfo]);
+export class ImmutableGetPlayerInfoResults extends wasmtypes.ScProxy {
+	info(): wasmtypes.ScImmutableString {
+		return new wasmtypes.ScImmutableString(this.proxy.root(sc.ResultInfo));
 	}
 }
 
-export class MutableGetPlayerInfoResults extends wasmlib.ScMapID {
-    info(): wasmlib.ScMutableString {
-		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxResultInfo]);
+export class MutableGetPlayerInfoResults extends wasmtypes.ScProxy {
+	info(): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.root(sc.ResultInfo));
 	}
 }
 
-export class ImmutableGetPlaysPerImageResults extends wasmlib.ScMapID {
-    playsPerImage(): wasmlib.ScImmutableUint32 {
-		return new wasmlib.ScImmutableUint32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
+export class ImmutableGetPlaysPerImageResults extends wasmtypes.ScProxy {
+	playsPerImage(): wasmtypes.ScImmutableUint32 {
+		return new wasmtypes.ScImmutableUint32(this.proxy.root(sc.ResultPlaysPerImage));
 	}
 }
 
-export class MutableGetPlaysPerImageResults extends wasmlib.ScMapID {
-    playsPerImage(): wasmlib.ScMutableUint32 {
-		return new wasmlib.ScMutableUint32(this.mapID, sc.idxMap[sc.IdxResultPlaysPerImage]);
+export class MutableGetPlaysPerImageResults extends wasmtypes.ScProxy {
+	playsPerImage(): wasmtypes.ScMutableUint32 {
+		return new wasmtypes.ScMutableUint32(this.proxy.root(sc.ResultPlaysPerImage));
 	}
 }
 
-export class ImmutableGetResultsResults extends wasmlib.ScMapID {
-    results(): wasmlib.ScImmutableString {
-		return new wasmlib.ScImmutableString(this.mapID, sc.idxMap[sc.IdxResultResults]);
+export class ImmutableGetResultsResults extends wasmtypes.ScProxy {
+	results(): wasmtypes.ScImmutableString {
+		return new wasmtypes.ScImmutableString(this.proxy.root(sc.ResultResults));
 	}
 }
 
-export class MutableGetResultsResults extends wasmlib.ScMapID {
-    results(): wasmlib.ScMutableString {
-		return new wasmlib.ScMutableString(this.mapID, sc.idxMap[sc.IdxResultResults]);
+export class MutableGetResultsResults extends wasmtypes.ScProxy {
+	results(): wasmtypes.ScMutableString {
+		return new wasmtypes.ScMutableString(this.proxy.root(sc.ResultResults));
 	}
 }

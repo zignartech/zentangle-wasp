@@ -1,9 +1,11 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 package generator
 
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/iotaledger/wasp/packages/iscp"
@@ -20,6 +22,7 @@ const (
 	KeyEvents    = "events"
 	KeyExist     = "exist"
 	KeyFunc      = "func"
+	KeyFuncs     = "funcs"
 	KeyInit      = "init"
 	KeyMandatory = "mandatory"
 	KeyMap       = "map"
@@ -209,7 +212,7 @@ func (g *GenBase) emitEachMandatoryField(template string) {
 	mandatoryFields := make([]*model.Field, 0)
 	for _, g.currentField = range g.currentFunc.Params {
 		fld := g.currentField
-		if !fld.Optional && fld.TypeID != 0 && !fld.Array && fld.MapKey == "" {
+		if !fld.Optional && fld.BaseType && !fld.Array && fld.MapKey == "" {
 			mandatoryFields = append(mandatoryFields, g.currentField)
 		}
 	}
@@ -267,7 +270,7 @@ func (g *GenBase) emitIf(line string) {
 	case KeyArray:
 		condition = g.currentField.Array
 	case KeyBaseType:
-		condition = g.currentField.TypeID != 0
+		condition = g.currentField.BaseType
 	case KeyCore:
 		condition = g.s.CoreContracts
 	case KeyEvent:
@@ -278,6 +281,8 @@ func (g *GenBase) emitIf(line string) {
 		condition = g.newTypes[g.keys[KeyProxy]]
 	case KeyFunc:
 		condition = g.keys["kind"] == KeyFunc
+	case KeyFuncs:
+		condition = len(g.s.Funcs) != 0
 	case KeyInit:
 		condition = g.currentFunc.Name == KeyInit
 	case KeyMandatory:
@@ -379,34 +384,22 @@ func (g *GenBase) setCommonKeys() {
 	g.keys["scName"] = scName
 	g.keys["hscName"] = iscp.Hn(scName).String()
 	g.keys["scDesc"] = g.s.Description
-	g.keys["maxIndex"] = strconv.Itoa(g.s.KeyID)
 }
 
 func (g *GenBase) setFieldKeys(pad bool, maxCamelLength, maxSnakeLength int) {
-	tmp := make(model.StringMap)
-	for k, v := range g.keys {
-		if len(k) < 3 {
-			continue
-		}
-		switch k[:3] {
-		case "fld":
-			tmp["old"+k[3:]] = v
-		case "Fld":
-			tmp["Old"+k[3:]] = v
-		case "FLD":
-			tmp["OLD"+k[3:]] = v
-		}
-	}
-	for k, v := range tmp {
-		g.keys[k] = v
-	}
 	g.setMultiKeyValues("fldName", g.currentField.Name)
 	g.setMultiKeyValues("fldType", g.currentField.Type)
+	g.setMultiKeyValues("fldMapKey", g.currentField.MapKey)
+
+	isArray := ""
+	if g.currentField.Array {
+		isArray = "true"
+	}
+	g.keys["fldIsArray"] = isArray
+	g.keys["fldIsMap"] = g.currentField.MapKey
 
 	g.keys["fldAlias"] = g.currentField.Alias
 	g.keys["fldComment"] = g.currentField.Comment
-	g.keys["fldMapKey"] = g.currentField.MapKey
-	g.keys["fldIndex"] = strconv.Itoa(g.currentField.KeyID)
 
 	if pad {
 		g.keys["fldPad"] = spaces[:maxCamelLength-len(g.keys["fldName"])]
@@ -446,7 +439,7 @@ func (g *GenBase) setFuncKeys(pad bool, maxCamelLength, maxSnakeLength int) {
 		comment = grant[index:]
 		grant = strings.TrimSpace(grant[:index])
 	}
-	g.keys["funcAccess"] = grant
+	g.setMultiKeyValues("funcAccess", grant)
 	g.keys["funcAccessComment"] = comment
 
 	if pad {

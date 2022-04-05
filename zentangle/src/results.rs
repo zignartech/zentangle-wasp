@@ -9,162 +9,158 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
-
 use crate::*;
-use crate::keys::*;
-use crate::structs::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableRequestPlayResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableRequestPlayResults {
     pub fn image_id(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+		ScImmutableUint32::new(self.proxy.root(RESULT_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableRequestPlayResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableRequestPlayResults {
     pub fn image_id(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+		ScMutableUint32::new(self.proxy.root(RESULT_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableSendTagsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableSendTagsResults {
     pub fn image_id(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+		ScImmutableUint32::new(self.proxy.root(RESULT_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableSendTagsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableSendTagsResults {
     pub fn image_id(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_IMAGE_ID))
+		ScMutableUint32::new(self.proxy.root(RESULT_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetOwnerResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetOwnerResults {
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_RESULT_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(RESULT_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetOwnerResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetOwnerResults {
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_RESULT_OWNER))
+		ScMutableAgentID::new(self.proxy.root(RESULT_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetPlayerBetsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetPlayerBetsResults {
     pub fn player_bets(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_RESULT_PLAYER_BETS))
+		ScImmutableString::new(self.proxy.root(RESULT_PLAYER_BETS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetPlayerBetsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetPlayerBetsResults {
     pub fn player_bets(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_RESULT_PLAYER_BETS))
+		ScMutableString::new(self.proxy.root(RESULT_PLAYER_BETS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetPlayerInfoResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetPlayerInfoResults {
     pub fn info(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_RESULT_INFO))
+		ScImmutableString::new(self.proxy.root(RESULT_INFO))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetPlayerInfoResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetPlayerInfoResults {
     pub fn info(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_RESULT_INFO))
+		ScMutableString::new(self.proxy.root(RESULT_INFO))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetPlaysPerImageResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetPlaysPerImageResults {
     pub fn plays_per_image(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+		ScImmutableUint32::new(self.proxy.root(RESULT_PLAYS_PER_IMAGE))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetPlaysPerImageResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetPlaysPerImageResults {
     pub fn plays_per_image(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_RESULT_PLAYS_PER_IMAGE))
+		ScMutableUint32::new(self.proxy.root(RESULT_PLAYS_PER_IMAGE))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetResultsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetResultsResults {
     pub fn results(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_RESULT_RESULTS))
+		ScImmutableString::new(self.proxy.root(RESULT_RESULTS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetResultsResults {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetResultsResults {
     pub fn results(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_RESULT_RESULTS))
+		ScMutableString::new(self.proxy.root(RESULT_RESULTS))
 	}
 }

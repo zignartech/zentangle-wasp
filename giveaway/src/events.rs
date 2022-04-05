@@ -6,6 +6,7 @@
 // Change the json schema instead
 
 #![allow(dead_code)]
+#![allow(unused_mut)]
 
 use wasmlib::*;
 
@@ -15,8 +16,8 @@ pub struct giveawayEvents {
 impl giveawayEvents {
 
 	pub fn winner(&self, evm_address: &str) {
-		let mut encoder = EventEncoder::new("giveaway.winner");
-		encoder.string(&evm_address);
-		encoder.emit();
+		let mut evt = EventEncoder::new("giveaway.winner");
+		evt.encode(&string_to_string(&evm_address));
+		evt.emit();
 	}
 }

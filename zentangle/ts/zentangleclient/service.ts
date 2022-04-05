@@ -30,15 +30,15 @@ export class CreateGameFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public description(v: string): void {
-		this.args.setString(ArgDescription, v);
+		this.args.set(ArgDescription, this.args.fromString(v));
 	}
 	
 	public numberOfImages(v: wasmclient.Uint32): void {
-		this.args.setUint32(ArgNumberOfImages, v);
+		this.args.set(ArgNumberOfImages, this.args.fromUint32(v));
 	}
 	
 	public tagsRequiredPerImage(v: wasmclient.Uint32): void {
-		this.args.setUint32(ArgTagsRequiredPerImage, v);
+		this.args.set(ArgTagsRequiredPerImage, this.args.fromUint32(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -54,7 +54,7 @@ export class EndGameFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public resetPlayerInfo(v: boolean): void {
-		this.args.setBool(ArgResetPlayerInfo, v);
+		this.args.set(ArgResetPlayerInfo, this.args.fromBool(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -68,7 +68,7 @@ export class InitFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public owner(v: wasmclient.AgentID): void {
-		this.args.setAgentID(ArgOwner, v);
+		this.args.set(ArgOwner, this.args.fromAgentID(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -85,10 +85,10 @@ export class RequestPlayFunc extends wasmclient.ClientFunc {
 	}
 }
 
-export class RequestPlayResults extends wasmclient.ViewResults {
+export class RequestPlayResults extends wasmclient.Results {
 
 	imageId(): wasmclient.Uint32 {
-		return this.res.getUint32(ResImageId);
+		return this.toUint32(this.get(ResImageId));
 	}
 }
 
@@ -98,7 +98,7 @@ export class SendTagsFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public inputJson(v: string): void {
-		this.args.setString(ArgInputJson, v);
+		this.args.set(ArgInputJson, this.args.fromString(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -107,10 +107,10 @@ export class SendTagsFunc extends wasmclient.ClientFunc {
 	}
 }
 
-export class SendTagsResults extends wasmclient.ViewResults {
+export class SendTagsResults extends wasmclient.Results {
 
 	imageId(): wasmclient.Uint32 {
-		return this.res.getUint32(ResImageId);
+		return this.toUint32(this.get(ResImageId));
 	}
 }
 
@@ -120,7 +120,7 @@ export class SetOwnerFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public owner(v: wasmclient.AgentID): void {
-		this.args.setAgentID(ArgOwner, v);
+		this.args.set(ArgOwner, this.args.fromAgentID(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
@@ -143,14 +143,16 @@ export class WithdrawFunc extends wasmclient.ClientFunc {
 export class GetOwnerView extends wasmclient.ClientView {
 
 	public async call(): Promise<GetOwnerResults> {
-		return new GetOwnerResults(await this.callView("getOwner", null));
+		const res = new GetOwnerResults();
+		await this.callView("getOwner", null, res);
+		return res;
 	}
 }
 
-export class GetOwnerResults extends wasmclient.ViewResults {
+export class GetOwnerResults extends wasmclient.Results {
 
 	owner(): wasmclient.AgentID {
-		return this.res.getAgentID(ResOwner);
+		return this.toAgentID(this.get(ResOwner));
 	}
 }
 
@@ -159,14 +161,16 @@ export class GetOwnerResults extends wasmclient.ViewResults {
 export class GetPlayerBetsView extends wasmclient.ClientView {
 
 	public async call(): Promise<GetPlayerBetsResults> {
-		return new GetPlayerBetsResults(await this.callView("getPlayerBets", null));
+		const res = new GetPlayerBetsResults();
+		await this.callView("getPlayerBets", null, res);
+		return res;
 	}
 }
 
-export class GetPlayerBetsResults extends wasmclient.ViewResults {
+export class GetPlayerBetsResults extends wasmclient.Results {
 
 	playerBets(): string {
-		return this.res.getString(ResPlayerBets);
+		return this.toString(this.get(ResPlayerBets));
 	}
 }
 
@@ -176,19 +180,21 @@ export class GetPlayerInfoView extends wasmclient.ClientView {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public playerAddress(v: string): void {
-		this.args.setString(ArgPlayerAddress, v);
+		this.args.set(ArgPlayerAddress, this.args.fromString(v));
 	}
 
 	public async call(): Promise<GetPlayerInfoResults> {
 		this.args.mandatory(ArgPlayerAddress);
-		return new GetPlayerInfoResults(await this.callView("getPlayerInfo", this.args));
+		const res = new GetPlayerInfoResults();
+		await this.callView("getPlayerInfo", this.args, res);
+		return res;
 	}
 }
 
-export class GetPlayerInfoResults extends wasmclient.ViewResults {
+export class GetPlayerInfoResults extends wasmclient.Results {
 
 	info(): string {
-		return this.res.getString(ResInfo);
+		return this.toString(this.get(ResInfo));
 	}
 }
 
@@ -198,19 +204,21 @@ export class GetPlaysPerImageView extends wasmclient.ClientView {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public imageId(v: wasmclient.Uint32): void {
-		this.args.setUint32(ArgImageId, v);
+		this.args.set(ArgImageId, this.args.fromUint32(v));
 	}
 
 	public async call(): Promise<GetPlaysPerImageResults> {
 		this.args.mandatory(ArgImageId);
-		return new GetPlaysPerImageResults(await this.callView("getPlaysPerImage", this.args));
+		const res = new GetPlaysPerImageResults();
+		await this.callView("getPlaysPerImage", this.args, res);
+		return res;
 	}
 }
 
-export class GetPlaysPerImageResults extends wasmclient.ViewResults {
+export class GetPlaysPerImageResults extends wasmclient.Results {
 
 	playsPerImage(): wasmclient.Uint32 {
-		return this.res.getUint32(ResPlaysPerImage);
+		return this.toUint32(this.get(ResPlaysPerImage));
 	}
 }
 
@@ -220,19 +228,21 @@ export class GetResultsView extends wasmclient.ClientView {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
 	public imageId(v: wasmclient.Uint32): void {
-		this.args.setUint32(ArgImageId, v);
+		this.args.set(ArgImageId, this.args.fromUint32(v));
 	}
 
 	public async call(): Promise<GetResultsResults> {
 		this.args.mandatory(ArgImageId);
-		return new GetResultsResults(await this.callView("getResults", this.args));
+		const res = new GetResultsResults();
+		await this.callView("getResults", this.args, res);
+		return res;
 	}
 }
 
-export class GetResultsResults extends wasmclient.ViewResults {
+export class GetResultsResults extends wasmclient.Results {
 
 	results(): string {
-		return this.res.getString(ResResults);
+		return this.toString(this.get(ResResults));
 	}
 }
 
@@ -241,7 +251,11 @@ export class GetResultsResults extends wasmclient.ViewResults {
 export class ZentangleService extends wasmclient.Service {
 
 	public constructor(cl: wasmclient.ServiceClient) {
-		super(cl, 0xf707a9c6, events.eventHandlers);
+		super(cl, 0xf707a9c6);
+	}
+
+	public newEventHandler(): events.ZentangleEvents {
+		return new events.ZentangleEvents();
 	}
 
 	public createGame(): CreateGameFunc {

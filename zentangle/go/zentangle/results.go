@@ -7,116 +7,116 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type ImmutableRequestPlayResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableRequestPlayResults) ImageId() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultImageId])
+func (s ImmutableRequestPlayResults) ImageId() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ResultImageId))
 }
 
 type MutableRequestPlayResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableRequestPlayResults) ImageId() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultImageId])
+func (s MutableRequestPlayResults) ImageId() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ResultImageId))
 }
 
 type ImmutableSendTagsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableSendTagsResults) ImageId() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultImageId])
+func (s ImmutableSendTagsResults) ImageId() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ResultImageId))
 }
 
 type MutableSendTagsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableSendTagsResults) ImageId() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultImageId])
+func (s MutableSendTagsResults) ImageId() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ResultImageId))
 }
 
 type ImmutableGetOwnerResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetOwnerResults) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxResultOwner])
+func (s ImmutableGetOwnerResults) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ResultOwner))
 }
 
 type MutableGetOwnerResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetOwnerResults) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxResultOwner])
+func (s MutableGetOwnerResults) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ResultOwner))
 }
 
 type ImmutableGetPlayerBetsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetPlayerBetsResults) PlayerBets() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxResultPlayerBets])
+func (s ImmutableGetPlayerBetsResults) PlayerBets() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ResultPlayerBets))
 }
 
 type MutableGetPlayerBetsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetPlayerBetsResults) PlayerBets() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultPlayerBets])
+func (s MutableGetPlayerBetsResults) PlayerBets() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ResultPlayerBets))
 }
 
 type ImmutableGetPlayerInfoResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetPlayerInfoResults) Info() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxResultInfo])
+func (s ImmutableGetPlayerInfoResults) Info() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ResultInfo))
 }
 
 type MutableGetPlayerInfoResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetPlayerInfoResults) Info() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultInfo])
+func (s MutableGetPlayerInfoResults) Info() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ResultInfo))
 }
 
 type ImmutableGetPlaysPerImageResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxResultPlaysPerImage])
+func (s ImmutableGetPlaysPerImageResults) PlaysPerImage() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ResultPlaysPerImage))
 }
 
 type MutableGetPlaysPerImageResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetPlaysPerImageResults) PlaysPerImage() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxResultPlaysPerImage])
+func (s MutableGetPlaysPerImageResults) PlaysPerImage() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ResultPlaysPerImage))
 }
 
 type ImmutableGetResultsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetResultsResults) Results() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxResultResults])
+func (s ImmutableGetResultsResults) Results() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ResultResults))
 }
 
 type MutableGetResultsResults struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetResultsResults) Results() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxResultResults])
+func (s MutableGetResultsResults) Results() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ResultResults))
 }

@@ -1,10 +1,13 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 package tsclienttemplates
 
 var serviceTs = map[string]string{
 	// *******************************
 	"service.ts": `
-import * as wasmclient from "wasmclient"
-import * as events from "./events"
+$#emit importWasmClient
+$#if events importEvents
 
 $#each params constArg
 
@@ -16,8 +19,9 @@ $#each func funcStruct
 export class $PkgName$+Service extends wasmclient.Service {
 
 	public constructor(cl: wasmclient.ServiceClient) {
-		super(cl, 0x$hscName, events.eventHandlers);
+		super(cl, 0x$hscName);
 	}
+$#if events newEventHandler
 $#each func serviceFunction
 }
 `,
@@ -28,6 +32,13 @@ const Arg$FldName = "$fldAlias";
 	// *******************************
 	"constRes": `
 const Res$FldName = "$fldAlias";
+`,
+	// *******************************
+	"newEventHandler": `
+
+	public newEventHandler(): events.$PkgName$+Events {
+		return new events.$PkgName$+Events();
+	}
 `,
 	// *******************************
 	"funcStruct": `
@@ -53,7 +64,7 @@ $#if array funcArgSetterArray funcArgSetterBasic
 	"funcArgSetterBasic": `
 	
 	public $fldName(v: $fldLangType): void {
-		this.args.set$FldType(Arg$FldName, v);
+		this.args.set(Arg$FldName, this.args.from$FldType(v));
 	}
 `,
 	// *******************************
@@ -61,9 +72,9 @@ $#if array funcArgSetterArray funcArgSetterBasic
 	
 	public $fldName(a: $fldLangType[]): void {
 		for (let i = 0; i < a.length; i++) {
-			this.args.set$FldType(this.args.indexedKey(Arg$FldName, i), a[i]);
+			this.args.set(this.args.indexedKey(Arg$FldName, i), this.args.from$FldType(a[i]));
 		}
-		this.args.setInt32(Arg$FldName, a.length);
+		this.args.set(Arg$FldName, this.args.setInt32(a.length));
 	}
 `,
 	// *******************************
@@ -81,7 +92,9 @@ $#if param execWithArgs execNoArgs
 	public async call(): Promise<$FuncName$+Results> {
 $#each mandatory mandatoryCheck
 $#if param execWithArgs execNoArgs
-		return new $FuncName$+Results(await this.callView("$funcName", $args));
+		const res = new $FuncName$+Results();
+		await this.callView("$funcName", $args, res);
+		return res;
 	}
 `,
 	// *******************************
@@ -99,23 +112,49 @@ $#set args null
 	// *******************************
 	"resultStruct": `
 
-export class $FuncName$+Results extends wasmclient.ViewResults {
+export class $FuncName$+Results extends wasmclient.Results {
 $#each result callResultGetter
 }
 `,
 	// *******************************
 	"callResultGetter": `
+$#if map callResultGetterMap callResultGetter2
+`,
+	// *******************************
+	"callResultGetter2": `
+$#if basetype callResultGetterBasic callResultGetterStruct
+`,
+	// *******************************
+	"callResultGetterMap": `
+
+	$fldName(): Map<$fldKeyLangType, $fldLangType> {
+		const res = new Map<$fldKeyLangType, $fldLangType>();
+		this.forEach((key, val) => {
+			res.set(this.to$FldMapKey(key), this.to$FldType(val));
+		});
+		return res;
+	}
+`,
+	// *******************************
+	"callResultGetterBasic": `
 $#if mandatory else callResultOptional
 
 	$fldName(): $fldLangType {
-		return this.res.get$FldType(Res$FldName);
+		return this.to$FldType(this.get(Res$FldName));
+	}
+`,
+	// *******************************
+	"callResultGetterStruct": `
+
+	$fldName(): $FldType {
+		return $FldType.fromBytes(this.get(Res$FldName));
 	}
 `,
 	// *******************************
 	"callResultOptional": `
 	
 	$fldName$+Exists(): boolean {
-		return this.res.exists(Res$FldName)
+		return this.exists(Res$FldName)
 	}
 `,
 	// *******************************

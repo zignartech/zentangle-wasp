@@ -2,7 +2,6 @@ wasp.log
 /wasp
 /wasp-cli
 /wasp-cluster
-/wasp-node/waspdb
 /dbinspector
 /evmemulator
 /schema
@@ -23,6 +22,3 @@ wasp-cli.json
 **/node_modules/
 goshimmer.log
 /*.sh
-wasp-cli.json
-/zentangle/target/
-/zentangle/pkg/

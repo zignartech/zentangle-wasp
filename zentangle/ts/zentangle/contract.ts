@@ -10,70 +10,70 @@ import * as sc from "./index";
 
 export class CreateGameCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncCreateGame);
-	params: sc.MutableCreateGameParams = new sc.MutableCreateGameParams();
+	params: sc.MutableCreateGameParams = new sc.MutableCreateGameParams(wasmlib.ScView.nilProxy);
 }
 
 export class CreateGameContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	params: sc.ImmutableCreateGameParams = new sc.ImmutableCreateGameParams();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	params: sc.ImmutableCreateGameParams = new sc.ImmutableCreateGameParams(wasmlib.paramsProxy());
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class EndGameCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncEndGame);
-	params: sc.MutableEndGameParams = new sc.MutableEndGameParams();
+	params: sc.MutableEndGameParams = new sc.MutableEndGameParams(wasmlib.ScView.nilProxy);
 }
 
 export class EndGameContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	params: sc.ImmutableEndGameParams = new sc.ImmutableEndGameParams();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	params: sc.ImmutableEndGameParams = new sc.ImmutableEndGameParams(wasmlib.paramsProxy());
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class InitCall {
 	func: wasmlib.ScInitFunc = new wasmlib.ScInitFunc(sc.HScName, sc.HFuncInit);
-	params: sc.MutableInitParams = new sc.MutableInitParams();
+	params: sc.MutableInitParams = new sc.MutableInitParams(wasmlib.ScView.nilProxy);
 }
 
 export class InitContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	params: sc.ImmutableInitParams = new sc.ImmutableInitParams();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	params: sc.ImmutableInitParams = new sc.ImmutableInitParams(wasmlib.paramsProxy());
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class RequestPlayCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncRequestPlay);
-	results: sc.ImmutableRequestPlayResults = new sc.ImmutableRequestPlayResults();
+	results: sc.ImmutableRequestPlayResults = new sc.ImmutableRequestPlayResults(wasmlib.ScView.nilProxy);
 }
 
 export class RequestPlayContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	results: sc.MutableRequestPlayResults = new sc.MutableRequestPlayResults();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	results: sc.MutableRequestPlayResults = new sc.MutableRequestPlayResults(wasmlib.ScView.nilProxy);
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class SendTagsCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncSendTags);
-	params: sc.MutableSendTagsParams = new sc.MutableSendTagsParams();
-	results: sc.ImmutableSendTagsResults = new sc.ImmutableSendTagsResults();
+	params: sc.MutableSendTagsParams = new sc.MutableSendTagsParams(wasmlib.ScView.nilProxy);
+	results: sc.ImmutableSendTagsResults = new sc.ImmutableSendTagsResults(wasmlib.ScView.nilProxy);
 }
 
 export class SendTagsContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	params: sc.ImmutableSendTagsParams = new sc.ImmutableSendTagsParams();
-	results: sc.MutableSendTagsResults = new sc.MutableSendTagsResults();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	params: sc.ImmutableSendTagsParams = new sc.ImmutableSendTagsParams(wasmlib.paramsProxy());
+	results: sc.MutableSendTagsResults = new sc.MutableSendTagsResults(wasmlib.ScView.nilProxy);
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class SetOwnerCall {
 	func: wasmlib.ScFunc = new wasmlib.ScFunc(sc.HScName, sc.HFuncSetOwner);
-	params: sc.MutableSetOwnerParams = new sc.MutableSetOwnerParams();
+	params: sc.MutableSetOwnerParams = new sc.MutableSetOwnerParams(wasmlib.ScView.nilProxy);
 }
 
 export class SetOwnerContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	params: sc.ImmutableSetOwnerParams = new sc.ImmutableSetOwnerParams();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	params: sc.ImmutableSetOwnerParams = new sc.ImmutableSetOwnerParams(wasmlib.paramsProxy());
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class WithdrawCall {
@@ -81,134 +81,138 @@ export class WithdrawCall {
 }
 
 export class WithdrawContext {
-	events:  sc.zentangleEvents = new sc.zentangleEvents();
-	state: sc.MutablezentangleState = new sc.MutablezentangleState();
+	events: sc.zentangleEvents = new sc.zentangleEvents();
+	state: sc.MutablezentangleState = new sc.MutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class GetOwnerCall {
 	func: wasmlib.ScView = new wasmlib.ScView(sc.HScName, sc.HViewGetOwner);
-	results: sc.ImmutableGetOwnerResults = new sc.ImmutableGetOwnerResults();
+	results: sc.ImmutableGetOwnerResults = new sc.ImmutableGetOwnerResults(wasmlib.ScView.nilProxy);
 }
 
 export class GetOwnerContext {
-	results: sc.MutableGetOwnerResults = new sc.MutableGetOwnerResults();
-	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState();
+	results: sc.MutableGetOwnerResults = new sc.MutableGetOwnerResults(wasmlib.ScView.nilProxy);
+	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class GetPlayerBetsCall {
 	func: wasmlib.ScView = new wasmlib.ScView(sc.HScName, sc.HViewGetPlayerBets);
-	results: sc.ImmutableGetPlayerBetsResults = new sc.ImmutableGetPlayerBetsResults();
+	results: sc.ImmutableGetPlayerBetsResults = new sc.ImmutableGetPlayerBetsResults(wasmlib.ScView.nilProxy);
 }
 
 export class GetPlayerBetsContext {
-	results: sc.MutableGetPlayerBetsResults = new sc.MutableGetPlayerBetsResults();
-	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState();
+	results: sc.MutableGetPlayerBetsResults = new sc.MutableGetPlayerBetsResults(wasmlib.ScView.nilProxy);
+	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class GetPlayerInfoCall {
 	func: wasmlib.ScView = new wasmlib.ScView(sc.HScName, sc.HViewGetPlayerInfo);
-	params: sc.MutableGetPlayerInfoParams = new sc.MutableGetPlayerInfoParams();
-	results: sc.ImmutableGetPlayerInfoResults = new sc.ImmutableGetPlayerInfoResults();
+	params: sc.MutableGetPlayerInfoParams = new sc.MutableGetPlayerInfoParams(wasmlib.ScView.nilProxy);
+	results: sc.ImmutableGetPlayerInfoResults = new sc.ImmutableGetPlayerInfoResults(wasmlib.ScView.nilProxy);
 }
 
 export class GetPlayerInfoContext {
-	params: sc.ImmutableGetPlayerInfoParams = new sc.ImmutableGetPlayerInfoParams();
-	results: sc.MutableGetPlayerInfoResults = new sc.MutableGetPlayerInfoResults();
-	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState();
+	params: sc.ImmutableGetPlayerInfoParams = new sc.ImmutableGetPlayerInfoParams(wasmlib.paramsProxy());
+	results: sc.MutableGetPlayerInfoResults = new sc.MutableGetPlayerInfoResults(wasmlib.ScView.nilProxy);
+	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class GetPlaysPerImageCall {
 	func: wasmlib.ScView = new wasmlib.ScView(sc.HScName, sc.HViewGetPlaysPerImage);
-	params: sc.MutableGetPlaysPerImageParams = new sc.MutableGetPlaysPerImageParams();
-	results: sc.ImmutableGetPlaysPerImageResults = new sc.ImmutableGetPlaysPerImageResults();
+	params: sc.MutableGetPlaysPerImageParams = new sc.MutableGetPlaysPerImageParams(wasmlib.ScView.nilProxy);
+	results: sc.ImmutableGetPlaysPerImageResults = new sc.ImmutableGetPlaysPerImageResults(wasmlib.ScView.nilProxy);
 }
 
 export class GetPlaysPerImageContext {
-	params: sc.ImmutableGetPlaysPerImageParams = new sc.ImmutableGetPlaysPerImageParams();
-	results: sc.MutableGetPlaysPerImageResults = new sc.MutableGetPlaysPerImageResults();
-	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState();
+	params: sc.ImmutableGetPlaysPerImageParams = new sc.ImmutableGetPlaysPerImageParams(wasmlib.paramsProxy());
+	results: sc.MutableGetPlaysPerImageResults = new sc.MutableGetPlaysPerImageResults(wasmlib.ScView.nilProxy);
+	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class GetResultsCall {
 	func: wasmlib.ScView = new wasmlib.ScView(sc.HScName, sc.HViewGetResults);
-	params: sc.MutableGetResultsParams = new sc.MutableGetResultsParams();
-	results: sc.ImmutableGetResultsResults = new sc.ImmutableGetResultsResults();
+	params: sc.MutableGetResultsParams = new sc.MutableGetResultsParams(wasmlib.ScView.nilProxy);
+	results: sc.ImmutableGetResultsResults = new sc.ImmutableGetResultsResults(wasmlib.ScView.nilProxy);
 }
 
 export class GetResultsContext {
-	params: sc.ImmutableGetResultsParams = new sc.ImmutableGetResultsParams();
-	results: sc.MutableGetResultsResults = new sc.MutableGetResultsResults();
-	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState();
+	params: sc.ImmutableGetResultsParams = new sc.ImmutableGetResultsParams(wasmlib.paramsProxy());
+	results: sc.MutableGetResultsResults = new sc.MutableGetResultsResults(wasmlib.ScView.nilProxy);
+	state: sc.ImmutablezentangleState = new sc.ImmutablezentangleState(wasmlib.ScState.proxy());
 }
 
 export class ScFuncs {
-    static createGame(ctx: wasmlib.ScFuncCallContext): CreateGameCall {
-        let f = new CreateGameCall();
-        f.func.setPtrs(f.params, null);
-        return f;
-    }
+	static createGame(_ctx: wasmlib.ScFuncCallContext): CreateGameCall {
+		const f = new CreateGameCall();
+		f.params = new sc.MutableCreateGameParams(wasmlib.newCallParamsProxy(f.func));
+		return f;
+	}
 
-    static endGame(ctx: wasmlib.ScFuncCallContext): EndGameCall {
-        let f = new EndGameCall();
-        f.func.setPtrs(f.params, null);
-        return f;
-    }
+	static endGame(_ctx: wasmlib.ScFuncCallContext): EndGameCall {
+		const f = new EndGameCall();
+		f.params = new sc.MutableEndGameParams(wasmlib.newCallParamsProxy(f.func));
+		return f;
+	}
 
-    static init(ctx: wasmlib.ScFuncCallContext): InitCall {
-        let f = new InitCall();
-        f.func.setPtrs(f.params, null);
-        return f;
-    }
+	static init(_ctx: wasmlib.ScFuncCallContext): InitCall {
+		const f = new InitCall();
+		f.params = new sc.MutableInitParams(wasmlib.newCallParamsProxy(f.func));
+		return f;
+	}
 
-    static requestPlay(ctx: wasmlib.ScFuncCallContext): RequestPlayCall {
-        let f = new RequestPlayCall();
-        f.func.setPtrs(null, f.results);
-        return f;
-    }
+	static requestPlay(_ctx: wasmlib.ScFuncCallContext): RequestPlayCall {
+		const f = new RequestPlayCall();
+		f.results = new sc.ImmutableRequestPlayResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static sendTags(ctx: wasmlib.ScFuncCallContext): SendTagsCall {
-        let f = new SendTagsCall();
-        f.func.setPtrs(f.params, f.results);
-        return f;
-    }
+	static sendTags(_ctx: wasmlib.ScFuncCallContext): SendTagsCall {
+		const f = new SendTagsCall();
+		f.params = new sc.MutableSendTagsParams(wasmlib.newCallParamsProxy(f.func));
+		f.results = new sc.ImmutableSendTagsResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static setOwner(ctx: wasmlib.ScFuncCallContext): SetOwnerCall {
-        let f = new SetOwnerCall();
-        f.func.setPtrs(f.params, null);
-        return f;
-    }
+	static setOwner(_ctx: wasmlib.ScFuncCallContext): SetOwnerCall {
+		const f = new SetOwnerCall();
+		f.params = new sc.MutableSetOwnerParams(wasmlib.newCallParamsProxy(f.func));
+		return f;
+	}
 
-    static withdraw(ctx: wasmlib.ScFuncCallContext): WithdrawCall {
-        return new WithdrawCall();
-    }
+	static withdraw(_ctx: wasmlib.ScFuncCallContext): WithdrawCall {
+		return new WithdrawCall();
+	}
 
-    static getOwner(ctx: wasmlib.ScViewCallContext): GetOwnerCall {
-        let f = new GetOwnerCall();
-        f.func.setPtrs(null, f.results);
-        return f;
-    }
+	static getOwner(_ctx: wasmlib.ScViewCallContext): GetOwnerCall {
+		const f = new GetOwnerCall();
+		f.results = new sc.ImmutableGetOwnerResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static getPlayerBets(ctx: wasmlib.ScViewCallContext): GetPlayerBetsCall {
-        let f = new GetPlayerBetsCall();
-        f.func.setPtrs(null, f.results);
-        return f;
-    }
+	static getPlayerBets(_ctx: wasmlib.ScViewCallContext): GetPlayerBetsCall {
+		const f = new GetPlayerBetsCall();
+		f.results = new sc.ImmutableGetPlayerBetsResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static getPlayerInfo(ctx: wasmlib.ScViewCallContext): GetPlayerInfoCall {
-        let f = new GetPlayerInfoCall();
-        f.func.setPtrs(f.params, f.results);
-        return f;
-    }
+	static getPlayerInfo(_ctx: wasmlib.ScViewCallContext): GetPlayerInfoCall {
+		const f = new GetPlayerInfoCall();
+		f.params = new sc.MutableGetPlayerInfoParams(wasmlib.newCallParamsProxy(f.func));
+		f.results = new sc.ImmutableGetPlayerInfoResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static getPlaysPerImage(ctx: wasmlib.ScViewCallContext): GetPlaysPerImageCall {
-        let f = new GetPlaysPerImageCall();
-        f.func.setPtrs(f.params, f.results);
-        return f;
-    }
+	static getPlaysPerImage(_ctx: wasmlib.ScViewCallContext): GetPlaysPerImageCall {
+		const f = new GetPlaysPerImageCall();
+		f.params = new sc.MutableGetPlaysPerImageParams(wasmlib.newCallParamsProxy(f.func));
+		f.results = new sc.ImmutableGetPlaysPerImageResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 
-    static getResults(ctx: wasmlib.ScViewCallContext): GetResultsCall {
-        let f = new GetResultsCall();
-        f.func.setPtrs(f.params, f.results);
-        return f;
-    }
+	static getResults(_ctx: wasmlib.ScViewCallContext): GetResultsCall {
+		const f = new GetResultsCall();
+		f.params = new sc.MutableGetResultsParams(wasmlib.newCallParamsProxy(f.func));
+		f.results = new sc.ImmutableGetResultsResults(wasmlib.newCallResultsProxy(f.func));
+		return f;
+	}
 }

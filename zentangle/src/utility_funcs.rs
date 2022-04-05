@@ -46,14 +46,12 @@ pub fn add_bet(ctx: &ScFuncContext, f_send_tags: Option<&SendTagsContext>, f_req
     if f_send_tags.is_some() {
         let f = f_send_tags.unwrap();
         let bets: ArrayOfMutableBet = f.state.bets();
-        let bets_nr: i32 = bets.length();
-        bets.get_bet(bets_nr).set_value(&bet);
+        bets.append_bet().set_value(&bet);
     }
     else if f_request_play.is_some() {
         let f = f_request_play.unwrap();
         let bets: ArrayOfMutableBet = f.state.bets();
-        let bets_nr: i32 = bets.length();
-        bets.get_bet(bets_nr).set_value(&bet);
+        bets.append_bet().set_value(&bet);
     }
     
 }
@@ -118,7 +116,7 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
         if !f.state.player_boost().get_player_boost(player_address).exists() {
             f.state
             .players_boost()
-            .get_string(f.state.players_boost().length())
+            .append_string()
             .set_value(&player.player.address().to_string());
         }
         // update player's boost data on map
@@ -131,8 +129,8 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
 }
 
 // An internal function to check if the amount betted doesn't exceed the maximum allowed
-pub fn check_ingots(amount_betted: i64, f: &RequestPlayContext, ctx: &ScFuncContext) {
-    let miota: i64 = 1000000;
+pub fn check_ingots(amount_betted: u64, f: &RequestPlayContext, ctx: &ScFuncContext) {
+    let miota: u64 = 1000000;
     if amount_betted <= 60*miota { return } // Everyone can bet 60 Mi or less
 
     let player_address = &ctx.caller().address().to_string();
@@ -179,12 +177,12 @@ pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
     // or if the ones available have been already tagged by the player, the counter will be equal to the number of images.
     let mut counter = 0;
     'image: for i in 0..number_of_images {
-        if plays_per_image.get_uint32(i as i32).value() >= plays_required_per_image {
+        if plays_per_image.get_uint32(i).value() >= plays_required_per_image {
             counter += 1;
             continue;
         }
         for j in i * plays_required_per_image as u32..(i + 1) * plays_required_per_image as u32 {
-            let tagged_image = f.state.tagged_images().get_tagged_image(j as i32).value();
+            let tagged_image = f.state.tagged_images().get_tagged_image(j).value();
             if tagged_image.image_id == -1 {
                 continue;
             }
@@ -206,19 +204,19 @@ pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
         // Note that the loop is not infinite, as we have checked that there is at least an image available to tag.
         let mut image_id: u32;
         'outer: loop {
-            image_id = ctx.random((number_of_images) as i64) as u32;
+            image_id = ctx.random((number_of_images) as u64) as u32;
             // has the image the maximum amount of plays?
-            if plays_per_image.get_uint32(image_id as i32).value() == plays_required_per_image {
+            if plays_per_image.get_uint32(image_id).value() == plays_required_per_image {
                 continue;
             }
             // has the image been tagged by this player before?
             for i in image_id * plays_required_per_image
                 ..(image_id + 1) * plays_required_per_image
             {
-                if f.state.tagged_images().get_tagged_image(i as i32).value().image_id != -1 {
+                if f.state.tagged_images().get_tagged_image(i).value().image_id != -1 {
                     if f.state
                         .tagged_images()
-                        .get_tagged_image(i as i32)
+                        .get_tagged_image(i)
                         .value()
                         .player
                         == player.address()
@@ -238,15 +236,14 @@ pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
             image_id: image_id as u32,
         };
 
-        let pending_play = f
+        f
             .state
             .pending_play()
-            .get_bet(&player.address().to_string());
-
-        pending_play.set_value(&bet);
+            .get_bet(&player.address().to_string())
+            .set_value(&bet);
         f.state
             .pending_plays()
-            .get_bet(f.state.pending_plays().length())
+            .append_bet()
             .set_value(&bet);
 
         f.events
@@ -300,7 +297,7 @@ pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
     // case, 9999999.0 will not be overwritten).
     while min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
         // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
-        min_distance[0] = 9999999.0;
+        min_distance[0] = f64::MAX;
         for x in 0..clusters.len() {
             for y in x + 1..clusters.len() {
                 // this way we dont evaluete a pair twice, nor a cluster against itself
@@ -323,7 +320,6 @@ pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
             // Calculating the coordiantes of the new cluster. The more weight,
             // the more influence on the new coordinate it has. This way, the
             // coordinate represents the average of all points in the cluster
-            // TODO: Divisions inside a loop are not cool. Maybe we can improve this somehow?
             let mut new_cluster = vec![
                 (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)
                     / (weight_1 + weight_2),
@@ -362,12 +358,12 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
     let mut valid_bets: Vec<Better> = Vec::new();
     // fill the 'valid_bets' with the bets. The bet amount will be filled later
     for i in 0..f.state.valid_tags().length() as usize {
-        let valid_tag = f.state.valid_tags().get_valid_tag(i as i32).value();
+        let valid_tag = f.state.valid_tags().get_valid_tag(i as u32).value();
         let player_tag_id = valid_tag.play_tag_id as usize;
         let tagged_image = f
             .state
             .tagged_images()
-            .get_tagged_image(valid_tag.tagged_image as i32)
+            .get_tagged_image(valid_tag.tagged_image)
             .value();
         let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
         let tagged_image_point = &tagged_image_coords[player_tag_id];
@@ -375,7 +371,7 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
         let clusters_centers = f
             .state
             .processed_images()
-            .get_tagged_image(tagged_image.image_id)
+            .get_tagged_image(tagged_image.image_id as u32)
             .value();
         let cluster_center_coords = input_tgimg_to_vecs(&clusters_centers, ctx);
         let mut distance_to_cluster_center =
@@ -462,10 +458,10 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
                                      // it will be used to calculate the amount of players needed to agree for a valid tag
     for i in image * tags_req_per_image..(image + 1) * tags_req_per_image {
         // I'm forced to do this is because there are no nested arrays in schema yet
-        if f.state.tagged_images().get_tagged_image(i as i32).value().image_id == -1 {
+        if f.state.tagged_images().get_tagged_image(i).value().image_id == -1 {
             break;
         }
-        let tagged_image = f.state.tagged_images().get_tagged_image(i as i32).value();
+        let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
         // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
         let x = input_str_to_vecf64(&tagged_image.x, ctx);
         let y = input_str_to_vecf64(&tagged_image.y, ctx);
@@ -509,7 +505,7 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
                 let player = f
                     .state
                     .tagged_images()
-                    .get_tagged_image(tagged_image as i32)
+                    .get_tagged_image(tagged_image)
                     .value()
                     .player;
                 // increment the valid tags in the player's name. This is to calculate rewards in the end-
@@ -524,7 +520,7 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
                 };
                 f.state
                     .valid_tags()
-                    .get_valid_tag(f.state.valid_tags().length())
+                    .append_valid_tag()
                     .set_value(&vaid_tag);
             }
         }

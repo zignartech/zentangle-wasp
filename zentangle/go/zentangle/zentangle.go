@@ -3,7 +3,7 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 
 func funcCreateGame(ctx wasmlib.ScFuncContext, f *CreateGameContext) {
 }
@@ -39,11 +39,11 @@ func viewGetOwner(ctx wasmlib.ScViewContext, f *GetOwnerContext) {
 func viewGetPlayerBets(ctx wasmlib.ScViewContext, f *GetPlayerBetsContext) {
 }
 
+func viewGetPlayerInfo(ctx wasmlib.ScViewContext, f *GetPlayerInfoContext) {
+}
+
 func viewGetPlaysPerImage(ctx wasmlib.ScViewContext, f *GetPlaysPerImageContext) {
 }
 
 func viewGetResults(ctx wasmlib.ScViewContext, f *GetResultsContext) {
-}
-
-func viewGetPlayerInfo(ctx wasmlib.ScViewContext, f *GetPlayerInfoContext) {
 }

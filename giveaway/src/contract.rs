@@ -7,13 +7,8 @@
 
 #![allow(dead_code)]
 
-use std::ptr;
-
 use wasmlib::*;
-
-use crate::consts::*;
-use crate::params::*;
-use crate::results::*;
+use crate::*;
 
 pub struct InitCall {
 	pub func: ScInitFunc,
@@ -49,55 +44,56 @@ pub struct ScFuncs {
 }
 
 impl ScFuncs {
-    pub fn init(_ctx: & dyn ScFuncCallContext) -> InitCall {
+    pub fn init(_ctx: &dyn ScFuncCallContext) -> InitCall {
         let mut f = InitCall {
             func: ScInitFunc::new(HSC_NAME, HFUNC_INIT),
-            params: MutableInitParams { id: 0 },
+            params: MutableInitParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScInitFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn load_addresses(_ctx: & dyn ScFuncCallContext) -> LoadAddressesCall {
+    pub fn load_addresses(_ctx: &dyn ScFuncCallContext) -> LoadAddressesCall {
         let mut f = LoadAddressesCall {
             func: ScFunc::new(HSC_NAME, HFUNC_LOAD_ADDRESSES),
-            params: MutableLoadAddressesParams { id: 0 },
+            params: MutableLoadAddressesParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn ruffle(_ctx: & dyn ScFuncCallContext) -> RuffleCall {
+    pub fn ruffle(_ctx: &dyn ScFuncCallContext) -> RuffleCall {
         let mut f = RuffleCall {
             func: ScFunc::new(HSC_NAME, HFUNC_RUFFLE),
-            params: MutableRuffleParams { id: 0 },
-            results: ImmutableRuffleResults { id: 0 },
+            params: MutableRuffleParams { proxy: Proxy::nil() },
+            results: ImmutableRuffleResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
+        ScFunc::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn set_owner(_ctx: & dyn ScFuncCallContext) -> SetOwnerCall {
+    pub fn set_owner(_ctx: &dyn ScFuncCallContext) -> SetOwnerCall {
         let mut f = SetOwnerCall {
             func: ScFunc::new(HSC_NAME, HFUNC_SET_OWNER),
-            params: MutableSetOwnerParams { id: 0 },
+            params: MutableSetOwnerParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn unload_addresses(_ctx: & dyn ScFuncCallContext) -> UnloadAddressesCall {
+    pub fn unload_addresses(_ctx: &dyn ScFuncCallContext) -> UnloadAddressesCall {
         UnloadAddressesCall {
             func: ScFunc::new(HSC_NAME, HFUNC_UNLOAD_ADDRESSES),
         }
     }
 
-    pub fn get_owner(_ctx: & dyn ScViewCallContext) -> GetOwnerCall {
+    pub fn get_owner(_ctx: &dyn ScViewCallContext) -> GetOwnerCall {
         let mut f = GetOwnerCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_OWNER),
-            results: ImmutableGetOwnerResults { id: 0 },
+            results: ImmutableGetOwnerResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 }

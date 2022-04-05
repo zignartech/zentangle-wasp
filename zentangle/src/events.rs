@@ -6,51 +6,53 @@
 // Change the json schema instead
 
 #![allow(dead_code)]
+#![allow(unused_mut)]
 
 use wasmlib::*;
 
-pub struct ZentangleEvents {
+pub struct zentangleEvents {
 }
 
-impl ZentangleEvents {
+impl zentangleEvents {
 
 	pub fn game_ended(&self) {
-		EventEncoder::new("zentangle.gameEnded").emit();
+		let mut evt = EventEncoder::new("zentangle.gameEnded");
+		evt.emit();
 	}
 
 	pub fn game_started(&self, description: &str, number_of_images: u32, reward: u64, tags_required_per_image: u32) {
-		let mut encoder = EventEncoder::new("zentangle.gameStarted");
-		encoder.string(&description);
-		encoder.uint32(number_of_images);
-		encoder.uint64(reward);
-		encoder.uint32(tags_required_per_image);
-		encoder.emit();
+		let mut evt = EventEncoder::new("zentangle.gameStarted");
+		evt.encode(&string_to_string(&description));
+		evt.encode(&uint32_to_string(number_of_images));
+		evt.encode(&uint64_to_string(reward));
+		evt.encode(&uint32_to_string(tags_required_per_image));
+		evt.emit();
 	}
 
 	pub fn imagetagged(&self, address: &str, image_id: u32, plays_per_image: u32) {
-		let mut encoder = EventEncoder::new("zentangle.imagetagged");
-		encoder.string(&address);
-		encoder.uint32(image_id);
-		encoder.uint32(plays_per_image);
-		encoder.emit();
+		let mut evt = EventEncoder::new("zentangle.imagetagged");
+		evt.encode(&string_to_string(&address));
+		evt.encode(&uint32_to_string(image_id));
+		evt.encode(&uint32_to_string(plays_per_image));
+		evt.emit();
 	}
 
 	pub fn paid(&self, accuracy: &str, amount: u64, bet: u64, boost: u8, player: &str, position: u64) {
-		let mut encoder = EventEncoder::new("zentangle.paid");
-		encoder.string(&accuracy);
-		encoder.uint64(amount);
-		encoder.uint64(bet);
-		encoder.uint8(boost);
-		encoder.string(&player);
-		encoder.uint64(position);
-		encoder.emit();
+		let mut evt = EventEncoder::new("zentangle.paid");
+		evt.encode(&string_to_string(&accuracy));
+		evt.encode(&uint64_to_string(amount));
+		evt.encode(&uint64_to_string(bet));
+		evt.encode(&uint8_to_string(boost));
+		evt.encode(&string_to_string(&player));
+		evt.encode(&uint64_to_string(position));
+		evt.emit();
 	}
 
 	pub fn play_requested(&self, address: &str, amount: u64, image_id: u32) {
-		let mut encoder = EventEncoder::new("zentangle.playRequested");
-		encoder.string(&address);
-		encoder.uint64(amount);
-		encoder.uint32(image_id);
-		encoder.emit();
+		let mut evt = EventEncoder::new("zentangle.playRequested");
+		evt.encode(&string_to_string(&address));
+		evt.encode(&uint64_to_string(amount));
+		evt.encode(&uint32_to_string(image_id));
+		evt.emit();
 	}
 }

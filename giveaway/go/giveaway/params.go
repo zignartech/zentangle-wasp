@@ -7,68 +7,68 @@
 
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type ImmutableInitParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableInitParams) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s ImmutableInitParams) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type MutableInitParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableInitParams) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s MutableInitParams) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type ImmutableLoadAddressesParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableLoadAddressesParams) Addresses() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamAddresses])
+func (s ImmutableLoadAddressesParams) Addresses() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamAddresses))
 }
 
 type MutableLoadAddressesParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableLoadAddressesParams) Addresses() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamAddresses])
+func (s MutableLoadAddressesParams) Addresses() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ParamAddresses))
 }
 
 type ImmutableRuffleParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableRuffleParams) NWinners() wasmlib.ScImmutableInt16 {
-	return wasmlib.NewScImmutableInt16(s.id, idxMap[IdxParamNWinners])
+func (s ImmutableRuffleParams) NWinners() wasmtypes.ScImmutableInt16 {
+	return wasmtypes.NewScImmutableInt16(s.proxy.Root(ParamNWinners))
 }
 
 type MutableRuffleParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableRuffleParams) NWinners() wasmlib.ScMutableInt16 {
-	return wasmlib.NewScMutableInt16(s.id, idxMap[IdxParamNWinners])
+func (s MutableRuffleParams) NWinners() wasmtypes.ScMutableInt16 {
+	return wasmtypes.NewScMutableInt16(s.proxy.Root(ParamNWinners))
 }
 
 type ImmutableSetOwnerParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableSetOwnerParams) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s ImmutableSetOwnerParams) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type MutableSetOwnerParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableSetOwnerParams) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s MutableSetOwnerParams) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamOwner))
 }

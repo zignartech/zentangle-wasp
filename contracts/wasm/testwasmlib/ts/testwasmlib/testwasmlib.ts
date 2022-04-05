@@ -2,28 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as wasmlib from "wasmlib"
+import * as wasmtypes from "wasmlib/wasmtypes";
 import * as coreblocklog from "wasmlib/coreblocklog"
 import * as sc from "./index";
-
-export function funcArrayClear(ctx: wasmlib.ScFuncContext, f: sc.ArrayClearContext): void {
-    let name = f.params.name().value();
-    let array = f.state.arrays().getStringArray(name);
-    array.clear();
-}
-
-export function funcArrayCreate(ctx: wasmlib.ScFuncContext, f: sc.ArrayCreateContext): void {
-    let name = f.params.name().value();
-    let array = f.state.arrays().getStringArray(name);
-    array.clear();
-}
-
-export function funcArraySet(ctx: wasmlib.ScFuncContext, f: sc.ArraySetContext): void {
-    let name = f.params.name().value();
-    let array = f.state.arrays().getStringArray(name);
-    let index = f.params.index().value();
-    let value = f.params.value().value();
-    array.getString(index).setValue(value);
-}
 
 export function funcParamTypes(ctx: wasmlib.ScFuncContext, f: sc.ParamTypesContext): void {
     if (f.params.address().exists()) {
@@ -36,18 +17,18 @@ export function funcParamTypes(ctx: wasmlib.ScFuncContext, f: sc.ParamTypesConte
         ctx.require(f.params.bool().value(), "mismatch: Bool");
     }
     if (f.params.bytes().exists()) {
-        let byteData = wasmlib.Convert.fromString("these are bytes");
-        ctx.require(wasmlib.Convert.equals(f.params.bytes().value(), byteData), "mismatch: Bytes");
+        const byteData = wasmtypes.stringToBytes("these are bytes");
+        ctx.require(wasmtypes.bytesCompare(f.params.bytes().value(), byteData) == 0, "mismatch: Bytes");
     }
     if (f.params.chainID().exists()) {
         ctx.require(f.params.chainID().value().equals(ctx.chainID()), "mismatch: ChainID");
     }
     if (f.params.color().exists()) {
-        let color = wasmlib.ScColor.fromBytes(wasmlib.Convert.fromString("RedGreenBlueYellowCyanBlackWhite"));
+        const color = wasmlib.colorFromBytes(wasmtypes.stringToBytes("RedGreenBlueYellowCyanBlackWhite"));
         ctx.require(f.params.color().value().equals(color), "mismatch: Color");
     }
     if (f.params.hash().exists()) {
-        let hash = wasmlib.ScHash.fromBytes(wasmlib.Convert.fromString("0123456789abcdeffedcba9876543210"));
+        const hash = wasmtypes.hashFromBytes(wasmtypes.stringToBytes("0123456789abcdeffedcba9876543210"));
         ctx.require(f.params.hash().value().equals(hash), "mismatch: Hash");
     }
     if (f.params.hname().exists()) {
@@ -66,7 +47,7 @@ export function funcParamTypes(ctx: wasmlib.ScFuncContext, f: sc.ParamTypesConte
         ctx.require(f.params.int64().value() == -1234567890123456789, "mismatch: Int64");
     }
     if (f.params.requestID().exists()) {
-        let requestId = wasmlib.ScRequestID.fromBytes(wasmlib.Convert.fromString("abcdefghijklmnopqrstuvwxyz123456\x00\x00"));
+        const requestId = wasmtypes.requestIDFromBytes(wasmtypes.stringToBytes("abcdefghijklmnopqrstuvwxyz123456\x00\x00"));
         ctx.require(f.params.requestID().value().equals(requestId), "mismatch: RequestID");
     }
     if (f.params.string().exists()) {
@@ -86,19 +67,12 @@ export function funcParamTypes(ctx: wasmlib.ScFuncContext, f: sc.ParamTypesConte
     }
 }
 
-export function viewArrayLength(ctx: wasmlib.ScViewContext, f: sc.ArrayLengthContext): void {
-    let name = f.params.name().value();
-    let array = f.state.arrays().getStringArray(name);
-    let length = array.length();
-    f.results.length().setValue(length);
+export function funcRandom(ctx: wasmlib.ScFuncContext, f: sc.RandomContext): void {
+    f.state.random().setValue(ctx.random(1000));
 }
 
-export function viewArrayValue(ctx: wasmlib.ScViewContext, f: sc.ArrayValueContext): void {
-    let name = f.params.name().value();
-    let array = f.state.arrays().getStringArray(name);
-    let index = f.params.index().value();
-    let value = array.getString(index).value();
-    f.results.value().setValue(value);
+export function funcTriggerEvent(ctx: wasmlib.ScFuncContext, f: sc.TriggerEventContext): void {
+    f.events.test(f.params.address().value(), f.params.name().value());
 }
 
 export function viewBlockRecord(ctx: wasmlib.ScViewContext, f: sc.BlockRecordContext): void {
@@ -106,8 +80,17 @@ export function viewBlockRecord(ctx: wasmlib.ScViewContext, f: sc.BlockRecordCon
     records.params.blockIndex().setValue(f.params.blockIndex().value());
     records.func.call();
     let recordIndex = f.params.recordIndex().value();
-    ctx.require(recordIndex < records.results.requestRecord().length(), "invalid recordIndex");
-    f.results.record().setValue(records.results.requestRecord().getBytes(recordIndex).value());
+    ctx.log("index: " + recordIndex.toString());
+    recordIndex = f.params.recordIndex().value();
+    ctx.log("index: " + recordIndex.toString());
+    const requestRecord = records.results.requestRecord();
+    const length = requestRecord.length();
+    ctx.log("length: " + length.toString());
+    const length2 = requestRecord.length();
+    ctx.log("length2: " + length2.toString());
+    ctx.require(recordIndex < length, "invalid recordIndex");
+    const buf = requestRecord.getBytes(recordIndex).value();
+    f.results.record().setValue(buf);
 }
 
 export function viewBlockRecords(ctx: wasmlib.ScViewContext, f: sc.BlockRecordsContext): void {
@@ -117,18 +100,151 @@ export function viewBlockRecords(ctx: wasmlib.ScViewContext, f: sc.BlockRecordsC
     f.results.count().setValue(records.results.requestRecord().length());
 }
 
-export function viewIotaBalance(ctx: wasmlib.ScViewContext, f: sc.IotaBalanceContext): void {
-    f.results.iotas().setValue(ctx.balances().balance(wasmlib.ScColor.IOTA));
-}
-
-export function funcRandom(ctx: wasmlib.ScFuncContext, f: sc.RandomContext): void {
-    f.state.random().setValue(ctx.random(1000));
-}
-
 export function viewGetRandom(ctx: wasmlib.ScViewContext, f: sc.GetRandomContext): void {
     f.results.random().setValue(f.state.random().value());
 }
 
-export function funcTriggerEvent(ctx: wasmlib.ScFuncContext, f: sc.TriggerEventContext): void {
-    f.events.test(f.params.address().value(), f.params.name().value());
+export function viewIotaBalance(ctx: wasmlib.ScViewContext, f: sc.IotaBalanceContext): void {
+    f.results.iotas().setValue(ctx.balances().balance(wasmtypes.IOTA));
+}
+
+//////////////////// array of array \\\\\\\\\\\\\\\\\\\\
+
+export function funcArrayOfArraysAppend(ctx: wasmlib.ScFuncContext, f: sc.ArrayOfArraysAppendContext): void {
+    const index = f.params.index().value();
+    const length = f.params.value().length();
+
+    let sa: sc.ArrayOfMutableString;
+    if (f.state.stringArrayOfArrays().length() <= index) {
+        sa = f.state.stringArrayOfArrays().appendStringArray();
+    } else {
+        sa = f.state.stringArrayOfArrays().getStringArray(index);
+    }
+
+    for (let i = u32(0); i < length; i++) {
+        const elt = f.params.value().getString(i).value();
+        sa.appendString().setValue(elt);
+    }
+}
+
+export function funcArrayOfArraysClear(ctx: wasmlib.ScFuncContext, f: sc.ArrayOfArraysClearContext): void {
+    const length = f.state.stringArrayOfArrays().length();
+    for (let i = u32(0); i < length; i++) {
+        const array = f.state.stringArrayOfArrays().getStringArray(i);
+        array.clear();
+    }
+    f.state.stringArrayOfArrays().clear();
+}
+
+export function funcArrayOfArraysSet(ctx: wasmlib.ScFuncContext, f: sc.ArrayOfArraysSetContext): void {
+    const index0 = f.params.index0().value();
+    const index1 = f.params.index1().value();
+    const array = f.state.stringArrayOfArrays().getStringArray(index0);
+    const value = f.params.value().value();
+    array.getString(index1).setValue(value);
+}
+
+export function viewArrayOfArraysLength(ctx: wasmlib.ScViewContext, f: sc.ArrayOfArraysLengthContext): void {
+    const length = f.state.stringArrayOfArrays().length();
+    f.results.length().setValue(length);
+}
+
+export function viewArrayOfArraysValue(ctx: wasmlib.ScViewContext, f: sc.ArrayOfArraysValueContext): void {
+    const index0 = f.params.index0().value();
+    const index1 = f.params.index1().value();
+
+    const elt = f.state.stringArrayOfArrays().getStringArray(index0).getString(index1).value();
+    f.results.value().setValue(elt);
+}
+
+//////////////////// array of map \\\\\\\\\\\\\\\\\\\\
+
+export function funcArrayOfMapsClear(ctx: wasmlib.ScFuncContext, f: sc.ArrayOfMapsClearContext): void {
+    const length = f.state.stringArrayOfArrays().length();
+    for (let i = u32(0); i < length; i++) {
+        const mmap = f.state.stringArrayOfMaps().getStringMap(i);
+        mmap.clear();
+    }
+    f.state.stringArrayOfMaps().clear();
+}
+
+export function funcArrayOfMapsSet(ctx: wasmlib.ScFuncContext, f: sc.ArrayOfMapsSetContext): void {
+    const index = f.params.index().value();
+    const value = f.params.value().value();
+    const key = f.params.key().value();
+    if (f.state.stringArrayOfMaps().length() <= index) {
+        const mmap = f.state.stringArrayOfMaps().appendStringMap();
+        mmap.getString(key).setValue(value);
+        return
+    }
+    const mmap = f.state.stringArrayOfMaps().getStringMap(index);
+    mmap.getString(key).setValue(value);
+}
+
+export function viewArrayOfMapsValue(ctx: wasmlib.ScViewContext, f: sc.ArrayOfMapsValueContext): void {
+    const index = f.params.index().value();
+    const key = f.params.key().value();
+    const mmap = f.state.stringArrayOfMaps().getStringMap(index);
+    f.results.value().setValue(mmap.getString(key).value());
+}
+
+//////////////////// map of array \\\\\\\\\\\\\\\\\\\\
+
+export function funcMapOfArraysAppend(ctx: wasmlib.ScFuncContext, f: sc.MapOfArraysAppendContext): void {
+    const name = f.params.name().value();
+    const array = f.state.stringMapOfArrays().getStringArray(name);
+    const value = f.params.value().value();
+    array.appendString().setValue(value);
+}
+
+export function funcMapOfArraysClear(ctx: wasmlib.ScFuncContext, f: sc.MapOfArraysClearContext): void {
+    const name = f.params.name().value();
+    const array = f.state.stringMapOfArrays().getStringArray(name);
+    array.clear();
+}
+
+export function funcMapOfArraysSet(ctx: wasmlib.ScFuncContext, f: sc.MapOfArraysSetContext): void {
+    const name = f.params.name().value();
+    const array = f.state.stringMapOfArrays().getStringArray(name);
+    const index = f.params.index().value();
+    const value = f.params.value().value();
+    array.getString(index).setValue(value);
+}
+
+export function viewMapOfArraysLength(ctx: wasmlib.ScViewContext, f: sc.MapOfArraysLengthContext): void {
+    const name = f.params.name().value();
+    const array = f.state.stringMapOfArrays().getStringArray(name);
+    const length = array.length();
+    f.results.length().setValue(length);
+}
+
+export function viewMapOfArraysValue(ctx: wasmlib.ScViewContext, f: sc.MapOfArraysValueContext): void {
+    const name = f.params.name().value();
+    const array = f.state.stringMapOfArrays().getStringArray(name);
+    const index = f.params.index().value();
+    const value = array.getString(index).value();
+    f.results.value().setValue(value);
+}
+
+//////////////////// map of map \\\\\\\\\\\\\\\\\\\\
+
+export function funcMapOfMapsClear(ctx: wasmlib.ScFuncContext, f: sc.MapOfMapsClearContext): void {
+    const name = f.params.name().value();
+    const mmap = f.state.stringMapOfMaps().getStringMap(name);
+    mmap.clear();
+}
+
+export function funcMapOfMapsSet(ctx: wasmlib.ScFuncContext, f: sc.MapOfMapsSetContext): void {
+    const name = f.params.name().value();
+    const mmap = f.state.stringMapOfMaps().getStringMap(name);
+    const key = f.params.key().value();
+    const value = f.params.value().value();
+    mmap.getString(key).setValue(value);
+}
+
+export function viewMapOfMapsValue(ctx: wasmlib.ScViewContext, f: sc.MapOfMapsValueContext): void {
+    const name = f.params.name().value();
+    const mmap = f.state.stringMapOfMaps().getStringMap(name);
+    const key = f.params.key().value();
+    f.results.value().setValue(mmap.getString(key).value());
 }

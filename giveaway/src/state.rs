@@ -9,77 +9,77 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
 
 use crate::*;
-use crate::keys::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfImmutableString {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfImmutableString {
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_string(&self, index: i32) -> ScImmutableString {
-        ScImmutableString::new(self.obj_id, Key32(index))
+    pub fn get_string(&self, index: u32) -> ScImmutableString {
+        ScImmutableString::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutablegiveawayState {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutablegiveawayState {
     pub fn addresses(&self) -> ArrayOfImmutableString {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_ADDRESSES), TYPE_ARRAY | TYPE_STRING);
-		ArrayOfImmutableString { obj_id: arr_id }
+		ArrayOfImmutableString { proxy: self.proxy.root(STATE_ADDRESSES) }
 	}
 
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(STATE_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ArrayOfMutableString {
-	pub(crate) obj_id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ArrayOfMutableString {
-    pub fn clear(&self) {
-        clear(self.obj_id);
+	pub fn append_string(&self) -> ScMutableString {
+		ScMutableString::new(self.proxy.append())
+	}
+
+	pub fn clear(&self) {
+        self.proxy.clear_array();
     }
 
-    pub fn length(&self) -> i32 {
-        get_length(self.obj_id)
+    pub fn length(&self) -> u32 {
+        self.proxy.length()
     }
 
-    pub fn get_string(&self, index: i32) -> ScMutableString {
-        ScMutableString::new(self.obj_id, Key32(index))
+    pub fn get_string(&self, index: u32) -> ScMutableString {
+        ScMutableString::new(self.proxy.index(index))
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutablegiveawayState {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutablegiveawayState {
     pub fn as_immutable(&self) -> ImmutablegiveawayState {
-		ImmutablegiveawayState { id: self.id }
+		ImmutablegiveawayState { proxy: self.proxy.root("") }
 	}
 
     pub fn addresses(&self) -> ArrayOfMutableString {
-		let arr_id = get_object_id(self.id, idx_map(IDX_STATE_ADDRESSES), TYPE_ARRAY | TYPE_STRING);
-		ArrayOfMutableString { obj_id: arr_id }
+		ArrayOfMutableString { proxy: self.proxy.root(STATE_ADDRESSES) }
 	}
 
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_STATE_OWNER))
+		ScMutableAgentID::new(self.proxy.root(STATE_OWNER))
 	}
 }

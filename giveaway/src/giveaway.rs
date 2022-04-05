@@ -37,7 +37,7 @@ pub fn func_load_addresses(ctx: &ScFuncContext, f: &LoadAddressesContext) {
     }
     let addresses = addresses_option.unwrap();
     for i in 0..addresses.addresses.len() {
-        f.state.addresses().get_string(f.state.addresses().length()).set_value(&addresses.addresses[i]);
+        f.state.addresses().append_string().set_value(&addresses.addresses[i]);
     }
 }
 
@@ -51,7 +51,7 @@ pub fn func_ruffle(ctx: &ScFuncContext, f: &RuffleContext) {
     let n_winners = f.params.n_winners().value();
 
     ctx.require(
-        n_winners as i32 <= addresses.length(),
+        n_winners as u32 <= addresses.length(),
         "Error: Not sufficient addresses",
     );
 
@@ -59,9 +59,9 @@ pub fn func_ruffle(ctx: &ScFuncContext, f: &RuffleContext) {
     let mut counter = 0;
 
     'a: while counter < n_winners {
-        let winner_id = ctx.random(addresses.length() as i64);
+        let winner_id = ctx.random(addresses.length() as u64);
 
-        let winner = addresses.get_string(winner_id as i32).value();
+        let winner = addresses.get_string(winner_id as u32).value();
         // if this address is allready a winner, skip it
         for w in 0..winners.len() {
             if winner == winners[w] {

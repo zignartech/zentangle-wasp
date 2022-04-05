@@ -7,51 +7,54 @@
 
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type ArrayOfImmutableString struct {
-	objID int32
+	proxy wasmtypes.Proxy
 }
 
-func (a ArrayOfImmutableString) Length() int32 {
-	return wasmlib.GetLength(a.objID)
+func (a ArrayOfImmutableString) Length() uint32 {
+	return a.proxy.Length()
 }
 
-func (a ArrayOfImmutableString) GetString(index int32) wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(a.objID, wasmlib.Key32(index))
+func (a ArrayOfImmutableString) GetString(index uint32) wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(a.proxy.Index(index))
 }
 
 type ImmutablegiveawayState struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
 func (s ImmutablegiveawayState) Addresses() ArrayOfImmutableString {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateAddresses], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING)
-	return ArrayOfImmutableString{objID: arrID}
+	return ArrayOfImmutableString{proxy: s.proxy.Root(StateAddresses)}
 }
 
-func (s ImmutablegiveawayState) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxStateOwner])
+func (s ImmutablegiveawayState) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(StateOwner))
 }
 
 type ArrayOfMutableString struct {
-	objID int32
+	proxy wasmtypes.Proxy
+}
+
+func (a ArrayOfMutableString) AppendString() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(a.proxy.Append())
 }
 
 func (a ArrayOfMutableString) Clear() {
-	wasmlib.Clear(a.objID)
+	a.proxy.ClearArray()
 }
 
-func (a ArrayOfMutableString) Length() int32 {
-	return wasmlib.GetLength(a.objID)
+func (a ArrayOfMutableString) Length() uint32 {
+	return a.proxy.Length()
 }
 
-func (a ArrayOfMutableString) GetString(index int32) wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(a.objID, wasmlib.Key32(index))
+func (a ArrayOfMutableString) GetString(index uint32) wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(a.proxy.Index(index))
 }
 
 type MutablegiveawayState struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
 func (s MutablegiveawayState) AsImmutable() ImmutablegiveawayState {
@@ -59,10 +62,9 @@ func (s MutablegiveawayState) AsImmutable() ImmutablegiveawayState {
 }
 
 func (s MutablegiveawayState) Addresses() ArrayOfMutableString {
-	arrID := wasmlib.GetObjectID(s.id, idxMap[IdxStateAddresses], wasmlib.TYPE_ARRAY|wasmlib.TYPE_STRING)
-	return ArrayOfMutableString{objID: arrID}
+	return ArrayOfMutableString{proxy: s.proxy.Root(StateAddresses)}
 }
 
-func (s MutablegiveawayState) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxStateOwner])
+func (s MutablegiveawayState) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(StateOwner))
 }

@@ -7,12 +7,12 @@
 
 package giveaway
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 const (
 	ScName        = "giveaway"
 	ScDescription = "giveaway smart contract to choose the winners of the Zentangle Drangon's giveaways. Addresses should not be repeated"
-	HScName       = wasmlib.ScHname(0x31774d34)
+	HScName       = wasmtypes.ScHname(0x31774d34)
 )
 
 const (
@@ -41,10 +41,10 @@ const (
 )
 
 const (
-	HFuncInit            = wasmlib.ScHname(0x1f44d644)
-	HFuncLoadAddresses   = wasmlib.ScHname(0x2e3febf1)
-	HFuncRuffle          = wasmlib.ScHname(0x1a23d876)
-	HFuncSetOwner        = wasmlib.ScHname(0x2a15fe7b)
-	HFuncUnloadAddresses = wasmlib.ScHname(0xb8992203)
-	HViewGetOwner        = wasmlib.ScHname(0x137107a6)
+	HFuncInit            = wasmtypes.ScHname(0x1f44d644)
+	HFuncLoadAddresses   = wasmtypes.ScHname(0x2e3febf1)
+	HFuncRuffle          = wasmtypes.ScHname(0x1a23d876)
+	HFuncSetOwner        = wasmtypes.ScHname(0x2a15fe7b)
+	HFuncUnloadAddresses = wasmtypes.ScHname(0xb8992203)
+	HViewGetOwner        = wasmtypes.ScHname(0x137107a6)
 )

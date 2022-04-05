@@ -8,26 +8,48 @@
 //nolint:dupl
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 
-func OnLoad() {
-	exports := wasmlib.NewScExports()
-	exports.AddFunc(FuncCreateGame,       funcCreateGameThunk)
-	exports.AddFunc(FuncEndGame,          funcEndGameThunk)
-	exports.AddFunc(FuncInit,             funcInitThunk)
-	exports.AddFunc(FuncRequestPlay,      funcRequestPlayThunk)
-	exports.AddFunc(FuncSendTags,         funcSendTagsThunk)
-	exports.AddFunc(FuncSetOwner,         funcSetOwnerThunk)
-	exports.AddFunc(FuncWithdraw,         funcWithdrawThunk)
-	exports.AddView(ViewGetOwner,         viewGetOwnerThunk)
-	exports.AddView(ViewGetPlayerBets,    viewGetPlayerBetsThunk)
-	exports.AddView(ViewGetPlayerInfo,    viewGetPlayerInfoThunk)
-	exports.AddView(ViewGetPlaysPerImage, viewGetPlaysPerImageThunk)
-	exports.AddView(ViewGetResults,       viewGetResultsThunk)
+var exportMap = wasmlib.ScExportMap{
+	Names: []string{
+    	FuncCreateGame,
+    	FuncEndGame,
+    	FuncInit,
+    	FuncRequestPlay,
+    	FuncSendTags,
+    	FuncSetOwner,
+    	FuncWithdraw,
+    	ViewGetOwner,
+    	ViewGetPlayerBets,
+    	ViewGetPlayerInfo,
+    	ViewGetPlaysPerImage,
+    	ViewGetResults,
+	},
+	Funcs: []wasmlib.ScFuncContextFunction{
+    	funcCreateGameThunk,
+    	funcEndGameThunk,
+    	funcInitThunk,
+    	funcRequestPlayThunk,
+    	funcSendTagsThunk,
+    	funcSetOwnerThunk,
+    	funcWithdrawThunk,
+	},
+	Views: []wasmlib.ScViewContextFunction{
+    	viewGetOwnerThunk,
+    	viewGetPlayerBetsThunk,
+    	viewGetPlayerInfoThunk,
+    	viewGetPlaysPerImageThunk,
+    	viewGetResultsThunk,
+	},
+}
 
-	for i, key := range keyMap {
-		idxMap[i] = key.KeyID()
+func OnLoad(index int32) {
+	if index >= 0 {
+		wasmlib.ScExportsCall(index, &exportMap)
+		return
 	}
+
+	wasmlib.ScExportsExport(&exportMap)
 }
 
 type CreateGameContext struct {
@@ -40,10 +62,10 @@ func funcCreateGameThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcCreateGame")
 	f := &CreateGameContext{
 		Params: ImmutableCreateGameParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	ctx.Require(f.Params.Description().Exists(), "missing mandatory description")
@@ -62,10 +84,10 @@ func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcEndGame")
 	f := &EndGameContext{
 		Params: ImmutableEndGameParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	funcEndGame(ctx, f)
@@ -82,10 +104,10 @@ func funcInitThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcInit")
 	f := &InitContext{
 		Params: ImmutableInitParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	funcInit(ctx, f)
@@ -100,15 +122,17 @@ type RequestPlayContext struct {
 
 func funcRequestPlayThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcRequestPlay")
+	results := wasmlib.NewScDict()
 	f := &RequestPlayContext{
 		Results: MutableRequestPlayResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	funcRequestPlay(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.funcRequestPlay ok")
 }
 
@@ -121,19 +145,21 @@ type SendTagsContext struct {
 
 func funcSendTagsThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcSendTags")
+	results := wasmlib.NewScDict()
 	f := &SendTagsContext{
 		Params: ImmutableSendTagsParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		Results: MutableSendTagsResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	ctx.Require(f.Params.InputJson().Exists(), "missing mandatory inputJson")
 	funcSendTags(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.funcSendTags ok")
 }
 
@@ -145,20 +171,20 @@ type SetOwnerContext struct {
 
 func funcSetOwnerThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcSetOwner")
+	f := &SetOwnerContext{
+		Params: ImmutableSetOwnerParams{
+			proxy: wasmlib.NewParamsProxy(),
+		},
+		State: MutablezentangleState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &SetOwnerContext{
-		Params: ImmutableSetOwnerParams{
-			id: wasmlib.OBJ_ID_PARAMS,
-		},
-		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	ctx.Require(f.Params.Owner().Exists(), "missing mandatory owner")
 	funcSetOwner(ctx, f)
 	ctx.Log("zentangle.funcSetOwner ok")
@@ -171,17 +197,17 @@ type WithdrawContext struct {
 
 func funcWithdrawThunk(ctx wasmlib.ScFuncContext) {
 	ctx.Log("zentangle.funcWithdraw")
+	f := &WithdrawContext{
+		State: MutablezentangleState{
+			proxy: wasmlib.NewStateProxy(),
+		},
+	}
 
 	// current owner of this smart contract
-	access := ctx.State().GetAgentID(wasmlib.Key("owner"))
+	access := f.State.Owner()
 	ctx.Require(access.Exists(), "access not set: owner")
 	ctx.Require(ctx.Caller() == access.Value(), "no permission")
 
-	f := &WithdrawContext{
-		State: MutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
-		},
-	}
 	funcWithdraw(ctx, f)
 	ctx.Log("zentangle.funcWithdraw ok")
 }
@@ -193,15 +219,17 @@ type GetOwnerContext struct {
 
 func viewGetOwnerThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("zentangle.viewGetOwner")
+	results := wasmlib.NewScDict()
 	f := &GetOwnerContext{
 		Results: MutableGetOwnerResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	viewGetOwner(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.viewGetOwner ok")
 }
 
@@ -212,15 +240,17 @@ type GetPlayerBetsContext struct {
 
 func viewGetPlayerBetsThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("zentangle.viewGetPlayerBets")
+	results := wasmlib.NewScDict()
 	f := &GetPlayerBetsContext{
 		Results: MutableGetPlayerBetsResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	viewGetPlayerBets(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.viewGetPlayerBets ok")
 }
 
@@ -232,19 +262,21 @@ type GetPlayerInfoContext struct {
 
 func viewGetPlayerInfoThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("zentangle.viewGetPlayerInfo")
+	results := wasmlib.NewScDict()
 	f := &GetPlayerInfoContext{
 		Params: ImmutableGetPlayerInfoParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		Results: MutableGetPlayerInfoResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	ctx.Require(f.Params.PlayerAddress().Exists(), "missing mandatory playerAddress")
 	viewGetPlayerInfo(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.viewGetPlayerInfo ok")
 }
 
@@ -256,19 +288,21 @@ type GetPlaysPerImageContext struct {
 
 func viewGetPlaysPerImageThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("zentangle.viewGetPlaysPerImage")
+	results := wasmlib.NewScDict()
 	f := &GetPlaysPerImageContext{
 		Params: ImmutableGetPlaysPerImageParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		Results: MutableGetPlaysPerImageResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	ctx.Require(f.Params.ImageId().Exists(), "missing mandatory imageId")
 	viewGetPlaysPerImage(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.viewGetPlaysPerImage ok")
 }
 
@@ -280,18 +314,20 @@ type GetResultsContext struct {
 
 func viewGetResultsThunk(ctx wasmlib.ScViewContext) {
 	ctx.Log("zentangle.viewGetResults")
+	results := wasmlib.NewScDict()
 	f := &GetResultsContext{
 		Params: ImmutableGetResultsParams{
-			id: wasmlib.OBJ_ID_PARAMS,
+			proxy: wasmlib.NewParamsProxy(),
 		},
 		Results: MutableGetResultsResults{
-			id: wasmlib.OBJ_ID_RESULTS,
+			proxy: results.AsProxy(),
 		},
 		State: ImmutablezentangleState{
-			id: wasmlib.OBJ_ID_STATE,
+			proxy: wasmlib.NewStateProxy(),
 		},
 	}
 	ctx.Require(f.Params.ImageId().Exists(), "missing mandatory imageId")
 	viewGetResults(ctx, f)
+	ctx.Results(results)
 	ctx.Log("zentangle.viewGetResults ok")
 }

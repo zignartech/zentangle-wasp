@@ -6,47 +6,48 @@
 // Change the json schema instead
 
 import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 
 export class zentangleEvents {
 
 	gameEnded(): void {
-		new wasmlib.EventEncoder("zentangle.gameEnded").
-		emit();
+		const evt = new wasmlib.EventEncoder("zentangle.gameEnded");
+		evt.emit();
 	}
 
 	gameStarted(description: string, numberOfImages: u32, reward: u64, tagsRequiredPerImage: u32): void {
-		new wasmlib.EventEncoder("zentangle.gameStarted").
-		string(description).
-		uint32(numberOfImages).
-		uint64(reward).
-		uint32(tagsRequiredPerImage).
-		emit();
+		const evt = new wasmlib.EventEncoder("zentangle.gameStarted");
+		evt.encode(wasmtypes.stringToString(description));
+		evt.encode(wasmtypes.uint32ToString(numberOfImages));
+		evt.encode(wasmtypes.uint64ToString(reward));
+		evt.encode(wasmtypes.uint32ToString(tagsRequiredPerImage));
+		evt.emit();
 	}
 
 	imagetagged(address: string, imageId: u32, playsPerImage: u32): void {
-		new wasmlib.EventEncoder("zentangle.imagetagged").
-		string(address).
-		uint32(imageId).
-		uint32(playsPerImage).
-		emit();
+		const evt = new wasmlib.EventEncoder("zentangle.imagetagged");
+		evt.encode(wasmtypes.stringToString(address));
+		evt.encode(wasmtypes.uint32ToString(imageId));
+		evt.encode(wasmtypes.uint32ToString(playsPerImage));
+		evt.emit();
 	}
 
 	paid(accuracy: string, amount: u64, bet: u64, boost: u8, player: string, position: u64): void {
-		new wasmlib.EventEncoder("zentangle.paid").
-		string(accuracy).
-		uint64(amount).
-		uint64(bet).
-		uint8(boost).
-		string(player).
-		uint64(position).
-		emit();
+		const evt = new wasmlib.EventEncoder("zentangle.paid");
+		evt.encode(wasmtypes.stringToString(accuracy));
+		evt.encode(wasmtypes.uint64ToString(amount));
+		evt.encode(wasmtypes.uint64ToString(bet));
+		evt.encode(wasmtypes.uint8ToString(boost));
+		evt.encode(wasmtypes.stringToString(player));
+		evt.encode(wasmtypes.uint64ToString(position));
+		evt.emit();
 	}
 
 	playRequested(address: string, amount: u64, imageId: u32): void {
-		new wasmlib.EventEncoder("zentangle.playRequested").
-		string(address).
-		uint64(amount).
-		uint32(imageId).
-		emit();
+		const evt = new wasmlib.EventEncoder("zentangle.playRequested");
+		evt.encode(wasmtypes.stringToString(address));
+		evt.encode(wasmtypes.uint64ToString(amount));
+		evt.encode(wasmtypes.uint32ToString(imageId));
+		evt.emit();
 	}
 }

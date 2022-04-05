@@ -6,20 +6,56 @@
 // Change the json schema instead
 
 import * as wasmclient from "wasmclient"
-import * as app from "./zentangle"
 
-export const eventHandlers: wasmclient.EventHandlers = {
-	"zentangle.gameEnded": (msg: string[]) => app.onZentangleGameEnded(new EventGameEnded(msg)),
-	"zentangle.gameStarted": (msg: string[]) => app.onZentangleGameStarted(new EventGameStarted(msg)),
-	"zentangle.imagetagged": (msg: string[]) => app.onZentangleImagetagged(new EventImagetagged(msg)),
-	"zentangle.paid": (msg: string[]) => app.onZentanglePaid(new EventPaid(msg)),
-	"zentangle.playRequested": (msg: string[]) => app.onZentanglePlayRequested(new EventPlayRequested(msg)),
-};
+const zentangleHandlers = new Map<string, (evt: ZentangleEvents, msg: string[]) => void>([
+	["zentangle.gameEnded", (evt: ZentangleEvents, msg: string[]) => evt.gameEnded(new EventGameEnded(msg))],
+	["zentangle.gameStarted", (evt: ZentangleEvents, msg: string[]) => evt.gameStarted(new EventGameStarted(msg))],
+	["zentangle.imagetagged", (evt: ZentangleEvents, msg: string[]) => evt.imagetagged(new EventImagetagged(msg))],
+	["zentangle.paid", (evt: ZentangleEvents, msg: string[]) => evt.paid(new EventPaid(msg))],
+	["zentangle.playRequested", (evt: ZentangleEvents, msg: string[]) => evt.playRequested(new EventPlayRequested(msg))],
+]);
+
+export class ZentangleEvents implements wasmclient.IEventHandler {
+/* eslint-disable @typescript-eslint/no-empty-function */
+	gameEnded: (evt: EventGameEnded) => void = () => {};
+	gameStarted: (evt: EventGameStarted) => void = () => {};
+	imagetagged: (evt: EventImagetagged) => void = () => {};
+	paid: (evt: EventPaid) => void = () => {};
+	playRequested: (evt: EventPlayRequested) => void = () => {};
+/* eslint-enable @typescript-eslint/no-empty-function */
+
+	public callHandler(topic: string, params: string[]): void {
+		const handler = zentangleHandlers.get(topic);
+		if (handler) {
+			handler(this, params);
+		}
+	}
+
+	public onZentangleGameEnded(handler: (evt: EventGameEnded) => void): void {
+		this.gameEnded = handler;
+	}
+
+	public onZentangleGameStarted(handler: (evt: EventGameStarted) => void): void {
+		this.gameStarted = handler;
+	}
+
+	public onZentangleImagetagged(handler: (evt: EventImagetagged) => void): void {
+		this.imagetagged = handler;
+	}
+
+	public onZentanglePaid(handler: (evt: EventPaid) => void): void {
+		this.paid = handler;
+	}
+
+	public onZentanglePlayRequested(handler: (evt: EventPlayRequested) => void): void {
+		this.playRequested = handler;
+	}
+}
 
 export class EventGameEnded extends wasmclient.Event {
 	
 	public constructor(msg: string[]) {
-		super(msg)
+		super(msg);
 	}
 }
 
@@ -30,7 +66,7 @@ export class EventGameStarted extends wasmclient.Event {
 	public readonly tagsRequiredPerImage: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
-		super(msg)
+		super(msg);
 		this.description = this.nextString();
 		this.numberOfImages = this.nextUint32();
 		this.reward = this.nextUint64();
@@ -44,7 +80,7 @@ export class EventImagetagged extends wasmclient.Event {
 	public readonly playsPerImage: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
-		super(msg)
+		super(msg);
 		this.address = this.nextString();
 		this.imageId = this.nextUint32();
 		this.playsPerImage = this.nextUint32();
@@ -60,7 +96,7 @@ export class EventPaid extends wasmclient.Event {
 	public readonly position: wasmclient.Uint64;
 	
 	public constructor(msg: string[]) {
-		super(msg)
+		super(msg);
 		this.accuracy = this.nextString();
 		this.amount = this.nextUint64();
 		this.bet = this.nextUint64();
@@ -76,7 +112,7 @@ export class EventPlayRequested extends wasmclient.Event {
 	public readonly imageId: wasmclient.Uint32;
 	
 	public constructor(msg: string[]) {
-		super(msg)
+		super(msg);
 		this.address = this.nextString();
 		this.amount = this.nextUint64();
 		this.imageId = this.nextUint32();

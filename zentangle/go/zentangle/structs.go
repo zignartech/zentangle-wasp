@@ -7,64 +7,62 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type Bet struct {
 	Amount  uint64 
 	ImageId uint32 
-	Player  wasmlib.ScAddress  // player placing the bet
+	Player  wasmtypes.ScAddress  // player placing the bet
 }
 
-func NewBetFromBytes(bytes []byte) *Bet {
-	decode := wasmlib.NewBytesDecoder(bytes)
+func NewBetFromBytes(buf []byte) *Bet {
+	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &Bet{}
-	data.Amount  = decode.Uint64()
-	data.ImageId = decode.Uint32()
-	data.Player  = decode.Address()
-	decode.Close()
+	data.Amount  = wasmtypes.Uint64Decode(dec)
+	data.ImageId = wasmtypes.Uint32Decode(dec)
+	data.Player  = wasmtypes.AddressDecode(dec)
+	dec.Close()
 	return data
 }
 
 func (o *Bet) Bytes() []byte {
-	return wasmlib.NewBytesEncoder().
-		Uint64(o.Amount).
-		Uint32(o.ImageId).
-		Address(o.Player).
-		Data()
+	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint64Encode(enc, o.Amount)
+		wasmtypes.Uint32Encode(enc, o.ImageId)
+		wasmtypes.AddressEncode(enc, o.Player)
+	return enc.Buf()
 }
 
 type ImmutableBet struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o ImmutableBet) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o ImmutableBet) Value() *Bet {
-	return NewBetFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewBetFromBytes(o.proxy.Get())
 }
 
 type MutableBet struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o MutableBet) Delete() {
-	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	o.proxy.Delete()
 }
 
 func (o MutableBet) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o MutableBet) SetValue(value *Bet) {
-	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+	o.proxy.Set(value.Bytes())
 }
 
 func (o MutableBet) Value() *Bet {
-	return NewBetFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewBetFromBytes(o.proxy.Get())
 }
 
 type PlayerBoost struct {
@@ -72,189 +70,183 @@ type PlayerBoost struct {
 	NTags          uint64  // Number of tags made by the player in the current round
 	NTrippleBoosts uint64  // Number of 3x boosts used in the round
 	NValidTags     uint64  // Number of validated tags made by the player in the current round. this is to calculate how much to pay them
-	Player         wasmlib.ScAgentID  // The player's AgentId
+	Player         wasmtypes.ScAgentID  // The player's AgentId
 }
 
-func NewPlayerBoostFromBytes(bytes []byte) *PlayerBoost {
-	decode := wasmlib.NewBytesDecoder(bytes)
+func NewPlayerBoostFromBytes(buf []byte) *PlayerBoost {
+	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &PlayerBoost{}
-	data.NDoubleBoosts  = decode.Uint64()
-	data.NTags          = decode.Uint64()
-	data.NTrippleBoosts = decode.Uint64()
-	data.NValidTags     = decode.Uint64()
-	data.Player         = decode.AgentID()
-	decode.Close()
+	data.NDoubleBoosts  = wasmtypes.Uint64Decode(dec)
+	data.NTags          = wasmtypes.Uint64Decode(dec)
+	data.NTrippleBoosts = wasmtypes.Uint64Decode(dec)
+	data.NValidTags     = wasmtypes.Uint64Decode(dec)
+	data.Player         = wasmtypes.AgentIDDecode(dec)
+	dec.Close()
 	return data
 }
 
 func (o *PlayerBoost) Bytes() []byte {
-	return wasmlib.NewBytesEncoder().
-		Uint64(o.NDoubleBoosts).
-		Uint64(o.NTags).
-		Uint64(o.NTrippleBoosts).
-		Uint64(o.NValidTags).
-		AgentID(o.Player).
-		Data()
+	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint64Encode(enc, o.NDoubleBoosts)
+		wasmtypes.Uint64Encode(enc, o.NTags)
+		wasmtypes.Uint64Encode(enc, o.NTrippleBoosts)
+		wasmtypes.Uint64Encode(enc, o.NValidTags)
+		wasmtypes.AgentIDEncode(enc, o.Player)
+	return enc.Buf()
 }
 
 type ImmutablePlayerBoost struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o ImmutablePlayerBoost) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o ImmutablePlayerBoost) Value() *PlayerBoost {
-	return NewPlayerBoostFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewPlayerBoostFromBytes(o.proxy.Get())
 }
 
 type MutablePlayerBoost struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o MutablePlayerBoost) Delete() {
-	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	o.proxy.Delete()
 }
 
 func (o MutablePlayerBoost) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o MutablePlayerBoost) SetValue(value *PlayerBoost) {
-	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+	o.proxy.Set(value.Bytes())
 }
 
 func (o MutablePlayerBoost) Value() *PlayerBoost {
-	return NewPlayerBoostFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewPlayerBoostFromBytes(o.proxy.Get())
 }
 
 type TaggedImage struct {
 	Boost   string  // if the tags will be boosted or not
 	H       string  // heights of the Tags
 	ImageId int32  // the only signed integer (It is -1 by default)
-	Player  wasmlib.ScAddress  // player that has tagged this image
+	Player  wasmtypes.ScAddress  // player that has tagged this image
 	W       string  // widths of the Tags
 	X       string  // x top-left positions of the Tags
 	Y       string  // y top-left positions of the Tags
 }
 
-func NewTaggedImageFromBytes(bytes []byte) *TaggedImage {
-	decode := wasmlib.NewBytesDecoder(bytes)
+func NewTaggedImageFromBytes(buf []byte) *TaggedImage {
+	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &TaggedImage{}
-	data.Boost   = decode.String()
-	data.H       = decode.String()
-	data.ImageId = decode.Int32()
-	data.Player  = decode.Address()
-	data.W       = decode.String()
-	data.X       = decode.String()
-	data.Y       = decode.String()
-	decode.Close()
+	data.Boost   = wasmtypes.StringDecode(dec)
+	data.H       = wasmtypes.StringDecode(dec)
+	data.ImageId = wasmtypes.Int32Decode(dec)
+	data.Player  = wasmtypes.AddressDecode(dec)
+	data.W       = wasmtypes.StringDecode(dec)
+	data.X       = wasmtypes.StringDecode(dec)
+	data.Y       = wasmtypes.StringDecode(dec)
+	dec.Close()
 	return data
 }
 
 func (o *TaggedImage) Bytes() []byte {
-	return wasmlib.NewBytesEncoder().
-		String(o.Boost).
-		String(o.H).
-		Int32(o.ImageId).
-		Address(o.Player).
-		String(o.W).
-		String(o.X).
-		String(o.Y).
-		Data()
+	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.StringEncode(enc, o.Boost)
+		wasmtypes.StringEncode(enc, o.H)
+		wasmtypes.Int32Encode(enc, o.ImageId)
+		wasmtypes.AddressEncode(enc, o.Player)
+		wasmtypes.StringEncode(enc, o.W)
+		wasmtypes.StringEncode(enc, o.X)
+		wasmtypes.StringEncode(enc, o.Y)
+	return enc.Buf()
 }
 
 type ImmutableTaggedImage struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o ImmutableTaggedImage) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o ImmutableTaggedImage) Value() *TaggedImage {
-	return NewTaggedImageFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewTaggedImageFromBytes(o.proxy.Get())
 }
 
 type MutableTaggedImage struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o MutableTaggedImage) Delete() {
-	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	o.proxy.Delete()
 }
 
 func (o MutableTaggedImage) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o MutableTaggedImage) SetValue(value *TaggedImage) {
-	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+	o.proxy.Set(value.Bytes())
 }
 
 func (o MutableTaggedImage) Value() *TaggedImage {
-	return NewTaggedImageFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewTaggedImageFromBytes(o.proxy.Get())
 }
 
 type ValidTag struct {
 	PlayTagId   uint32  // Identifier to distinguish different tags in the same play
-	Player      wasmlib.ScAddress  // player placing the bet
+	Player      wasmtypes.ScAddress  // player placing the bet
 	TaggedImage uint32 
 }
 
-func NewValidTagFromBytes(bytes []byte) *ValidTag {
-	decode := wasmlib.NewBytesDecoder(bytes)
+func NewValidTagFromBytes(buf []byte) *ValidTag {
+	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &ValidTag{}
-	data.PlayTagId   = decode.Uint32()
-	data.Player      = decode.Address()
-	data.TaggedImage = decode.Uint32()
-	decode.Close()
+	data.PlayTagId   = wasmtypes.Uint32Decode(dec)
+	data.Player      = wasmtypes.AddressDecode(dec)
+	data.TaggedImage = wasmtypes.Uint32Decode(dec)
+	dec.Close()
 	return data
 }
 
 func (o *ValidTag) Bytes() []byte {
-	return wasmlib.NewBytesEncoder().
-		Uint32(o.PlayTagId).
-		Address(o.Player).
-		Uint32(o.TaggedImage).
-		Data()
+	enc := wasmtypes.NewWasmEncoder()
+		wasmtypes.Uint32Encode(enc, o.PlayTagId)
+		wasmtypes.AddressEncode(enc, o.Player)
+		wasmtypes.Uint32Encode(enc, o.TaggedImage)
+	return enc.Buf()
 }
 
 type ImmutableValidTag struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o ImmutableValidTag) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o ImmutableValidTag) Value() *ValidTag {
-	return NewValidTagFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewValidTagFromBytes(o.proxy.Get())
 }
 
 type MutableValidTag struct {
-	objID int32
-	keyID wasmlib.Key32
+	proxy wasmtypes.Proxy
 }
 
 func (o MutableValidTag) Delete() {
-	wasmlib.DelKey(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	o.proxy.Delete()
 }
 
 func (o MutableValidTag) Exists() bool {
-	return wasmlib.Exists(o.objID, o.keyID, wasmlib.TYPE_BYTES)
+	return o.proxy.Exists()
 }
 
 func (o MutableValidTag) SetValue(value *ValidTag) {
-	wasmlib.SetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES, value.Bytes())
+	o.proxy.Set(value.Bytes())
 }
 
 func (o MutableValidTag) Value() *ValidTag {
-	return NewValidTagFromBytes(wasmlib.GetBytes(o.objID, o.keyID, wasmlib.TYPE_BYTES))
+	return NewValidTagFromBytes(o.proxy.Get())
 }

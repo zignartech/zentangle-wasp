@@ -7,7 +7,7 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
 
 type CreateGameCall struct {
 	Func    *wasmlib.ScFunc
@@ -78,37 +78,38 @@ var ScFuncs Funcs
 
 func (sc Funcs) CreateGame(ctx wasmlib.ScFuncCallContext) *CreateGameCall {
 	f := &CreateGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncCreateGame)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
 func (sc Funcs) EndGame(ctx wasmlib.ScFuncCallContext) *EndGameCall {
 	f := &EndGameCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncEndGame)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
 func (sc Funcs) Init(ctx wasmlib.ScFuncCallContext) *InitCall {
-	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit, keyMap[:], idxMap[:])}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f := &InitCall{Func: wasmlib.NewScInitFunc(ctx, HScName, HFuncInit)}
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
 func (sc Funcs) RequestPlay(ctx wasmlib.ScFuncCallContext) *RequestPlayCall {
 	f := &RequestPlayCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncRequestPlay)}
-	f.Func.SetPtrs(nil, &f.Results.id)
+	wasmlib.NewCallResultsProxy(&f.Func.ScView, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) SendTags(ctx wasmlib.ScFuncCallContext) *SendTagsCall {
 	f := &SendTagsCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSendTags)}
-	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
+	wasmlib.NewCallResultsProxy(&f.Func.ScView, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) SetOwner(ctx wasmlib.ScFuncCallContext) *SetOwnerCall {
 	f := &SetOwnerCall{Func: wasmlib.NewScFunc(ctx, HScName, HFuncSetOwner)}
-	f.Func.SetPtrs(&f.Params.id, nil)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(&f.Func.ScView)
 	return f
 }
 
@@ -118,30 +119,33 @@ func (sc Funcs) Withdraw(ctx wasmlib.ScFuncCallContext) *WithdrawCall {
 
 func (sc Funcs) GetOwner(ctx wasmlib.ScViewCallContext) *GetOwnerCall {
 	f := &GetOwnerCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetOwner)}
-	f.Func.SetPtrs(nil, &f.Results.id)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) GetPlayerBets(ctx wasmlib.ScViewCallContext) *GetPlayerBetsCall {
 	f := &GetPlayerBetsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlayerBets)}
-	f.Func.SetPtrs(nil, &f.Results.id)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) GetPlayerInfo(ctx wasmlib.ScViewCallContext) *GetPlayerInfoCall {
 	f := &GetPlayerInfoCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlayerInfo)}
-	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) GetPlaysPerImage(ctx wasmlib.ScViewCallContext) *GetPlaysPerImageCall {
 	f := &GetPlaysPerImageCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetPlaysPerImage)}
-	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }
 
 func (sc Funcs) GetResults(ctx wasmlib.ScViewCallContext) *GetResultsCall {
 	f := &GetResultsCall{Func: wasmlib.NewScView(ctx, HScName, HViewGetResults)}
-	f.Func.SetPtrs(&f.Params.id, &f.Results.id)
+	f.Params.proxy = wasmlib.NewCallParamsProxy(f.Func)
+	wasmlib.NewCallResultsProxy(f.Func, &f.Results.proxy)
 	return f
 }

@@ -9,200 +9,196 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
-
 use crate::*;
-use crate::keys::*;
-use crate::structs::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableCreateGameParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableCreateGameParams {
     pub fn description(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
+		ScImmutableString::new(self.proxy.root(PARAM_DESCRIPTION))
 	}
 
     pub fn number_of_images(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+		ScImmutableUint32::new(self.proxy.root(PARAM_NUMBER_OF_IMAGES))
 	}
 
     pub fn tags_required_per_image(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+		ScImmutableUint32::new(self.proxy.root(PARAM_TAGS_REQUIRED_PER_IMAGE))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableCreateGameParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableCreateGameParams {
     pub fn description(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_DESCRIPTION))
+		ScMutableString::new(self.proxy.root(PARAM_DESCRIPTION))
 	}
 
     pub fn number_of_images(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_PARAM_NUMBER_OF_IMAGES))
+		ScMutableUint32::new(self.proxy.root(PARAM_NUMBER_OF_IMAGES))
 	}
 
     pub fn tags_required_per_image(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_PARAM_TAGS_REQUIRED_PER_IMAGE))
+		ScMutableUint32::new(self.proxy.root(PARAM_TAGS_REQUIRED_PER_IMAGE))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableEndGameParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableEndGameParams {
     pub fn reset_player_info(&self) -> ScImmutableBool {
-		ScImmutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+		ScImmutableBool::new(self.proxy.root(PARAM_RESET_PLAYER_INFO))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableEndGameParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableEndGameParams {
     pub fn reset_player_info(&self) -> ScMutableBool {
-		ScMutableBool::new(self.id, idx_map(IDX_PARAM_RESET_PLAYER_INFO))
+		ScMutableBool::new(self.proxy.root(PARAM_RESET_PLAYER_INFO))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableInitParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableInitParams {
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableInitParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableInitParams {
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScMutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableSendTagsParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableSendTagsParams {
     pub fn input_json(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_INPUT_JSON))
+		ScImmutableString::new(self.proxy.root(PARAM_INPUT_JSON))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableSendTagsParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableSendTagsParams {
     pub fn input_json(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_INPUT_JSON))
+		ScMutableString::new(self.proxy.root(PARAM_INPUT_JSON))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableSetOwnerParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableSetOwnerParams {
     pub fn owner(&self) -> ScImmutableAgentID {
-		ScImmutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScImmutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableSetOwnerParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableSetOwnerParams {
     pub fn owner(&self) -> ScMutableAgentID {
-		ScMutableAgentID::new(self.id, idx_map(IDX_PARAM_OWNER))
+		ScMutableAgentID::new(self.proxy.root(PARAM_OWNER))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetPlayerInfoParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetPlayerInfoParams {
     pub fn player_address(&self) -> ScImmutableString {
-		ScImmutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
+		ScImmutableString::new(self.proxy.root(PARAM_PLAYER_ADDRESS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetPlayerInfoParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetPlayerInfoParams {
     pub fn player_address(&self) -> ScMutableString {
-		ScMutableString::new(self.id, idx_map(IDX_PARAM_PLAYER_ADDRESS))
+		ScMutableString::new(self.proxy.root(PARAM_PLAYER_ADDRESS))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetPlaysPerImageParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetPlaysPerImageParams {
     pub fn image_id(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+		ScImmutableUint32::new(self.proxy.root(PARAM_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetPlaysPerImageParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetPlaysPerImageParams {
     pub fn image_id(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+		ScMutableUint32::new(self.proxy.root(PARAM_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableGetResultsParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl ImmutableGetResultsParams {
     pub fn image_id(&self) -> ScImmutableUint32 {
-		ScImmutableUint32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+		ScImmutableUint32::new(self.proxy.root(PARAM_IMAGE_ID))
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableGetResultsParams {
-    pub(crate) id: i32,
+	pub(crate) proxy: Proxy,
 }
 
 impl MutableGetResultsParams {
     pub fn image_id(&self) -> ScMutableUint32 {
-		ScMutableUint32::new(self.id, idx_map(IDX_PARAM_IMAGE_ID))
+		ScMutableUint32::new(self.proxy.root(PARAM_IMAGE_ID))
 	}
 }

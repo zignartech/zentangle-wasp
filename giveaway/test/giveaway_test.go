@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/iotaledger/wasp/giveaway/go/giveaway"
-	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
+	"github.com/iotaledger/wasp/packages/wasmvm/wasmsolo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,7 +19,7 @@ func TestDeploy(t *testing.T) {
 func Test(t *testing.T) {
 	ctx := wasmsolo.NewSoloContext(t, giveaway.ScName, giveaway.OnLoad)
 
-	number_of_winners := int16(2)
+	number_of_winners := int16(10)
 	const addresses = `{
 		"addresses": [
 			"622c1aaa66fb277a80a6f250",
@@ -291,21 +291,45 @@ func Test(t *testing.T) {
 
 	// load addresses
 	a := giveaway.ScFuncs.LoadAddresses(ctx)
-	a.Params.Addresses().SetValue(addresses1)
-	a.Func.TransferIotas(1).Post()
-	a.Params.Addresses().SetValue(addresses15)
+	a.Params.Addresses().SetValue(addresses)
 	a.Func.TransferIotas(1).Post()
 	a.Params.Addresses().SetValue(addresses1)
 	a.Func.TransferIotas(1).Post()
 	a.Params.Addresses().SetValue(addresses15)
 	a.Func.TransferIotas(1).Post()
-	a.Params.Addresses().SetValue(addresses1)
-	a.Func.TransferIotas(1).Post()
-	a.Params.Addresses().SetValue(addresses15)
+	a.Params.Addresses().SetValue(addresses)
 	a.Func.TransferIotas(1).Post()
 	a.Params.Addresses().SetValue(addresses1)
 	a.Func.TransferIotas(1).Post()
 	a.Params.Addresses().SetValue(addresses15)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses1)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses15)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses1)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses15)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses1)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses15)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses1)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses15)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses)
+	a.Func.TransferIotas(1).Post()
+	a.Params.Addresses().SetValue(addresses1)
 	a.Func.TransferIotas(1).Post()
 
 	require.NoError(t, ctx.Err)

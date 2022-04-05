@@ -7,13 +7,8 @@
 
 #![allow(dead_code)]
 
-use std::ptr;
-
 use wasmlib::*;
-
-use crate::consts::*;
-use crate::params::*;
-use crate::results::*;
+use crate::*;
 
 pub struct CreateGameCall {
 	pub func: ScFunc,
@@ -82,112 +77,116 @@ pub struct ScFuncs {
 }
 
 impl ScFuncs {
-    pub fn create_game(_ctx: & dyn ScFuncCallContext) -> CreateGameCall {
+    pub fn create_game(_ctx: &dyn ScFuncCallContext) -> CreateGameCall {
         let mut f = CreateGameCall {
             func: ScFunc::new(HSC_NAME, HFUNC_CREATE_GAME),
-            params: MutableCreateGameParams { id: 0 },
+            params: MutableCreateGameParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn end_game(_ctx: & dyn ScFuncCallContext) -> EndGameCall {
+    pub fn end_game(_ctx: &dyn ScFuncCallContext) -> EndGameCall {
         let mut f = EndGameCall {
             func: ScFunc::new(HSC_NAME, HFUNC_END_GAME),
-            params: MutableEndGameParams { id: 0 },
+            params: MutableEndGameParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn init(_ctx: & dyn ScFuncCallContext) -> InitCall {
+    pub fn init(_ctx: &dyn ScFuncCallContext) -> InitCall {
         let mut f = InitCall {
             func: ScInitFunc::new(HSC_NAME, HFUNC_INIT),
-            params: MutableInitParams { id: 0 },
+            params: MutableInitParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScInitFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn request_play(_ctx: & dyn ScFuncCallContext) -> RequestPlayCall {
+    pub fn request_play(_ctx: &dyn ScFuncCallContext) -> RequestPlayCall {
         let mut f = RequestPlayCall {
             func: ScFunc::new(HSC_NAME, HFUNC_REQUEST_PLAY),
-            results: ImmutableRequestPlayResults { id: 0 },
+            results: ImmutableRequestPlayResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        ScFunc::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn send_tags(_ctx: & dyn ScFuncCallContext) -> SendTagsCall {
+    pub fn send_tags(_ctx: &dyn ScFuncCallContext) -> SendTagsCall {
         let mut f = SendTagsCall {
             func: ScFunc::new(HSC_NAME, HFUNC_SEND_TAGS),
-            params: MutableSendTagsParams { id: 0 },
-            results: ImmutableSendTagsResults { id: 0 },
+            params: MutableSendTagsParams { proxy: Proxy::nil() },
+            results: ImmutableSendTagsResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
+        ScFunc::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn set_owner(_ctx: & dyn ScFuncCallContext) -> SetOwnerCall {
+    pub fn set_owner(_ctx: &dyn ScFuncCallContext) -> SetOwnerCall {
         let mut f = SetOwnerCall {
             func: ScFunc::new(HSC_NAME, HFUNC_SET_OWNER),
-            params: MutableSetOwnerParams { id: 0 },
+            params: MutableSetOwnerParams { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, ptr::null_mut());
+        ScFunc::link_params(&mut f.params.proxy, &f.func);
         f
     }
 
-    pub fn withdraw(_ctx: & dyn ScFuncCallContext) -> WithdrawCall {
+    pub fn withdraw(_ctx: &dyn ScFuncCallContext) -> WithdrawCall {
         WithdrawCall {
             func: ScFunc::new(HSC_NAME, HFUNC_WITHDRAW),
         }
     }
 
-    pub fn get_owner(_ctx: & dyn ScViewCallContext) -> GetOwnerCall {
+    pub fn get_owner(_ctx: &dyn ScViewCallContext) -> GetOwnerCall {
         let mut f = GetOwnerCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_OWNER),
-            results: ImmutableGetOwnerResults { id: 0 },
+            results: ImmutableGetOwnerResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn get_player_bets(_ctx: & dyn ScViewCallContext) -> GetPlayerBetsCall {
+    pub fn get_player_bets(_ctx: &dyn ScViewCallContext) -> GetPlayerBetsCall {
         let mut f = GetPlayerBetsCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_PLAYER_BETS),
-            results: ImmutableGetPlayerBetsResults { id: 0 },
+            results: ImmutableGetPlayerBetsResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(ptr::null_mut(), &mut f.results.id);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn get_player_info(_ctx: & dyn ScViewCallContext) -> GetPlayerInfoCall {
+    pub fn get_player_info(_ctx: &dyn ScViewCallContext) -> GetPlayerInfoCall {
         let mut f = GetPlayerInfoCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_PLAYER_INFO),
-            params: MutableGetPlayerInfoParams { id: 0 },
-            results: ImmutableGetPlayerInfoResults { id: 0 },
+            params: MutableGetPlayerInfoParams { proxy: Proxy::nil() },
+            results: ImmutableGetPlayerInfoResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
+        ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn get_plays_per_image(_ctx: & dyn ScViewCallContext) -> GetPlaysPerImageCall {
+    pub fn get_plays_per_image(_ctx: &dyn ScViewCallContext) -> GetPlaysPerImageCall {
         let mut f = GetPlaysPerImageCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_PLAYS_PER_IMAGE),
-            params: MutableGetPlaysPerImageParams { id: 0 },
-            results: ImmutableGetPlaysPerImageResults { id: 0 },
+            params: MutableGetPlaysPerImageParams { proxy: Proxy::nil() },
+            results: ImmutableGetPlaysPerImageResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
+        ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 
-    pub fn get_results(_ctx: & dyn ScViewCallContext) -> GetResultsCall {
+    pub fn get_results(_ctx: &dyn ScViewCallContext) -> GetResultsCall {
         let mut f = GetResultsCall {
             func: ScView::new(HSC_NAME, HVIEW_GET_RESULTS),
-            params: MutableGetResultsParams { id: 0 },
-            results: ImmutableGetResultsResults { id: 0 },
+            params: MutableGetResultsParams { proxy: Proxy::nil() },
+            results: ImmutableGetResultsResults { proxy: Proxy::nil() },
         };
-        f.func.set_ptrs(&mut f.params.id, &mut f.results.id);
+        ScView::link_params(&mut f.params.proxy, &f.func);
+        ScView::link_results(&mut f.results.proxy, &f.func);
         f
     }
 }

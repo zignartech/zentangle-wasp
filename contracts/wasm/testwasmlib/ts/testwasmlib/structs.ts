@@ -5,69 +5,55 @@
 // >>>> DO NOT CHANGE THIS FILE! <<<<
 // Change the json schema instead
 
-import * as wasmlib from "wasmlib";
+import * as wasmtypes from "wasmlib/wasmtypes";
 
 export class Location {
-    x : i32 = 0; 
-    y : i32 = 0; 
+	x : i32 = 0; 
+	y : i32 = 0; 
 
-    static fromBytes(bytes: u8[]): Location {
-        let decode = new wasmlib.BytesDecoder(bytes);
-        let data = new Location();
-        data.x = decode.int32();
-        data.y = decode.int32();
-        decode.close();
-        return data;
-    }
+	static fromBytes(buf: u8[]): Location {
+		const dec = new wasmtypes.WasmDecoder(buf);
+		const data = new Location();
+		data.x = wasmtypes.int32Decode(dec);
+		data.y = wasmtypes.int32Decode(dec);
+		dec.close();
+		return data;
+	}
 
-    bytes(): u8[] {
-        return new wasmlib.BytesEncoder().
-		    int32(this.x).
-		    int32(this.y).
-            data();
-    }
+	bytes(): u8[] {
+		const enc = new wasmtypes.WasmEncoder();
+		wasmtypes.int32Encode(enc, this.x);
+		wasmtypes.int32Encode(enc, this.y);
+		return enc.buf();
+	}
 }
 
-export class ImmutableLocation {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class ImmutableLocation extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
-
-    value(): Location {
-        return Location.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): Location {
+		return Location.fromBytes(this.proxy.get());
+	}
 }
 
-export class MutableLocation {
-    objID: i32;
-    keyID: wasmlib.Key32;
+export class MutableLocation extends wasmtypes.ScProxy {
 
-    constructor(objID: i32, keyID: wasmlib.Key32) {
-        this.objID = objID;
-        this.keyID = keyID;
-    }
+	delete(): void {
+		this.proxy.delete();
+	}
 
-    delete(): void {
-        wasmlib.delKey(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	exists(): bool {
+		return this.proxy.exists();
+	}
 
-    exists(): boolean {
-        return wasmlib.exists(this.objID, this.keyID, wasmlib.TYPE_BYTES);
-    }
+	setValue(value: Location): void {
+		this.proxy.set(value.bytes());
+	}
 
-    setValue(value: Location): void {
-        wasmlib.setBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES, value.bytes());
-    }
-
-    value(): Location {
-        return Location.fromBytes(wasmlib.getBytes(this.objID, this.keyID, wasmlib.TYPE_BYTES));
-    }
+	value(): Location {
+		return Location.fromBytes(this.proxy.get());
+	}
 }

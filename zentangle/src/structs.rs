@@ -9,7 +9,6 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
 
 #[derive(Clone)]
 pub struct Bet {
@@ -20,60 +19,58 @@ pub struct Bet {
 
 impl Bet {
     pub fn from_bytes(bytes: &[u8]) -> Bet {
-        let mut decode = BytesDecoder::new(bytes);
+        let mut dec = WasmDecoder::new(bytes);
         Bet {
-            amount   : decode.uint64(),
-            image_id : decode.uint32(),
-            player   : decode.address(),
+            amount   : uint64_decode(&mut dec),
+            image_id : uint32_decode(&mut dec),
+            player   : address_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-		encode.uint64(self.amount);
-		encode.uint32(self.image_id);
-		encode.address(&self.player);
-        return encode.data();
+        let mut enc = WasmEncoder::new();
+		uint64_encode(&mut enc, self.amount);
+		uint32_encode(&mut enc, self.image_id);
+		address_encode(&mut enc, &self.player);
+        enc.buf()
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableBet {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl ImmutableBet {
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn value(&self) -> Bet {
-        Bet::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        Bet::from_bytes(&self.proxy.get())
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableBet {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl MutableBet {
     pub fn delete(&self) {
-        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+        self.proxy.delete();
     }
 
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn set_value(&self, value: &Bet) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+        self.proxy.set(&value.to_bytes());
     }
 
     pub fn value(&self) -> Bet {
-        Bet::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        Bet::from_bytes(&self.proxy.get())
     }
 }
 
@@ -88,64 +85,62 @@ pub struct PlayerBoost {
 
 impl PlayerBoost {
     pub fn from_bytes(bytes: &[u8]) -> PlayerBoost {
-        let mut decode = BytesDecoder::new(bytes);
+        let mut dec = WasmDecoder::new(bytes);
         PlayerBoost {
-            n_double_boosts  : decode.uint64(),
-            n_tags           : decode.uint64(),
-            n_tripple_boosts : decode.uint64(),
-            n_valid_tags     : decode.uint64(),
-            player           : decode.agent_id(),
+            n_double_boosts  : uint64_decode(&mut dec),
+            n_tags           : uint64_decode(&mut dec),
+            n_tripple_boosts : uint64_decode(&mut dec),
+            n_valid_tags     : uint64_decode(&mut dec),
+            player           : agent_id_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-		encode.uint64(self.n_double_boosts);
-		encode.uint64(self.n_tags);
-		encode.uint64(self.n_tripple_boosts);
-		encode.uint64(self.n_valid_tags);
-		encode.agent_id(&self.player);
-        return encode.data();
+        let mut enc = WasmEncoder::new();
+		uint64_encode(&mut enc, self.n_double_boosts);
+		uint64_encode(&mut enc, self.n_tags);
+		uint64_encode(&mut enc, self.n_tripple_boosts);
+		uint64_encode(&mut enc, self.n_valid_tags);
+		agent_id_encode(&mut enc, &self.player);
+        enc.buf()
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutablePlayerBoost {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl ImmutablePlayerBoost {
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn value(&self) -> PlayerBoost {
-        PlayerBoost::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        PlayerBoost::from_bytes(&self.proxy.get())
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutablePlayerBoost {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl MutablePlayerBoost {
     pub fn delete(&self) {
-        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+        self.proxy.delete();
     }
 
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn set_value(&self, value: &PlayerBoost) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+        self.proxy.set(&value.to_bytes());
     }
 
     pub fn value(&self) -> PlayerBoost {
-        PlayerBoost::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        PlayerBoost::from_bytes(&self.proxy.get())
     }
 }
 
@@ -162,68 +157,66 @@ pub struct TaggedImage {
 
 impl TaggedImage {
     pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
-        let mut decode = BytesDecoder::new(bytes);
+        let mut dec = WasmDecoder::new(bytes);
         TaggedImage {
-            boost    : decode.string(),
-            h        : decode.string(),
-            image_id : decode.int32(),
-            player   : decode.address(),
-            w        : decode.string(),
-            x        : decode.string(),
-            y        : decode.string(),
+            boost    : string_decode(&mut dec),
+            h        : string_decode(&mut dec),
+            image_id : int32_decode(&mut dec),
+            player   : address_decode(&mut dec),
+            w        : string_decode(&mut dec),
+            x        : string_decode(&mut dec),
+            y        : string_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-		encode.string(&self.boost);
-		encode.string(&self.h);
-		encode.int32(self.image_id);
-		encode.address(&self.player);
-		encode.string(&self.w);
-		encode.string(&self.x);
-		encode.string(&self.y);
-        return encode.data();
+        let mut enc = WasmEncoder::new();
+		string_encode(&mut enc, &self.boost);
+		string_encode(&mut enc, &self.h);
+		int32_encode(&mut enc, self.image_id);
+		address_encode(&mut enc, &self.player);
+		string_encode(&mut enc, &self.w);
+		string_encode(&mut enc, &self.x);
+		string_encode(&mut enc, &self.y);
+        enc.buf()
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableTaggedImage {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl ImmutableTaggedImage {
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn value(&self) -> TaggedImage {
-        TaggedImage::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        TaggedImage::from_bytes(&self.proxy.get())
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableTaggedImage {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl MutableTaggedImage {
     pub fn delete(&self) {
-        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+        self.proxy.delete();
     }
 
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn set_value(&self, value: &TaggedImage) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+        self.proxy.set(&value.to_bytes());
     }
 
     pub fn value(&self) -> TaggedImage {
-        TaggedImage::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        TaggedImage::from_bytes(&self.proxy.get())
     }
 }
 
@@ -236,59 +229,57 @@ pub struct ValidTag {
 
 impl ValidTag {
     pub fn from_bytes(bytes: &[u8]) -> ValidTag {
-        let mut decode = BytesDecoder::new(bytes);
+        let mut dec = WasmDecoder::new(bytes);
         ValidTag {
-            play_tag_id  : decode.uint32(),
-            player       : decode.address(),
-            tagged_image : decode.uint32(),
+            play_tag_id  : uint32_decode(&mut dec),
+            player       : address_decode(&mut dec),
+            tagged_image : uint32_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-		encode.uint32(self.play_tag_id);
-		encode.address(&self.player);
-		encode.uint32(self.tagged_image);
-        return encode.data();
+        let mut enc = WasmEncoder::new();
+		uint32_encode(&mut enc, self.play_tag_id);
+		address_encode(&mut enc, &self.player);
+		uint32_encode(&mut enc, self.tagged_image);
+        enc.buf()
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct ImmutableValidTag {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl ImmutableValidTag {
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn value(&self) -> ValidTag {
-        ValidTag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        ValidTag::from_bytes(&self.proxy.get())
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct MutableValidTag {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl MutableValidTag {
     pub fn delete(&self) {
-        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+        self.proxy.delete();
     }
 
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn set_value(&self, value: &ValidTag) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+        self.proxy.set(&value.to_bytes());
     }
 
     pub fn value(&self) -> ValidTag {
-        ValidTag::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        ValidTag::from_bytes(&self.proxy.get())
     }
 }

@@ -10,11 +10,9 @@
 
 use giveaway::*;
 use wasmlib::*;
-use wasmlib::host::*;
 
 use crate::consts::*;
 use crate::events::*;
-use crate::keys::*;
 use crate::params::*;
 use crate::results::*;
 use crate::state::*;
@@ -22,27 +20,41 @@ use crate::state::*;
 mod consts;
 mod contract;
 mod events;
-mod keys;
 mod params;
 mod results;
 mod state;
+
 mod giveaway;
+
+const EXPORT_MAP: ScExportMap = ScExportMap {
+    names: &[
+    	FUNC_INIT,
+    	FUNC_LOAD_ADDRESSES,
+    	FUNC_RUFFLE,
+    	FUNC_SET_OWNER,
+    	FUNC_UNLOAD_ADDRESSES,
+    	VIEW_GET_OWNER,
+	],
+    funcs: &[
+    	func_init_thunk,
+    	func_load_addresses_thunk,
+    	func_ruffle_thunk,
+    	func_set_owner_thunk,
+    	func_unload_addresses_thunk,
+	],
+    views: &[
+    	view_get_owner_thunk,
+	],
+};
+
+#[no_mangle]
+fn on_call(index: i32) {
+	ScExports::call(index, &EXPORT_MAP);
+}
 
 #[no_mangle]
 fn on_load() {
-    let exports = ScExports::new();
-    exports.add_func(FUNC_INIT,             func_init_thunk);
-    exports.add_func(FUNC_LOAD_ADDRESSES,   func_load_addresses_thunk);
-    exports.add_func(FUNC_RUFFLE,           func_ruffle_thunk);
-    exports.add_func(FUNC_SET_OWNER,        func_set_owner_thunk);
-    exports.add_func(FUNC_UNLOAD_ADDRESSES, func_unload_addresses_thunk);
-    exports.add_view(VIEW_GET_OWNER,        view_get_owner_thunk);
-
-    unsafe {
-        for i in 0..KEY_MAP_LEN {
-            IDX_MAP[i] = get_key_id_from_string(KEY_MAP[i]);
-        }
-    }
+    ScExports::export(&EXPORT_MAP);
 }
 
 pub struct InitContext {
@@ -55,12 +67,8 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcInit");
 	let f = InitContext {
 		events:  giveawayEvents {},
-		params: ImmutableInitParams {
-			id: OBJ_ID_PARAMS,
-		},
-		state: MutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
+		params: ImmutableInitParams { proxy: params_proxy() },
+		state: MutablegiveawayState { proxy: state_proxy() },
 	};
 	func_init(ctx, &f);
 	ctx.log("giveaway.funcInit ok");
@@ -74,21 +82,17 @@ pub struct LoadAddressesContext {
 
 fn func_load_addresses_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcLoadAddresses");
+	let f = LoadAddressesContext {
+		events:  giveawayEvents {},
+		params: ImmutableLoadAddressesParams { proxy: params_proxy() },
+		state: MutablegiveawayState { proxy: state_proxy() },
+	};
 
 	// current owner of this smart contract
-	let access = ctx.state().get_agent_id("owner");
+	let access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
-	let f = LoadAddressesContext {
-		events:  giveawayEvents {},
-		params: ImmutableLoadAddressesParams {
-			id: OBJ_ID_PARAMS,
-		},
-		state: MutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
-	};
 	ctx.require(f.params.addresses().exists(), "missing mandatory addresses");
 	func_load_addresses(ctx, &f);
 	ctx.log("giveaway.funcLoadAddresses ok");
@@ -103,26 +107,21 @@ pub struct RuffleContext {
 
 fn func_ruffle_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcRuffle");
+	let f = RuffleContext {
+		events:  giveawayEvents {},
+		params: ImmutableRuffleParams { proxy: params_proxy() },
+		results: MutableRuffleResults { proxy: results_proxy() },
+		state: MutablegiveawayState { proxy: state_proxy() },
+	};
 
 	// current owner of this smart contract
-	let access = ctx.state().get_agent_id("owner");
+	let access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
-	let f = RuffleContext {
-		events:  giveawayEvents {},
-		params: ImmutableRuffleParams {
-			id: OBJ_ID_PARAMS,
-		},
-		results: MutableRuffleResults {
-			id: OBJ_ID_RESULTS,
-		},
-		state: MutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
-	};
 	ctx.require(f.params.n_winners().exists(), "missing mandatory nWinners");
 	func_ruffle(ctx, &f);
+	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("giveaway.funcRuffle ok");
 }
 
@@ -134,21 +133,17 @@ pub struct SetOwnerContext {
 
 fn func_set_owner_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcSetOwner");
+	let f = SetOwnerContext {
+		events:  giveawayEvents {},
+		params: ImmutableSetOwnerParams { proxy: params_proxy() },
+		state: MutablegiveawayState { proxy: state_proxy() },
+	};
 
 	// current owner of this smart contract
-	let access = ctx.state().get_agent_id("owner");
+	let access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
-	let f = SetOwnerContext {
-		events:  giveawayEvents {},
-		params: ImmutableSetOwnerParams {
-			id: OBJ_ID_PARAMS,
-		},
-		state: MutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
-	};
 	ctx.require(f.params.owner().exists(), "missing mandatory owner");
 	func_set_owner(ctx, &f);
 	ctx.log("giveaway.funcSetOwner ok");
@@ -161,18 +156,16 @@ pub struct UnloadAddressesContext {
 
 fn func_unload_addresses_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcUnloadAddresses");
+	let f = UnloadAddressesContext {
+		events:  giveawayEvents {},
+		state: MutablegiveawayState { proxy: state_proxy() },
+	};
 
 	// current owner of this smart contract
-	let access = ctx.state().get_agent_id("owner");
+	let access = f.state.owner();
 	ctx.require(access.exists(), "access not set: owner");
 	ctx.require(ctx.caller() == access.value(), "no permission");
 
-	let f = UnloadAddressesContext {
-		events:  giveawayEvents {},
-		state: MutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
-	};
 	func_unload_addresses(ctx, &f);
 	ctx.log("giveaway.funcUnloadAddresses ok");
 }
@@ -185,13 +178,10 @@ pub struct GetOwnerContext {
 fn view_get_owner_thunk(ctx: &ScViewContext) {
 	ctx.log("giveaway.viewGetOwner");
 	let f = GetOwnerContext {
-		results: MutableGetOwnerResults {
-			id: OBJ_ID_RESULTS,
-		},
-		state: ImmutablegiveawayState {
-			id: OBJ_ID_STATE,
-		},
+		results: MutableGetOwnerResults { proxy: results_proxy() },
+		state: ImmutablegiveawayState { proxy: state_proxy() },
 	};
 	view_get_owner(ctx, &f);
+	ctx.results(&f.results.proxy.kv_store);
 	ctx.log("giveaway.viewGetOwner ok");
 }

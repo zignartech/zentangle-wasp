@@ -9,19 +9,24 @@ import (
 	"time"
 
 	"github.com/iotaledger/wasp/packages/iscp/colored"
-	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
+	"github.com/iotaledger/wasp/packages/wasmvm/wasmsolo"
 	"github.com/iotaledger/wasp/zentangle/go/zentangle"
 	"github.com/stretchr/testify/require"
 )
 
+func setupTest(t *testing.T) *wasmsolo.SoloContext {
+	*wasmsolo.RsWasm = true
+	return wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
+}
+
 func TestDeploy(t *testing.T) {
-	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
+	ctx := setupTest(t)
 	require.NoError(t, ctx.ContractExists(zentangle.ScName))
 }
 
 func TestPlay2(t *testing.T) {
-	ctx := wasmsolo.NewSoloContext(t, zentangle.ScName, zentangle.OnLoad)
-	number_of_images := uint32(3)
+	ctx := setupTest(t)
+	number_of_images := uint32(2)
 	const number_of_players = 3
 	const plays_required_per_image = 3
 
@@ -30,8 +35,8 @@ func TestPlay2(t *testing.T) {
 	f := zentangle.ScFuncs.CreateGame(ctx.Sign(creator))
 	f.Params.Description().SetValue("Esto es un test")
 	f.Params.NumberOfImages().SetValue(number_of_images)
-	f.Params.TagsRequiredPerImage().SetValue(plays_required_per_image)
-	f.Func.TransferIotas(400000).Post()
+	//f.Params.TagsRequiredPerImage().SetValue(plays_required_per_image)
+	f.Func.TransferIotas(300000).Post()
 	require.NoError(t, ctx.Err)
 
 	//make plays
@@ -69,28 +74,31 @@ func TestPlay2(t *testing.T) {
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
 
-	ctx.WaitForPendingRequests(5, 7*time.Second) // wait for end_game to finish
+	ctx.WaitForPendingRequests(5, 2*time.Second) // wait for end_game to finish
 
-	/*for i := 0; i < int(number_of_images); i++ {
+	for i := 0; i < int(number_of_images); i++ {
 		GetPlaysPerImage := zentangle.ScFuncs.GetPlaysPerImage(ctx)
 		GetPlaysPerImage.Params.ImageId().SetValue(uint32(i))
 		GetPlaysPerImage.Func.Call()
-	}*/
+	}
 
 	// End game
-	/*EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
+	EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
 	EndGame.Func.TransferIotas(1).Post()
-	require.NoError(t, ctx.Err)*/
+	require.NoError(t, ctx.Err)
 
-	balances := 0
-	for i := 0; i < number_of_players; i++ {
-		balances += int(player[i].Env.GetAddressBalance(ctx.Chain.ChainID.AliasAddress, colored.IOTA))
-	}
+	//require.EqualValues(t, balances, 104000, " ")
 	getResults := zentangle.ScFuncs.GetResults(ctx)
 	for i := 0; uint32(i) < number_of_images; i++ {
 		getResults.Params.ImageId().SetValue(uint32(i))
 		getResults.Func.Call()
 	}
+
+	balances := 0
+	for i := 0; i < number_of_players; i++ {
+		balances += int(player[i].Env.GetAddressBalance(ctx.Chain.ChainID.AliasAddress, colored.IOTA))
+	}
+
 }
 
 /*

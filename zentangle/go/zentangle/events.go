@@ -8,48 +8,49 @@
 //nolint:gocritic
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type zentangleEvents struct {
 }
 
 func (e zentangleEvents) GameEnded() {
-	wasmlib.NewEventEncoder("zentangle.gameEnded").
-		Emit()
+	evt := wasmlib.NewEventEncoder("zentangle.gameEnded")
+	evt.Emit()
 }
 
 func (e zentangleEvents) GameStarted(description string, numberOfImages uint32, reward uint64, tagsRequiredPerImage uint32) {
-	wasmlib.NewEventEncoder("zentangle.gameStarted").
-		String(description).
-		Uint32(numberOfImages).
-		Uint64(reward).
-		Uint32(tagsRequiredPerImage).
-		Emit()
+	evt := wasmlib.NewEventEncoder("zentangle.gameStarted")
+	evt.Encode(wasmtypes.StringToString(description))
+	evt.Encode(wasmtypes.Uint32ToString(numberOfImages))
+	evt.Encode(wasmtypes.Uint64ToString(reward))
+	evt.Encode(wasmtypes.Uint32ToString(tagsRequiredPerImage))
+	evt.Emit()
 }
 
 func (e zentangleEvents) Imagetagged(address string, imageId uint32, playsPerImage uint32) {
-	wasmlib.NewEventEncoder("zentangle.imagetagged").
-		String(address).
-		Uint32(imageId).
-		Uint32(playsPerImage).
-		Emit()
+	evt := wasmlib.NewEventEncoder("zentangle.imagetagged")
+	evt.Encode(wasmtypes.StringToString(address))
+	evt.Encode(wasmtypes.Uint32ToString(imageId))
+	evt.Encode(wasmtypes.Uint32ToString(playsPerImage))
+	evt.Emit()
 }
 
 func (e zentangleEvents) Paid(accuracy string, amount uint64, bet uint64, boost uint8, player string, position uint64) {
-	wasmlib.NewEventEncoder("zentangle.paid").
-		String(accuracy).
-		Uint64(amount).
-		Uint64(bet).
-		Uint8(boost).
-		String(player).
-		Uint64(position).
-		Emit()
+	evt := wasmlib.NewEventEncoder("zentangle.paid")
+	evt.Encode(wasmtypes.StringToString(accuracy))
+	evt.Encode(wasmtypes.Uint64ToString(amount))
+	evt.Encode(wasmtypes.Uint64ToString(bet))
+	evt.Encode(wasmtypes.Uint8ToString(boost))
+	evt.Encode(wasmtypes.StringToString(player))
+	evt.Encode(wasmtypes.Uint64ToString(position))
+	evt.Emit()
 }
 
 func (e zentangleEvents) PlayRequested(address string, amount uint64, imageId uint32) {
-	wasmlib.NewEventEncoder("zentangle.playRequested").
-		String(address).
-		Uint64(amount).
-		Uint32(imageId).
-		Emit()
+	evt := wasmlib.NewEventEncoder("zentangle.playRequested")
+	evt.Encode(wasmtypes.StringToString(address))
+	evt.Encode(wasmtypes.Uint64ToString(amount))
+	evt.Encode(wasmtypes.Uint32ToString(imageId))
+	evt.Emit()
 }

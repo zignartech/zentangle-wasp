@@ -7,148 +7,148 @@
 
 package zentangle
 
-import "github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
+import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 
 type ImmutableCreateGameParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableCreateGameParams) Description() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamDescription])
+func (s ImmutableCreateGameParams) Description() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamDescription))
 }
 
-func (s ImmutableCreateGameParams) NumberOfImages() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamNumberOfImages])
+func (s ImmutableCreateGameParams) NumberOfImages() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ParamNumberOfImages))
 }
 
-func (s ImmutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamTagsRequiredPerImage])
+func (s ImmutableCreateGameParams) TagsRequiredPerImage() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ParamTagsRequiredPerImage))
 }
 
 type MutableCreateGameParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableCreateGameParams) Description() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamDescription])
+func (s MutableCreateGameParams) Description() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ParamDescription))
 }
 
-func (s MutableCreateGameParams) NumberOfImages() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamNumberOfImages])
+func (s MutableCreateGameParams) NumberOfImages() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ParamNumberOfImages))
 }
 
-func (s MutableCreateGameParams) TagsRequiredPerImage() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamTagsRequiredPerImage])
+func (s MutableCreateGameParams) TagsRequiredPerImage() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ParamTagsRequiredPerImage))
 }
 
 type ImmutableEndGameParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableEndGameParams) ResetPlayerInfo() wasmlib.ScImmutableBool {
-	return wasmlib.NewScImmutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+func (s ImmutableEndGameParams) ResetPlayerInfo() wasmtypes.ScImmutableBool {
+	return wasmtypes.NewScImmutableBool(s.proxy.Root(ParamResetPlayerInfo))
 }
 
 type MutableEndGameParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableEndGameParams) ResetPlayerInfo() wasmlib.ScMutableBool {
-	return wasmlib.NewScMutableBool(s.id, idxMap[IdxParamResetPlayerInfo])
+func (s MutableEndGameParams) ResetPlayerInfo() wasmtypes.ScMutableBool {
+	return wasmtypes.NewScMutableBool(s.proxy.Root(ParamResetPlayerInfo))
 }
 
 type ImmutableInitParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableInitParams) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s ImmutableInitParams) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type MutableInitParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableInitParams) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s MutableInitParams) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type ImmutableSendTagsParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableSendTagsParams) InputJson() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamInputJson])
+func (s ImmutableSendTagsParams) InputJson() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamInputJson))
 }
 
 type MutableSendTagsParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableSendTagsParams) InputJson() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamInputJson])
+func (s MutableSendTagsParams) InputJson() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ParamInputJson))
 }
 
 type ImmutableSetOwnerParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableSetOwnerParams) Owner() wasmlib.ScImmutableAgentID {
-	return wasmlib.NewScImmutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s ImmutableSetOwnerParams) Owner() wasmtypes.ScImmutableAgentID {
+	return wasmtypes.NewScImmutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type MutableSetOwnerParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableSetOwnerParams) Owner() wasmlib.ScMutableAgentID {
-	return wasmlib.NewScMutableAgentID(s.id, idxMap[IdxParamOwner])
+func (s MutableSetOwnerParams) Owner() wasmtypes.ScMutableAgentID {
+	return wasmtypes.NewScMutableAgentID(s.proxy.Root(ParamOwner))
 }
 
 type ImmutableGetPlayerInfoParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScImmutableString {
-	return wasmlib.NewScImmutableString(s.id, idxMap[IdxParamPlayerAddress])
+func (s ImmutableGetPlayerInfoParams) PlayerAddress() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamPlayerAddress))
 }
 
 type MutableGetPlayerInfoParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetPlayerInfoParams) PlayerAddress() wasmlib.ScMutableString {
-	return wasmlib.NewScMutableString(s.id, idxMap[IdxParamPlayerAddress])
+func (s MutableGetPlayerInfoParams) PlayerAddress() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ParamPlayerAddress))
 }
 
 type ImmutableGetPlaysPerImageParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetPlaysPerImageParams) ImageId() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamImageId])
+func (s ImmutableGetPlaysPerImageParams) ImageId() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ParamImageId))
 }
 
 type MutableGetPlaysPerImageParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetPlaysPerImageParams) ImageId() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamImageId])
+func (s MutableGetPlaysPerImageParams) ImageId() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ParamImageId))
 }
 
 type ImmutableGetResultsParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s ImmutableGetResultsParams) ImageId() wasmlib.ScImmutableUint32 {
-	return wasmlib.NewScImmutableUint32(s.id, idxMap[IdxParamImageId])
+func (s ImmutableGetResultsParams) ImageId() wasmtypes.ScImmutableUint32 {
+	return wasmtypes.NewScImmutableUint32(s.proxy.Root(ParamImageId))
 }
 
 type MutableGetResultsParams struct {
-	id int32
+	proxy wasmtypes.Proxy
 }
 
-func (s MutableGetResultsParams) ImageId() wasmlib.ScMutableUint32 {
-	return wasmlib.NewScMutableUint32(s.id, idxMap[IdxParamImageId])
+func (s MutableGetResultsParams) ImageId() wasmtypes.ScMutableUint32 {
+	return wasmtypes.NewScMutableUint32(s.proxy.Root(ParamImageId))
 }

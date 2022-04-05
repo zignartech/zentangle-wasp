@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 package test
 
 import (
@@ -9,8 +12,8 @@ import (
 	"github.com/iotaledger/goshimmer/packages/ledgerstate"
 	"github.com/iotaledger/wasp/contracts/wasm/testwasmlib/go/testwasmlib"
 	"github.com/iotaledger/wasp/packages/solo"
-	"github.com/iotaledger/wasp/packages/vm/wasmlib/go/wasmlib"
-	"github.com/iotaledger/wasp/packages/vm/wasmsolo"
+	"github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
+	"github.com/iotaledger/wasp/packages/wasmvm/wasmsolo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,7 +37,7 @@ var (
 		testwasmlib.ParamUint64,
 	}
 	allLengths    = []int{33, 37, 1, 33, 32, 32, 4, 1, 2, 4, 8, 34, 1, 2, 4, 8}
-	invalidValues = map[wasmlib.Key][][]byte{
+	invalidValues = map[string][][]byte{
 		testwasmlib.ParamAddress: {
 			append([]byte{3}, zeroHash...),
 			append([]byte{4}, zeroHash...),
@@ -71,7 +74,7 @@ func TestNoParams(t *testing.T) {
 	ctx := setupTest(t)
 
 	f := testwasmlib.ScFuncs.ParamTypes(ctx)
-	f.Func.TransferIotas(1).Post()
+	f.Func.Post()
 	require.NoError(t, ctx.Err)
 }
 
@@ -88,20 +91,20 @@ func testValidParams(t *testing.T) *wasmsolo.SoloContext {
 	pt.Params.Bool().SetValue(true)
 	pt.Params.Bytes().SetValue([]byte("these are bytes"))
 	pt.Params.ChainID().SetValue(ctx.ChainID())
-	pt.Params.Color().SetValue(wasmlib.NewScColorFromBytes([]byte("RedGreenBlueYellowCyanBlackWhite")))
-	pt.Params.Hash().SetValue(wasmlib.NewScHashFromBytes([]byte("0123456789abcdeffedcba9876543210")))
+	pt.Params.Color().SetValue(wasmtypes.ColorFromBytes([]byte("RedGreenBlueYellowCyanBlackWhite")))
+	pt.Params.Hash().SetValue(wasmtypes.HashFromBytes([]byte("0123456789abcdeffedcba9876543210")))
 	pt.Params.Hname().SetValue(testwasmlib.HScName)
 	pt.Params.Int8().SetValue(-123)
 	pt.Params.Int16().SetValue(-12345)
 	pt.Params.Int32().SetValue(-1234567890)
 	pt.Params.Int64().SetValue(-1234567890123456789)
-	pt.Params.RequestID().SetValue(wasmlib.NewScRequestIDFromBytes([]byte("abcdefghijklmnopqrstuvwxyz123456\x00\x00")))
+	pt.Params.RequestID().SetValue(wasmtypes.RequestIDFromBytes([]byte("abcdefghijklmnopqrstuvwxyz123456\x00\x00")))
 	pt.Params.String().SetValue("this is a string")
 	pt.Params.Uint8().SetValue(123)
 	pt.Params.Uint16().SetValue(12345)
 	pt.Params.Uint32().SetValue(1234567890)
 	pt.Params.Uint64().SetValue(1234567890123456789)
-	pt.Func.TransferIotas(1).Post()
+	pt.Func.Post()
 	require.NoError(t, ctx.Err)
 	return ctx
 }
@@ -110,15 +113,16 @@ func TestValidSizeParams(t *testing.T) {
 	ctx := setupTest(t)
 	for index, param := range allParams {
 		t.Run("ValidSize "+param, func(t *testing.T) {
+			paramMismatch := fmt.Sprintf("mismatch: %s%s", strings.ToUpper(param[:1]), param[1:])
 			pt := testwasmlib.ScFuncs.ParamTypes(ctx)
 			bytes := make([]byte, allLengths[index])
 			if param == testwasmlib.ParamChainID {
 				bytes[0] = byte(ledgerstate.AliasAddressType)
 			}
 			pt.Params.Param().GetBytes(param).SetValue(bytes)
-			pt.Func.TransferIotas(1).Post()
+			pt.Func.Post()
 			require.Error(t, ctx.Err)
-			require.Contains(t, ctx.Err.Error(), "mismatch: ")
+			require.Contains(t, ctx.Err.Error(), paramMismatch)
 		})
 	}
 }
@@ -127,23 +131,30 @@ func TestInvalidSizeParams(t *testing.T) {
 	ctx := setupTest(t)
 	for index, param := range allParams {
 		t.Run("InvalidSize "+param, func(t *testing.T) {
+			invalidLength := fmt.Sprintf("invalid %s%s length", strings.ToUpper(param[:1]), param[1:])
+
+			// note that zero lengths are valid and will return a default value
+
+			// no need to check bool/int8/uint8
+			if allLengths[index] != 1 {
+				pt := testwasmlib.ScFuncs.ParamTypes(ctx)
+				pt.Params.Param().GetBytes(param).SetValue(make([]byte, 1))
+				pt.Func.Post()
+				require.Error(t, ctx.Err)
+				require.Contains(t, ctx.Err.Error(), invalidLength)
+
+				pt = testwasmlib.ScFuncs.ParamTypes(ctx)
+				pt.Params.Param().GetBytes(param).SetValue(make([]byte, allLengths[index]-1))
+				pt.Func.Post()
+				require.Error(t, ctx.Err)
+				require.Contains(t, ctx.Err.Error(), invalidLength)
+			}
+
 			pt := testwasmlib.ScFuncs.ParamTypes(ctx)
-			pt.Params.Param().GetBytes(param).SetValue(make([]byte, 0))
-			pt.Func.TransferIotas(1).Post()
-			require.Error(t, ctx.Err)
-			require.True(t, strings.HasSuffix(ctx.Err.Error(), "invalid type size"))
-
-			pt = testwasmlib.ScFuncs.ParamTypes(ctx)
-			pt.Params.Param().GetBytes(param).SetValue(make([]byte, allLengths[index]-1))
-			pt.Func.TransferIotas(1).Post()
-			require.Error(t, ctx.Err)
-			require.True(t, strings.HasSuffix(ctx.Err.Error(), "invalid type size"))
-
-			pt = testwasmlib.ScFuncs.ParamTypes(ctx)
 			pt.Params.Param().GetBytes(param).SetValue(make([]byte, allLengths[index]+1))
-			pt.Func.TransferIotas(1).Post()
+			pt.Func.Post()
 			require.Error(t, ctx.Err)
-			require.Contains(t, ctx.Err.Error(), "invalid type size")
+			require.Contains(t, ctx.Err.Error(), invalidLength)
 		})
 	}
 }
@@ -152,13 +163,14 @@ func TestInvalidTypeParams(t *testing.T) {
 	ctx := setupTest(t)
 	for param, values := range invalidValues {
 		for index, value := range values {
-			t.Run("InvalidType "+string(param)+" "+strconv.Itoa(index), func(t *testing.T) {
+			t.Run("InvalidType "+param+" "+strconv.Itoa(index), func(t *testing.T) {
+				invalidParam := fmt.Sprintf("invalid %s%s", strings.ToUpper(param[:1]), param[1:])
 				req := solo.NewCallParams(testwasmlib.ScName, testwasmlib.FuncParamTypes,
-					string(param), value,
+					param, value,
 				).WithIotas(1)
 				_, err := ctx.Chain.PostRequestSync(req, nil)
 				require.Error(t, err)
-				require.Contains(t, err.Error(), "invalid ")
+				require.Contains(t, err.Error(), invalidParam)
 			})
 		}
 	}
@@ -184,31 +196,28 @@ func TestViewBlockRecords(t *testing.T) {
 	require.EqualValues(t, 339, len(rec.Results.Record().Value()))
 }
 
-func TestClearArray(t *testing.T) {
+func TestMapOfArraysClear(t *testing.T) {
 	ctx := setupTest(t)
 
-	as := testwasmlib.ScFuncs.ArraySet(ctx)
+	as := testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
 	as.Params.Name().SetValue("bands")
-	as.Params.Index().SetValue(0)
 	as.Params.Value().SetValue("Simple Minds")
-	as.Func.TransferIotas(1).Post()
+	as.Func.Post()
 	require.NoError(t, ctx.Err)
 
-	as = testwasmlib.ScFuncs.ArraySet(ctx)
+	as = testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
 	as.Params.Name().SetValue("bands")
-	as.Params.Index().SetValue(1)
 	as.Params.Value().SetValue("Dire Straits")
-	as.Func.TransferIotas(1).Post()
+	as.Func.Post()
 	require.NoError(t, ctx.Err)
 
-	as = testwasmlib.ScFuncs.ArraySet(ctx)
+	as = testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
 	as.Params.Name().SetValue("bands")
-	as.Params.Index().SetValue(2)
 	as.Params.Value().SetValue("ELO")
-	as.Func.TransferIotas(1).Post()
+	as.Func.Post()
 	require.NoError(t, ctx.Err)
 
-	al := testwasmlib.ScFuncs.ArrayLength(ctx)
+	al := testwasmlib.ScFuncs.MapOfArraysLength(ctx)
 	al.Params.Name().SetValue("bands")
 	al.Func.Call()
 	require.NoError(t, ctx.Err)
@@ -216,21 +225,39 @@ func TestClearArray(t *testing.T) {
 	require.True(t, length.Exists())
 	require.EqualValues(t, 3, length.Value())
 
-	av := testwasmlib.ScFuncs.ArrayValue(ctx)
+	av := testwasmlib.ScFuncs.MapOfArraysValue(ctx)
 	av.Params.Name().SetValue("bands")
-	av.Params.Index().SetValue(1)
+	av.Params.Index().SetValue(0)
 	av.Func.Call()
 	require.NoError(t, ctx.Err)
 	value := av.Results.Value()
 	require.True(t, value.Exists())
+	require.EqualValues(t, "Simple Minds", value.Value())
+
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(1)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = av.Results.Value()
+	require.True(t, value.Exists())
 	require.EqualValues(t, "Dire Straits", value.Value())
 
-	ac := testwasmlib.ScFuncs.ArrayClear(ctx)
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(2)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "ELO", value.Value())
+
+	ac := testwasmlib.ScFuncs.MapOfArraysClear(ctx)
 	ac.Params.Name().SetValue("bands")
-	ac.Func.TransferIotas(1).Post()
+	ac.Func.Post()
 	require.NoError(t, ctx.Err)
 
-	al = testwasmlib.ScFuncs.ArrayLength(ctx)
+	al = testwasmlib.ScFuncs.MapOfArraysLength(ctx)
 	al.Params.Name().SetValue("bands")
 	al.Func.Call()
 	require.NoError(t, ctx.Err)
@@ -238,10 +265,464 @@ func TestClearArray(t *testing.T) {
 	require.True(t, length.Exists())
 	require.EqualValues(t, 0, length.Value())
 
-	av = testwasmlib.ScFuncs.ArrayValue(ctx)
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
 	av.Params.Name().SetValue("bands")
 	av.Params.Index().SetValue(0)
 	av.Func.Call()
+	require.Error(t, ctx.Err)
+}
+
+func TestArraySet(t *testing.T) {
+	ctx := setupTest(t)
+
+	ap := testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
+	ap.Params.Name().SetValue("bands")
+	ap.Params.Value().SetValue("Simple Minds")
+	ap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	ap = testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
+	ap.Params.Name().SetValue("bands")
+	ap.Params.Value().SetValue("Dire Straits")
+	ap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	al := testwasmlib.ScFuncs.MapOfArraysLength(ctx)
+	al.Params.Name().SetValue("bands")
+	al.Func.Call()
+	require.NoError(t, ctx.Err)
+	length := al.Results.Length()
+	require.True(t, length.Exists())
+	require.EqualValues(t, 2, length.Value())
+
+	av := testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(0)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value := av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Simple Minds", value.Value())
+
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(1)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Dire Straits", value.Value())
+
+	as := testwasmlib.ScFuncs.MapOfArraysSet(ctx)
+	as.Params.Name().SetValue("bands")
+	as.Params.Index().SetValue(0)
+	as.Params.Value().SetValue("Collage")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	al = testwasmlib.ScFuncs.MapOfArraysLength(ctx)
+	al.Params.Name().SetValue("bands")
+	al.Func.Call()
+	require.NoError(t, ctx.Err)
+	length = al.Results.Length()
+	require.True(t, length.Exists())
+	require.EqualValues(t, 2, length.Value())
+
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(0)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Collage", value.Value())
+
+	av = testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(1)
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Dire Straits", value.Value())
+}
+
+func TestInvalidIndexInGetMapOfArraysElt(t *testing.T) {
+	ctx := setupTest(t)
+
+	as := testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
+	as.Params.Name().SetValue("bands")
+	as.Params.Value().SetValue("Simple Minds")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
+	as.Params.Name().SetValue("bands")
+	as.Params.Value().SetValue("Dire Straits")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfArraysAppend(ctx)
+	as.Params.Name().SetValue("bands")
+	as.Params.Value().SetValue("ELO")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	al := testwasmlib.ScFuncs.MapOfArraysLength(ctx)
+	al.Params.Name().SetValue("bands")
+	al.Func.Call()
+	require.NoError(t, ctx.Err)
+	length := al.Results.Length()
+	require.True(t, length.Exists())
+	require.EqualValues(t, 3, length.Value())
+
+	av := testwasmlib.ScFuncs.MapOfArraysValue(ctx)
+	av.Params.Name().SetValue("bands")
+	av.Params.Index().SetValue(100)
+	av.Func.Call()
+	require.Contains(t, ctx.Err.Error(), "invalid index")
+}
+
+func TestArrayOfArraysAppend(t *testing.T) {
+	ctx := setupTest(t)
+
+	aap := testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(0)
+	aap.Params.Value().AppendString().SetValue("support")
+	aap.Params.Value().AppendString().SetValue("freedom")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aap = testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(1)
+	aap.Params.Value().AppendString().SetValue("hail")
+	aap.Params.Value().AppendString().SetValue("life")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aav := testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "support", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "freedom", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "hail", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "life", aav.Results.Value().Value())
+}
+
+func TestArrayOfArraysClear(t *testing.T) {
+	ctx := setupTest(t)
+
+	aap := testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(0)
+	aap.Params.Value().AppendString().SetValue("support")
+	aap.Params.Value().AppendString().SetValue("freedom")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aap = testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(1)
+	aap.Params.Value().AppendString().SetValue("hail")
+	aap.Params.Value().AppendString().SetValue("life")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aav := testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "support", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "freedom", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "hail", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "life", aav.Results.Value().Value())
+
+	ac := testwasmlib.ScFuncs.ArrayOfArraysClear(ctx)
+	ac.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.Error(t, ctx.Err)
+}
+
+func TestArrayOfArraysSet(t *testing.T) {
+	ctx := setupTest(t)
+
+	aap := testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(0)
+	aap.Params.Value().AppendString().SetValue("support")
+	aap.Params.Value().AppendString().SetValue("freedom")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aap = testwasmlib.ScFuncs.ArrayOfArraysAppend(ctx)
+	aap.Params.Index().SetValue(1)
+	aap.Params.Value().AppendString().SetValue("hail")
+	aap.Params.Value().AppendString().SetValue("life")
+	aap.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aav := testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "support", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(0)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "freedom", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(0)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "hail", aav.Results.Value().Value())
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "life", aav.Results.Value().Value())
+
+	aas := testwasmlib.ScFuncs.ArrayOfArraysSet(ctx)
+	aas.Params.Index0().SetValue(1)
+	aas.Params.Index1().SetValue(1)
+	aas.Params.Value().SetValue("moon")
+	aas.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	aav = testwasmlib.ScFuncs.ArrayOfArraysValue(ctx)
+	aav.Params.Index0().SetValue(1)
+	aav.Params.Index1().SetValue(1)
+	aav.Func.Call()
+	require.EqualValues(t, "moon", aav.Results.Value().Value())
+}
+
+func TestMapOfMapsClear(t *testing.T) {
+	// test reproduces a problem that needs fixing
+	t.SkipNow()
+
+	ctx := setupTest(t)
+
+	as := testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("Simple Minds")
+	as.Params.Value().SetValue("New Gold Dream")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("Dire Straits")
+	as.Params.Value().SetValue("Calling Elvis")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("ELO")
+	as.Params.Value().SetValue("Mr. Blue Sky")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	av := testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("Dire Straits")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value := av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Calling Elvis", value.Value())
+
+	ac := testwasmlib.ScFuncs.MapOfMapsClear(ctx)
+	ac.Params.Name().SetValue("albums")
+	ac.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	av = testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("Dire Straits")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.EqualValues(t, "", value.Value())
+}
+
+func TestMapOfMapsSet(t *testing.T) {
+	ctx := setupTest(t)
+
+	as := testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("Simple Minds")
+	as.Params.Value().SetValue("New Gold Dream")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("Dire Straits")
+	as.Params.Value().SetValue("Calling Elvis")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	as = testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("ELO")
+	as.Params.Value().SetValue("Mr. Blue Sky")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	av := testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("Dire Straits")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	value := av.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Calling Elvis", value.Value())
+
+	av = testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("Simple Minds")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.True(t, value.Exists())
+	require.EqualValues(t, "New Gold Dream", av.Results.Value().Value())
+
+	av = testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("ELO")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Mr. Blue Sky", av.Results.Value().Value())
+
+	as = testwasmlib.ScFuncs.MapOfMapsSet(ctx)
+	as.Params.Name().SetValue("albums")
+	as.Params.Key().SetValue("Simple Minds")
+	as.Params.Value().SetValue("Life in a Day")
+	as.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	av = testwasmlib.ScFuncs.MapOfMapsValue(ctx)
+	av.Params.Name().SetValue("albums")
+	av.Params.Key().SetValue("Simple Minds")
+	av.Func.Call()
+	require.NoError(t, ctx.Err)
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Life in a Day", av.Results.Value().Value())
+}
+
+func TestArrayOfMapsClear(t *testing.T) {
+	ctx := setupTest(t)
+
+	ams := testwasmlib.ScFuncs.ArrayOfMapsSet(ctx)
+	ams.Params.Index().SetValue(0)
+	ams.Params.Key().SetValue("Simple Minds")
+	ams.Params.Value().SetValue("New Gold Dream")
+	ams.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	ams = testwasmlib.ScFuncs.ArrayOfMapsSet(ctx)
+	ams.Params.Index().SetValue(0)
+	ams.Params.Key().SetValue("Dire Straits")
+	ams.Params.Value().SetValue("Calling Elvis")
+	ams.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	ams = testwasmlib.ScFuncs.ArrayOfMapsSet(ctx)
+	ams.Params.Index().SetValue(1)
+	ams.Params.Key().SetValue("ELO")
+	ams.Params.Value().SetValue("Mr. Blue Sky")
+	ams.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	amv := testwasmlib.ScFuncs.ArrayOfMapsValue(ctx)
+	amv.Params.Index().SetValue(0)
+	amv.Params.Key().SetValue("Simple Minds")
+	amv.Func.Call()
+	require.NoError(t, ctx.Err)
+	value := amv.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "New Gold Dream", value.Value())
+
+	amv = testwasmlib.ScFuncs.ArrayOfMapsValue(ctx)
+	amv.Params.Index().SetValue(0)
+	amv.Params.Key().SetValue("Dire Straits")
+	amv.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = amv.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Calling Elvis", value.Value())
+
+	amv = testwasmlib.ScFuncs.ArrayOfMapsValue(ctx)
+	amv.Params.Index().SetValue(1)
+	amv.Params.Key().SetValue("ELO")
+	amv.Func.Call()
+	require.NoError(t, ctx.Err)
+	value = amv.Results.Value()
+	require.True(t, value.Exists())
+	require.EqualValues(t, "Mr. Blue Sky", value.Value())
+
+	amc := testwasmlib.ScFuncs.ArrayOfMapsClear(ctx)
+	amc.Func.Post()
+	require.NoError(t, ctx.Err)
+
+	amv = testwasmlib.ScFuncs.ArrayOfMapsValue(ctx)
+	amv.Params.Index().SetValue(1)
+	amv.Params.Key().SetValue("ELO")
+	amv.Func.Call()
+	require.Error(t, ctx.Err)
+
+	amv = testwasmlib.ScFuncs.ArrayOfMapsValue(ctx)
+	amv.Params.Index().SetValue(0)
+	amv.Params.Key().SetValue("Simple Minds")
+	amv.Func.Call()
 	require.Error(t, ctx.Err)
 }
 
@@ -274,31 +755,31 @@ func TestRandom(t *testing.T) {
 	ctx := setupTest(t)
 
 	f := testwasmlib.ScFuncs.Random(ctx)
-	f.Func.TransferIotas(1).Post()
+	f.Func.Post()
 	require.NoError(t, ctx.Err)
 
 	v := testwasmlib.ScFuncs.GetRandom(ctx)
 	v.Func.Call()
 	require.NoError(t, ctx.Err)
 	random := v.Results.Random().Value()
-	require.True(t, random >= 0 && random < 1000)
+	require.True(t, random < 1000)
 	fmt.Printf("Random value: %d\n", random)
 }
 
 func TestMultiRandom(t *testing.T) {
 	ctx := setupTest(t)
 
-	numbers := make([]int64, 0)
+	numbers := make([]uint64, 0)
 	for i := 0; i < 10; i++ {
 		f := testwasmlib.ScFuncs.Random(ctx)
-		f.Func.TransferIotas(1).Post()
+		f.Func.Post()
 		require.NoError(t, ctx.Err)
 
 		v := testwasmlib.ScFuncs.GetRandom(ctx)
 		v.Func.Call()
 		require.NoError(t, ctx.Err)
 		random := v.Results.Random().Value()
-		require.True(t, random >= 0 && random < 1000)
+		require.True(t, random < 1000)
 		numbers = append(numbers, random)
 	}
 

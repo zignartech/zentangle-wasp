@@ -9,9 +9,8 @@
 #![allow(unused_imports)]
 
 use wasmlib::*;
-use wasmlib::host::*;
-use crate::typedefs::*;
 
+#[derive(Clone)]
 pub struct Location {
     pub x : i32, 
     pub y : i32, 
@@ -19,55 +18,55 @@ pub struct Location {
 
 impl Location {
     pub fn from_bytes(bytes: &[u8]) -> Location {
-        let mut decode = BytesDecoder::new(bytes);
+        let mut dec = WasmDecoder::new(bytes);
         Location {
-            x : decode.int32(),
-            y : decode.int32(),
+            x : int32_decode(&mut dec),
+            y : int32_decode(&mut dec),
         }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut encode = BytesEncoder::new();
-		encode.int32(self.x);
-		encode.int32(self.y);
-        return encode.data();
+        let mut enc = WasmEncoder::new();
+		int32_encode(&mut enc, self.x);
+		int32_encode(&mut enc, self.y);
+        enc.buf()
     }
 }
 
+#[derive(Clone)]
 pub struct ImmutableLocation {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl ImmutableLocation {
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn value(&self) -> Location {
-        Location::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        Location::from_bytes(&self.proxy.get())
     }
 }
 
+#[derive(Clone)]
 pub struct MutableLocation {
-    pub(crate) obj_id: i32,
-    pub(crate) key_id: Key32,
+    pub(crate) proxy: Proxy,
 }
 
 impl MutableLocation {
     pub fn delete(&self) {
-        del_key(self.obj_id, self.key_id, TYPE_BYTES);
+        self.proxy.delete();
     }
 
     pub fn exists(&self) -> bool {
-        exists(self.obj_id, self.key_id, TYPE_BYTES)
+        self.proxy.exists()
     }
 
     pub fn set_value(&self, value: &Location) {
-        set_bytes(self.obj_id, self.key_id, TYPE_BYTES, &value.to_bytes());
+        self.proxy.set(&value.to_bytes());
     }
 
     pub fn value(&self) -> Location {
-        Location::from_bytes(&get_bytes(self.obj_id, self.key_id, TYPE_BYTES))
+        Location::from_bytes(&self.proxy.get())
     }
 }
