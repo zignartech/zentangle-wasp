@@ -14,11 +14,15 @@ The Giveaway Smart contract has 3 main functions:
 If we want to be transparent, the idea is to be able to check who participated on the giveaway and who has the smart contract chosen as the winners.
 ### Check results Giveaway #1
 The Giveaway Smart Contract is currently running on the zentangle chain (chain ID: gVWjq4h6jCX5ZKgeYTnC8LbpouGRT4sbpEWNuMoKe6CS). This means, you can access all interactions that have happened with the Giveaway Smart Contract on our [Dashboard](https://dash-wasp.zentangle.io/chain/gVWjq4h6jCX5ZKgeYTnC8LbpouGRT4sbpEWNuMoKe6CS/contract/31774d34). Use:
+
 username: wasp
+
 password: wasp
 ### Check results Giveaway #2
 As the first Giveaway SC has crashed doe to network stability issues of Goshimmer, a new Smart Contract was published. This time it's currently running on the Giveaway Chain (chain ID: gLruuKrc7BNUapPi95MMCLguaAqKjM6sQPjw95yo5iSV). This means, you can access all interactions that have happened with the Giveaway Smart Contract on our [Dashboard](http://test-dcsc.zentangle.io:7000/chain/gLruuKrc7BNUapPi95MMCLguaAqKjM6sQPjw95yo5iSV/block/7). Use:
+
 username: wasp
+
 password: wasp
 ![image](https://user-images.githubusercontent.com/41125296/162103300-723db9bc-48d5-41c4-92b2-730ad07d88ce.png)
 ### Check events trough CLI
