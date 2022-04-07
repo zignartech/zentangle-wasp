@@ -42,8 +42,7 @@ You can find the ID in the same dashboard when looking at the block where the ev
 
 Inputs and outputs are in hexadecimal. Just convert them to string on https://codebeautify.org/hex-string-converter
 
-## Give Away Winners
-###Tangle Dragons Genesis NFT
+## Give Away Winners of Tangle Dragons Genesis NFT
 
 | NFT Number | Metamask Address
 | -------- | -------- |
