@@ -43,11 +43,14 @@ You can find the ID in the same dashboard when looking at the block where the ev
 Inputs and outputs are in hexadecimal. Just convert them to string on https://codebeautify.org/hex-string-converter
 
 ## Give Away Winners
-Tangle Dragon Genesis NFT ID - Metamask Address of Winner
-1. d959df95169bff5d293df05817c3a5d19047177e - 1144
-2. 9b9c5915dabefbd92db77782d4bf54f0356f515b - 2052
-3. d8206a0ac8d275a88842d7064e9e682575a11e3f - 2436
-4. 7637e334de9ff6dfdd0fbac5bd13ac7ca3cffdb7 - 1382
-5. e954bbabbe298215baa94d9a89fc100529fc2652 - 2100
-6. d17be40bb9256b90325272a52ad22f661fd9cb19 - 662
-7. 5a22618a380a56c20a0c26664c3955d594f426e8 - 96
+###Tangle Dragons Genesis NFT
+
+| NFT Number | Metamask Address
+| -------- | -------- |
+| 1144     | d959df95169bff5d293df05817c3a5d19047177e  |
+| 2052     | 9b9c5915dabefbd92db77782d4bf54f0356f515b  |
+| 2436     | d8206a0ac8d275a88842d7064e9e682575a11e3f  |
+| 1382     | 7637e334de9ff6dfdd0fbac5bd13ac7ca3cffdb7  |
+| 2100     | e954bbabbe298215baa94d9a89fc100529fc2652  |
+| 662     | d17be40bb9256b90325272a52ad22f661fd9cb19  |
+| 96     | 5a22618a380a56c20a0c26664c3955d594f426e8  |
