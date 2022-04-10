@@ -55,6 +55,10 @@ pub struct ImmutableEndGameParams {
 }
 
 impl ImmutableEndGameParams {
+    pub fn mission(&self) -> ScImmutableString {
+		ScImmutableString::new(self.proxy.root(PARAM_MISSION))
+	}
+
     pub fn reset_player_info(&self) -> ScImmutableBool {
 		ScImmutableBool::new(self.proxy.root(PARAM_RESET_PLAYER_INFO))
 	}
@@ -66,6 +70,10 @@ pub struct MutableEndGameParams {
 }
 
 impl MutableEndGameParams {
+    pub fn mission(&self) -> ScMutableString {
+		ScMutableString::new(self.proxy.root(PARAM_MISSION))
+	}
+
     pub fn reset_player_info(&self) -> ScMutableBool {
 		ScMutableBool::new(self.proxy.root(PARAM_RESET_PLAYER_INFO))
 	}

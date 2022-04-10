@@ -14,6 +14,7 @@ export const HScName       = new wasmtypes.ScHname(0xf707a9c6);
 export const ParamDescription          = "description";
 export const ParamImageId              = "imageId";
 export const ParamInputJson            = "inputJson";
+export const ParamMission              = "mission";
 export const ParamNumberOfImages       = "numberOfImages";
 export const ParamOwner                = "owner";
 export const ParamPlayerAddress        = "playerAddress";

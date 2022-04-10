@@ -90,6 +90,7 @@ func funcEndGameThunk(ctx wasmlib.ScFuncContext) {
 			proxy: wasmlib.NewStateProxy(),
 		},
 	}
+	ctx.Require(f.Params.Mission().Exists(), "missing mandatory mission")
 	funcEndGame(ctx, f)
 	ctx.Log("zentangle.funcEndGame ok")
 }

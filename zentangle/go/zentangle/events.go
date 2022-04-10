@@ -14,8 +14,9 @@ import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 type zentangleEvents struct {
 }
 
-func (e zentangleEvents) GameEnded() {
+func (e zentangleEvents) GameEnded(mission string) {
 	evt := wasmlib.NewEventEncoder("zentangle.gameEnded")
+	evt.Encode(wasmtypes.StringToString(mission))
 	evt.Emit()
 }
 
@@ -36,12 +37,13 @@ func (e zentangleEvents) Imagetagged(address string, imageId uint32, playsPerIma
 	evt.Emit()
 }
 
-func (e zentangleEvents) Paid(accuracy string, amount uint64, bet uint64, boost uint8, player string, position uint64) {
+func (e zentangleEvents) Paid(accuracy string, amount uint64, bet uint64, boost uint8, mission string, player string, position uint64) {
 	evt := wasmlib.NewEventEncoder("zentangle.paid")
 	evt.Encode(wasmtypes.StringToString(accuracy))
 	evt.Encode(wasmtypes.Uint64ToString(amount))
 	evt.Encode(wasmtypes.Uint64ToString(bet))
 	evt.Encode(wasmtypes.Uint8ToString(boost))
+	evt.Encode(wasmtypes.StringToString(mission))
 	evt.Encode(wasmtypes.StringToString(player))
 	evt.Encode(wasmtypes.Uint64ToString(position))
 	evt.Emit()

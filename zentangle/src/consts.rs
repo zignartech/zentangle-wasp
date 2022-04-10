@@ -16,6 +16,7 @@ pub const HSC_NAME       : ScHname = ScHname(0xf707a9c6);
 pub const PARAM_DESCRIPTION             : &str = "description";
 pub const PARAM_IMAGE_ID                : &str = "imageId";
 pub const PARAM_INPUT_JSON              : &str = "inputJson";
+pub const PARAM_MISSION                 : &str = "mission";
 pub const PARAM_NUMBER_OF_IMAGES        : &str = "numberOfImages";
 pub const PARAM_OWNER                   : &str = "owner";
 pub const PARAM_PLAYER_ADDRESS          : &str = "playerAddress";

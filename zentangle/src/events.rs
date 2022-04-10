@@ -10,13 +10,14 @@
 
 use wasmlib::*;
 
-pub struct zentangleEvents {
+pub struct ZentangleEvents {
 }
 
-impl zentangleEvents {
+impl ZentangleEvents {
 
-	pub fn game_ended(&self) {
+	pub fn game_ended(&self, mission: &str) {
 		let mut evt = EventEncoder::new("zentangle.gameEnded");
+		evt.encode(&string_to_string(&mission));
 		evt.emit();
 	}
 
@@ -37,12 +38,13 @@ impl zentangleEvents {
 		evt.emit();
 	}
 
-	pub fn paid(&self, accuracy: &str, amount: u64, bet: u64, boost: u8, player: &str, position: u64) {
+	pub fn paid(&self, accuracy: &str, amount: u64, bet: u64, boost: u8, mission: &str, player: &str, position: u64) {
 		let mut evt = EventEncoder::new("zentangle.paid");
 		evt.encode(&string_to_string(&accuracy));
 		evt.encode(&uint64_to_string(amount));
 		evt.encode(&uint64_to_string(bet));
 		evt.encode(&uint8_to_string(boost));
+		evt.encode(&string_to_string(&mission));
 		evt.encode(&string_to_string(&player));
 		evt.encode(&uint64_to_string(position));
 		evt.emit();

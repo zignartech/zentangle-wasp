@@ -11,6 +11,7 @@ import * as events from "./events"
 const ArgDescription = "description";
 const ArgImageId = "imageId";
 const ArgInputJson = "inputJson";
+const ArgMission = "mission";
 const ArgNumberOfImages = "numberOfImages";
 const ArgOwner = "owner";
 const ArgPlayerAddress = "playerAddress";
@@ -53,11 +54,16 @@ export class CreateGameFunc extends wasmclient.ClientFunc {
 export class EndGameFunc extends wasmclient.ClientFunc {
 	private args: wasmclient.Arguments = new wasmclient.Arguments();
 	
+	public mission(v: string): void {
+		this.args.set(ArgMission, this.args.fromString(v));
+	}
+	
 	public resetPlayerInfo(v: boolean): void {
 		this.args.set(ArgResetPlayerInfo, this.args.fromBool(v));
 	}
 	
 	public async post(): Promise<wasmclient.RequestID> {
+		this.args.mandatory(ArgMission);
 		return await super.post(0xb2303ef2, this.args);
 	}
 }

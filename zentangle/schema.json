@@ -14,8 +14,10 @@
             "tagsRequiredPerImage": "Uint32"
         },
         "gameEnded": {
+            "mission": "String"
         },
         "paid": {
+            "mission": "String",
             "player": "String",
             "position": "Uint64",
             "amount": "Uint64",
@@ -114,6 +116,7 @@
         },
         "endGame": {
             "params": {
+                "mission": "String // ID of the mission that is being closed",
                 "resetPlayerInfo": "Bool? // optional bool to reset players info (boost related), default is 1 (resetting)"
             }
         }

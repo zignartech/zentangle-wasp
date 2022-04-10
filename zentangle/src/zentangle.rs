@@ -245,6 +245,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
             payout as u64,
             betters_top[i].amount,
             betters_top[i].boost,
+            &f.params.mission().value(),
             &betters_top[i].player.to_string(),
             (betters_top.len()-i) as u64,
         );
@@ -277,7 +278,9 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     f.state.complete_images().delete();
     clear_pending_play(f);
 
-    f.events.game_ended();
+    f.events.game_ended(
+        &f.params.mission().value(),
+    );
 }
 
 // This function is used by players to be assigned an image and for them to place a bet on their tags.

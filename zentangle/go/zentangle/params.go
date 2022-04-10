@@ -45,12 +45,20 @@ type ImmutableEndGameParams struct {
 	proxy wasmtypes.Proxy
 }
 
+func (s ImmutableEndGameParams) Mission() wasmtypes.ScImmutableString {
+	return wasmtypes.NewScImmutableString(s.proxy.Root(ParamMission))
+}
+
 func (s ImmutableEndGameParams) ResetPlayerInfo() wasmtypes.ScImmutableBool {
 	return wasmtypes.NewScImmutableBool(s.proxy.Root(ParamResetPlayerInfo))
 }
 
 type MutableEndGameParams struct {
 	proxy wasmtypes.Proxy
+}
+
+func (s MutableEndGameParams) Mission() wasmtypes.ScMutableString {
+	return wasmtypes.NewScMutableString(s.proxy.Root(ParamMission))
 }
 
 func (s MutableEndGameParams) ResetPlayerInfo() wasmtypes.ScMutableBool {

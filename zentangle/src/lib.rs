@@ -26,6 +26,7 @@ mod results;
 mod state;
 mod structs;
 mod utility_funcs;
+
 mod zentangle;
 
 const EXPORT_MAP: ScExportMap = ScExportMap {
@@ -72,7 +73,7 @@ fn on_load() {
 }
 
 pub struct CreateGameContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	params: ImmutableCreateGameParams,
 	state: MutablezentangleState,
 }
@@ -80,7 +81,7 @@ pub struct CreateGameContext {
 fn func_create_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcCreateGame");
 	let f = CreateGameContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		params: ImmutableCreateGameParams { proxy: params_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
@@ -91,7 +92,7 @@ fn func_create_game_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct EndGameContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	params: ImmutableEndGameParams,
 	state: MutablezentangleState,
 }
@@ -99,16 +100,17 @@ pub struct EndGameContext {
 fn func_end_game_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcEndGame");
 	let f = EndGameContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		params: ImmutableEndGameParams { proxy: params_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
+	ctx.require(f.params.mission().exists(), "missing mandatory mission");
 	func_end_game(ctx, &f);
 	ctx.log("zentangle.funcEndGame ok");
 }
 
 pub struct InitContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	params: ImmutableInitParams,
 	state: MutablezentangleState,
 }
@@ -116,7 +118,7 @@ pub struct InitContext {
 fn func_init_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcInit");
 	let f = InitContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		params: ImmutableInitParams { proxy: params_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
@@ -125,7 +127,7 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct RequestPlayContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	results: MutableRequestPlayResults,
 	state: MutablezentangleState,
 }
@@ -133,7 +135,7 @@ pub struct RequestPlayContext {
 fn func_request_play_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcRequestPlay");
 	let f = RequestPlayContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		results: MutableRequestPlayResults { proxy: results_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
@@ -143,7 +145,7 @@ fn func_request_play_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SendTagsContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	params: ImmutableSendTagsParams,
 	results: MutableSendTagsResults,
 	state: MutablezentangleState,
@@ -152,7 +154,7 @@ pub struct SendTagsContext {
 fn func_send_tags_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcSendTags");
 	let f = SendTagsContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		params: ImmutableSendTagsParams { proxy: params_proxy() },
 		results: MutableSendTagsResults { proxy: results_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
@@ -164,7 +166,7 @@ fn func_send_tags_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SetOwnerContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	params: ImmutableSetOwnerParams,
 	state: MutablezentangleState,
 }
@@ -172,7 +174,7 @@ pub struct SetOwnerContext {
 fn func_set_owner_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcSetOwner");
 	let f = SetOwnerContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		params: ImmutableSetOwnerParams { proxy: params_proxy() },
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
@@ -188,14 +190,14 @@ fn func_set_owner_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct WithdrawContext {
-	events:  zentangleEvents,
+	events:  ZentangleEvents,
 	state: MutablezentangleState,
 }
 
 fn func_withdraw_thunk(ctx: &ScFuncContext) {
 	ctx.log("zentangle.funcWithdraw");
 	let f = WithdrawContext {
-		events:  zentangleEvents {},
+		events:  ZentangleEvents {},
 		state: MutablezentangleState { proxy: state_proxy() },
 	};
 

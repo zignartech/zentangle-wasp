@@ -19,6 +19,7 @@ const (
 	ParamDescription          = "description"
 	ParamImageId              = "imageId"
 	ParamInputJson            = "inputJson"
+	ParamMission              = "mission"
 	ParamNumberOfImages       = "numberOfImages"
 	ParamOwner                = "owner"
 	ParamPlayerAddress        = "playerAddress"
