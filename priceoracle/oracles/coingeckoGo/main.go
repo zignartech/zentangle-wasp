@@ -27,16 +27,21 @@ func main() {
 
 	keypair := wasmclient.SeedToKeyPair("anyaernyaenryaembenboimvewmaiN BO", 0)
 
-	client := wasmclient.NewServiceClient("https://test-dcsc.zentangle.io/", " ")
+	//client := wasmclient.NewServiceClient("https://test-dcsc.zentangle.io/", "https://test-dcsc.zentangle.io:5550")
+	client := wasmclient.DefaultServiceClient()
 
-	service, err := NewPriceoracleService(client, "gLruuKrc7BNUapPi95MMCLguaAqKjM6sQPjw95yo5iSV")
+	service, err := NewPriceoracleService(client, "eSmkCPaPFJWjaXfvFqrMTzbNFedPyiNeDSdyEeeQwUDb")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	transfer := wasmclient.NewTransfer()
+	transfer.Set("IOTA", 1)
 	SetMiotaPrice := service.SetMiotaPrice()
 	SetMiotaPrice.Price(int64(miota * 1000000))
 	SetMiotaPrice.Sign(keypair)
 	SetMiotaPrice.Post()
+	//SetMiotaPrice.ClientFunc.Transfer(transfer)
+	SetMiotaPrice.Transfer(transfer)
 
 }

@@ -71,12 +71,12 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
         total_player_tags = sc_total_player_tags.value();
     }
 
-    let player_boost = f.state.player_boost().get_player_boost(player_address);
+    let player_info = f.state.player_info().get_player_info(player_address);
     // Fill in the variables if the player has a history
-    if player_boost.exists() {
-        n_double_boosts = player_boost.value().n_double_boosts;
-        n_tripple_boosts = player_boost.value().n_tripple_boosts;
-        n_tags = player_boost.value().n_tags;
+    if player_info.exists() {
+        n_double_boosts = player_info.value().n_double_boosts;
+        n_tripple_boosts = player_info.value().n_tripple_boosts;
+        n_tags = player_info.value().n_tags;
     }
 
     // For every boost value, check if it's valid for the player
@@ -104,7 +104,7 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
             ctx.panic("Error: invalid boost value. Must be 1, 2 or 3")
         }
 
-        let player = PlayerBoost {
+        let player = PlayerInfo {
             player: ctx.caller(),
             n_tags: n_tags,
             n_double_boosts: n_double_boosts,
@@ -113,16 +113,16 @@ pub fn check_boost(boost: Vec<u8>, f: &SendTagsContext, ctx: &ScFuncContext) {
         };
 
         // if the player isn't on the players list, add it
-        if !f.state.player_boost().get_player_boost(player_address).exists() {
+        if !f.state.player_info().get_player_info(player_address).exists() {
             f.state
-            .players_boost()
+            .players_info()
             .append_string()
             .set_value(&player.player.address().to_string());
         }
         // update player's boost data on map
         f.state
-            .player_boost()
-            .get_player_boost(player_address)
+            .player_info()
+            .get_player_info(player_address)
             .set_value(&player);
         f.state.total_player_tags().get_uint64(player_address).set_value(total_player_tags);
     }
@@ -140,26 +140,27 @@ pub fn check_ingots(amount_betted: u64, f: &RequestPlayContext, ctx: &ScFuncCont
     }
     let ingots = total_player_tags / 576;
 
+    let err_msg = "Error: Not enough ingots";
     if amount_betted <= 180*miota {
-        ctx.require(ingots >= 1, "Error: Not enough ingots");
+        ctx.require(ingots >= 1, err_msg);
     }
     else if amount_betted <= 480*miota {
-        ctx.require(ingots >= 2, "Error: Not enough ingots");
+        ctx.require(ingots >= 2, err_msg);
     }
     else if amount_betted <= 780*miota {
-        ctx.require(ingots >= 4, "Error: Not enough ingots");
+        ctx.require(ingots >= 4, err_msg);
     }
     else if amount_betted <= 1260*miota {
-        ctx.require(ingots >= 6, "Error: Not enough ingots");
+        ctx.require(ingots >= 6, err_msg);
     }
     else if amount_betted <= 2040*miota {
-        ctx.require(ingots >= 8, "Error: Not enough ingots");
+        ctx.require(ingots >= 8, err_msg);
     }
     else if amount_betted <= 3300*miota {
-        ctx.require(ingots >= 10, "Error: Not enough ingots");
+        ctx.require(ingots >= 10, err_msg);
     }
     else {
-        ctx.require(ingots >= 12, "Error: Not enough ingots");
+        ctx.require(ingots >= 12, err_msg);
     }
 }
 
@@ -182,11 +183,11 @@ pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
             continue;
         }
         for j in i * plays_required_per_image as u32..(i + 1) * plays_required_per_image as u32 {
-            let tagged_image = f.state.tagged_images().get_tagged_image(j).value();
-            if tagged_image.image_id == -1 {
+            let tgd_img = f.state.tgd_imgs().get_tgd_img(j).value();
+            if tgd_img.image_id == -1 {
                 continue;
             }
-            if tagged_image.player
+            if tgd_img.player
                 == player.address()
             {
                 counter += 1;
@@ -213,10 +214,10 @@ pub fn internal_request_play(f: &SendTagsContext, ctx: &ScFuncContext) {
             for i in image_id * plays_required_per_image
                 ..(image_id + 1) * plays_required_per_image
             {
-                if f.state.tagged_images().get_tagged_image(i).value().image_id != -1 {
+                if f.state.tgd_imgs().get_tgd_img(i).value().image_id != -1 {
                     if f.state
-                        .tagged_images()
-                        .get_tagged_image(i)
+                        .tgd_imgs()
+                        .get_tgd_img(i)
                         .value()
                         .player
                         == player.address()
@@ -273,80 +274,199 @@ pub fn clear_pending_play(f: &EndGameContext) {
 
 // An internal function to clear the player map and the players list
 pub fn clear_player(f: &EndGameContext) {
-    for player_id in 0..f.state.players_boost().length() {
+    for player_id in 0..f.state.players_info().length() {
         let player_address = f
             .state
-            .players_boost()
+            .players_info()
             .get_string(player_id)
             .value();
-        let player = f.state.player_boost().get_player_boost(&player_address);
+        let player = f.state.player_info().get_player_info(&player_address);
         if player.exists() {
             player.delete();
         }
     }
-    f.state.players_boost().clear();
+    f.state.players_info().clear();
 }
 
 // An internal function that takes many clusters and merges them using the Aglomerative Hierarchical Clustering
 // algorithm and MIN_INTER_CLUSTER_DISTANCE as a parameter to prevent merging clusters too far apart from each other
-pub fn clustering(mut clusters: Vec<Vec<f64>>) -> Vec<Vec<f64>> {
-    let mut min_distance = [0.0, 0.0, 0.0]; // stores [distance between two clusters, 1st cluster, 2nd cluster]
+pub fn clustering(
+    mut clusters: Vec<Vec<f64>>,
+    min_inter_cluster_distance: f64,
+    n_clusters_option: Option<usize>
+) -> Vec<Vec<f64>> {
+    // define maximum number of clusters, useful if we want to fix the number of clusters in the output
+    let mut max_n_clusters = 0;
+    if n_clusters_option.is_some() { max_n_clusters = n_clusters_option.unwrap(); }
+
+    let mut min_distance = 0.0; // stores the distance between two clusters: a and b
+    let mut merger = [0, 0]; // stores the a and b clusters ids to be merged
 
     // Here, we apply the Aglomerative Hierarchical Clustering: Merging all clusters that are the closest to each other
-    // until the closest are more than MIN_INTER_CLUSTER_DISTANCE pixels⁴ or there is only one cluster left (in that
-    // case, 9999999.0 will not be overwritten).
-    while min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
+    // until the closest are more than min_inter_cluster_distance pixels⁴ or there is only one cluster left (in that
+    // case, f64::MAX will not be overwritten).
+    // If min_inter_cluster_distance is set to zero and there is a n_clusters, it will merge until it reaches that number of clusters 
+    while min_distance < min_inter_cluster_distance {
         // Evaluate the distance matrix and store the shortest euclidean distance in 'min_distance[0]'
-        min_distance[0] = f64::MAX;
+        min_distance = f64::MAX;
         for x in 0..clusters.len() {
-            for y in x + 1..clusters.len() {
-                // this way we dont evaluete a pair twice, nor a cluster against itself
+            for y in (x+1)..clusters.len() { // this way we dont evaluete a pair twice nor a cluster against itself
                 let distance = euclidean_distance(clusters[x].clone(), clusters[y].clone());
-                if distance < min_distance[0] {
-                    min_distance = [distance, x as f64, y as f64];
+                if distance < min_distance {
+                    min_distance = distance; 
+                    merger = [x, y];
                 }
             }
         }
-        // If the four dimentional distance is greater than MIN_INTER_CLUSTER_DISTANCE, then we dont merge the clusters.
+        // If the four dimentional distance is greater than min_inter_cluster_distance, then we dont merge the clusters.
         // Clusters that are this far apart are considered different final clusters
-        if min_distance[0] < MIN_INTER_CLUSTER_DISTANCE {
-            // define the indexes of the clusters one and two to be merged
-            let index_1 = min_distance[1] as usize;
-            let index_2 = min_distance[2] as usize;
-            // the weight is equal to the number of point's that conform the cluster
-            let weight_1 = (clusters[index_1].len() - 4) as f64;
-            let weight_2 = (clusters[index_2].len() - 4) as f64;
+        if min_distance < min_inter_cluster_distance {
+            // define the indexes of the clusters a and b to be merged
+            let index_a = merger[0] as usize;
+            let index_b = merger[1] as usize;
+            // the weights are equal to the number of point's that conform the cluster
+            let weight_a = (clusters[index_a].len() - 4) as f64;
+            let weight_b = (clusters[index_b].len() - 4) as f64;
 
             // Calculating the coordiantes of the new cluster. The more weight,
             // the more influence on the new coordinate it has. This way, the
             // coordinate represents the average of all points in the cluster
             let mut new_cluster = vec![
-                (clusters[index_1][0] * weight_1 + clusters[index_2][0] * weight_2)
-                    / (weight_1 + weight_2),
-                (clusters[index_1][1] * weight_1 + clusters[index_2][1] * weight_2)
-                    / (weight_1 + weight_2),
-                (clusters[index_1][2] * weight_1 + clusters[index_2][2] * weight_2)
-                    / (weight_1 + weight_2),
-                (clusters[index_1][3] * weight_1 + clusters[index_2][3] * weight_2)
-                    / (weight_1 + weight_2),
+                (clusters[index_a][0] * weight_a + clusters[index_b][0] * weight_b)
+                    / (weight_a + weight_b),
+                (clusters[index_a][1] * weight_a + clusters[index_b][1] * weight_b)
+                    / (weight_a + weight_b),
+                (clusters[index_a][2] * weight_a + clusters[index_b][2] * weight_b)
+                    / (weight_a + weight_b),
+                (clusters[index_a][3] * weight_a + clusters[index_b][3] * weight_b)
+                    / (weight_a + weight_b),
             ];
             // Push the point's inside both clusters to the new cluster
-            for i in 0..weight_1 as i32 {
-                new_cluster.push(clusters[index_1][i as usize + 4]);
+            for i in 0..weight_a as i32 {
+                new_cluster.push(clusters[index_a][i as usize + 4]);
             }
-            for i in 0..weight_2 as i32 {
-                new_cluster.push(clusters[index_2][i as usize + 4]);
+            for i in 0..weight_b as i32 {
+                new_cluster.push(clusters[index_b][i as usize + 4]);
             }
 
-            // Remove the old clusters and replace with the new one. Note that inxex_2 > index_1.
-            // When removing index_2 first, we don't alter index_1.
-            clusters.remove(index_2);
-            clusters.remove(index_1);
+            // Remove the old clusters and replace with the new one. Note that index_b > index_a.
+            // When removing index_b first, we don't alter index_a.
+            clusters.remove(index_b);
+            clusters.remove(index_a);
             clusters.push(new_cluster);
+        }
+        // for the manage_repeated_players function, we need to get to a number of clusters
+        if clusters.len() <= max_n_clusters { break; }
+    }
+    return clusters;
+}
+
+// An internal function to prevent a players to be more than once in a single culster. If this happens, it can mean one of two things:
+// Either there are actually more than one objects in that cluster and should be separated in more clusters, or
+// the player has tagged an object where there is none. In that case, the player's tags inside the cluster will be deleted to not distord the data. 
+pub fn manage_repeated_players(
+    f: &EndGameContext, 
+    ctx: &ScFuncContext, 
+    mut clusters: Vec<Vec<f64>>, 
+    mut hash_image_id: HashMap<u64, u32>,
+    mut hash_play_tag_id: HashMap<u64, u32>, 
+    plays_for_this_image: i32
+) -> (
+    Vec<Vec<f64>>, 
+    HashMap<u64, u32>, 
+    HashMap<u64, u32>
+) {
+    // analize clusters with repeated players
+    let clusters_len =  clusters.len(); // clusters will mutate over the iterations. We want the initial original cluster's value.
+    for i in 0.. clusters_len {
+        let cluster_id = clusters_len - i - 1; // this way it's a backwards iterator and we dont change the id's as we remove them.
+        let cluster = clusters[cluster_id].clone();
+        let mut player_repeats_counter: HashMap<String, u16> = HashMap::new(); // count the n of times a player is in the cluster
+
+        // count how many times each player is in this cluster
+        // for this, we get the player for each point and add one to it's counter
+        for i in 4..cluster.len() { // start at four to skip coordinates of the tag and just read point id's
+            // get the player
+            let image_id = *hash_image_id.get(&(cluster[i] as u64)).unwrap();
+            let tgdimg = f.state.tgd_imgs().get_tgd_img(image_id).value();
+            let player = tgdimg.player;
+
+            // add one to it's counter
+            if !player_repeats_counter.contains_key(&player.to_string()) {
+                player_repeats_counter.insert(player.to_string(), 1);
+            } else {
+                let player_repeats = *player_repeats_counter.get(&player.to_string()).unwrap();
+                player_repeats_counter.insert(player.to_string(), player_repeats + 1);
+            }
+        }
+        // count how many times a number of repeats is present.
+        let mut n_repeats: Vec<u16> = vec![0; cluster.len()-3]; // the position in the vec indicates the number of repeats a player was inside the cluster
+                                                                // the number in that position indicates how many players had this number of repeats.
+                                                                // the vector is initialized with zeros and it's length is the amount of points in the cluster.
+                                                                // Worst case scenario, all point's belong to the same player.
+                                                                // Note that position 0 will be empty.
+        let mut max_repeats = 0;
+        for (_, &value) in player_repeats_counter.iter(){
+            if value > max_repeats {max_repeats = value};
+            n_repeats[value as usize] += 1;
+        }
+        // if no repeated players exist on the cluster, skip to the sext cluster
+        if max_repeats == 1 {
+            continue
+        }
+
+        // otherwise, see how many clusters must be generated and which players have done too many tags and must be deleted from the cluster entirely
+        let min_n_players = (CONFIRMATION_PERCENTAGE*plays_for_this_image as f32) as u16; // indicates how many players must be in a cluster for it to be valid
+        let mut n_players = 0;
+        let mut n_clusters = 1; // number of clusters that should result form the division of the current cluster
+        for i in 0..n_repeats.len() {
+            n_players += n_repeats[i];
+            // n_clusters should be updated only on the limit and on further iterations
+            if n_players >= min_n_players && n_clusters == 1 {
+                n_clusters = i;
+            }
+        }
+        // separate the cluster in unique points again to untangle the mess
+        let mut new_clusters: Vec<Vec<f64>> = Vec::new();
+        for i in 4..cluster.len() { // start at four to skip coordinates of the tag and just read point id's
+            let tag_id = &(cluster[i] as u64);
+            let image_id = *hash_image_id.get(tag_id).unwrap();
+            let play_tag_id = *hash_play_tag_id.get(tag_id).unwrap();
+            let tgdimg = f
+                .state
+                .tgd_imgs()
+                .get_tgd_img(image_id)
+                .value();
+
+            // players that have too many tangs get discarded completely from this cluster.
+            let player_repeats = *player_repeats_counter.get(&tgdimg.player.to_string()).unwrap();
+            if player_repeats > n_clusters as u16 {
+                continue
+            }
+
+            // get the coordinates back from the point id and create a new cluster
+            let tgimg_coords = input_tgimg_to_vecs(&tgdimg, ctx);
+            let mut tgimg_point = (&tgimg_coords[play_tag_id as usize]).to_vec();
+
+            // add new points to the maps and to the new cluster.
+            let total_n_points = hash_image_id.len();
+            tgimg_point.push(total_n_points as f64);
+            hash_image_id.insert(total_n_points as u64, image_id);
+            hash_play_tag_id.insert(total_n_points as u64, play_tag_id);
+            new_clusters.push(tgimg_point);
+        }
+
+        // clusterize again. We wannt to have n_clusters as a result
+        new_clusters = clustering(new_clusters,f64::MAX, Some(n_clusters));
+
+        // remove old cluster and add new one(s)
+        clusters.remove(cluster_id);
+        for i in new_clusters {
+            clusters.push(i);
         }
     }
 
-    return clusters;
+    return (clusters, hash_image_id, hash_play_tag_id)
 }
 
 // An internal function to generate a ranking of players based on their best bet.
@@ -359,27 +479,28 @@ pub fn do_players_ranking(f: &EndGameContext, ctx: &ScFuncContext) -> Vec<Better
     // fill the 'valid_bets' with the bets. The bet amount will be filled later
     for i in 0..f.state.valid_tags().length() as usize {
         let valid_tag = f.state.valid_tags().get_valid_tag(i as u32).value();
-        let player_tag_id = valid_tag.play_tag_id as usize;
-        let tagged_image = f
+
+        let tgd_img = f
             .state
-            .tagged_images()
-            .get_tagged_image(valid_tag.tagged_image)
+            .tgd_imgs()
+            .get_tgd_img(valid_tag.tgd_img)
             .value();
-        let tagged_image_coords = input_tgimg_to_vecs(&tagged_image, ctx);
-        let tagged_image_point = &tagged_image_coords[player_tag_id];
-        let boost = input_str_to_vecu8(&tagged_image.boost, ctx)[player_tag_id];
+        let tgd_img_coords = input_tgimg_to_vecs(&tgd_img, ctx);
+        let tgd_img_point = &tgd_img_coords[valid_tag.play_tag_id as usize];
+        let boost = input_str_to_vecu8(&tgd_img.boost, ctx)[valid_tag.play_tag_id as usize];
+
         let clusters_centers = f
             .state
             .processed_images()
-            .get_tagged_image(tagged_image.image_id as u32)
+            .get_tgd_img(tgd_img.image_id as u32)
             .value();
         let cluster_center_coords = input_tgimg_to_vecs(&clusters_centers, ctx);
         let mut distance_to_cluster_center =
-            euclidean_distance(tagged_image_point.clone(), cluster_center_coords[0].clone());
+            euclidean_distance(tgd_img_point.clone(), cluster_center_coords[0].clone());
         for j in 1..cluster_center_coords.len() {
             let cluster_center_point = &cluster_center_coords[j];
             let distance =
-                euclidean_distance(tagged_image_point.to_vec(), cluster_center_point.to_vec());
+                euclidean_distance(tgd_img_point.to_vec(), cluster_center_point.to_vec());
             if distance < distance_to_cluster_center {
                 distance_to_cluster_center = distance;
             }
@@ -447,75 +568,74 @@ pub fn euclidean_distance(a: Vec<f64>, b: Vec<f64>) -> f64 {
 }
 
 // An internal function to calculate the average position of a tag (center) inside an image.
-pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec<TaggedImage> {
+pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -> Vec<TgdImg> {
     let tags_req_per_image = f.state.plays_required_per_image().value();
     let mut hash_image_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an image_id from a tag_id
-    let mut hash_play_tag_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id
+    let mut hash_play_tag_id: HashMap<u64, u32> = HashMap::new(); // a hashmap to retrieve an play_tag_id from a tag_id.
+                                                                  // it defines the id of one tag inside a tgd_img
 
     let mut clusters: Vec<Vec<f64>> = Vec::new(); // stores clusters with their centers and all the id's of the point's that conform it
-    let mut playsfor_this_image = 0; // counts the real amount of players that tagged this image. This is because
+    let mut plays_for_this_image = 0; // counts the real amount of players that tagged this image. This is because
                                      // the game could end before images are tagged with the required amount
                                      // it will be used to calculate the amount of players needed to agree for a valid tag
     for i in image * tags_req_per_image..(image + 1) * tags_req_per_image {
         // I'm forced to do this is because there are no nested arrays in schema yet
-        if f.state.tagged_images().get_tagged_image(i).value().image_id == -1 {
+        if f.state.tgd_imgs().get_tgd_img(i).value().image_id == -1 {
             break;
         }
-        let tagged_image = f.state.tagged_images().get_tagged_image(i).value();
-        // Every 'tagged_image' starts as one cluster. The algorithm will then merge close-by clusters
-        let x = input_str_to_vecf64(&tagged_image.x, ctx);
-        let y = input_str_to_vecf64(&tagged_image.y, ctx);
-        let h = input_str_to_vecf64(&tagged_image.h, ctx);
-        let w = input_str_to_vecf64(&tagged_image.w, ctx);
-        for j in 0..x.len() {
+        let tgimg = f.state.tgd_imgs().get_tgd_img(i).value();
+        let tgimg_coords = input_tgimg_to_vecs(&tgimg, ctx);
+        for j in 0..tgimg_coords.len() {
             // clusters have the following form:
-            // [x, y, h, w, tag_id1. tag_id2, tag_id3, ... ],
+            // [x, y, h, w, tag_id1, tag_id2, tag_id3, ... ],
             // where x, y, h and w are the center coordinates of the cluster
-            let cluster = vec![
-                x[j],
-                y[j],
-                h[j],
-                w[j],
-                clusters.len() as f64,
-            ];
+            let mut cluster = (&tgimg_coords[j]).to_vec();
+            cluster.push(clusters.len() as f64);
+
+            // update the maps
             hash_image_id.insert(clusters.len() as u64, i);
             hash_play_tag_id.insert(clusters.len() as u64, j as u32);
             clusters.push(cluster);
         }
-        playsfor_this_image += 1;
+        plays_for_this_image += 1;
     }
 
     // every tag starts as a different cluster. We merge them until they are at least
     // MIN_INTER_CLUSTER_DISTANCE pixels⁴ apart or there is only one cluster for the image.
-    clusters = clustering(clusters);
+    clusters = clustering(clusters, MIN_INTER_CLUSTER_DISTANCE ,None);
 
-    // We should be left with only one cluster (until multi-tagging is implemented).
+    // It may happen that players are found in the same cluster more than once. This means there could be
+    // more than one object on that cluster and if many players indicate so, it has to be separated in many clusters.
+    // If a player tags many times the same object to exploit the algorithm, it will be stopped here.
+    (clusters, hash_image_id, hash_play_tag_id) = manage_repeated_players(f, ctx, clusters, hash_image_id, hash_play_tag_id, plays_for_this_image);
+
+    // We should be left with clusters with high player participation.
     // The ones that have fewer points get discarted.
     // Here we also store all the players that made correct taggs. They can be stored multiple times.
     let length = clusters.len(); // clusters.len() will be changing, so we want to fix it here
     for i in 0..length {
         let id = length - i - 1; // this way it's a backwards iterator and we dont change the id's as we remove them.
-        if clusters[id].len() - 4 < (playsfor_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize
+        if clusters[id].len() - 4 < (plays_for_this_image as f32 * CONFIRMATION_PERCENTAGE) as usize
         {
             clusters.remove(id);
         } else {
             // here we push the players that tagged correctly to the reward-list and add the tag to valid_tags
             for j in 4..clusters[id].len() {
-                let tagged_image = *hash_image_id.get(&(clusters[id][j] as u64)).unwrap();
+                let tgdimg = *hash_image_id.get(&(clusters[id][j] as u64)).unwrap();
                 let player = f
                     .state
-                    .tagged_images()
-                    .get_tagged_image(tagged_image)
+                    .tgd_imgs()
+                    .get_tgd_img(tgdimg)
                     .value()
                     .player;
                 // increment the valid tags in the player's name. This is to calculate rewards in the end-
-                let mut player_boost = f.state.player_boost().get_player_boost(&player.to_string()).value();
-                player_boost.n_valid_tags = player_boost.n_valid_tags + 1;
-                f.state.player_boost().get_player_boost(&player.to_string()).set_value(&player_boost);
+                let mut player_info = f.state.player_info().get_player_info(&player.to_string()).value();
+                player_info.n_valid_tags = player_info.n_valid_tags + 1;
+                f.state.player_info().get_player_info(&player.to_string()).set_value(&player_info);
 
                 let vaid_tag = ValidTag {
                     player: player,
-                    tagged_image: tagged_image,
+                    tgd_img: tgdimg,
                     play_tag_id: *hash_play_tag_id.get(&(clusters[id][j] as u64)).unwrap(),
                 };
                 f.state
@@ -534,9 +654,9 @@ pub fn find_image_centers(image: u32, f: &EndGameContext, ctx: &ScFuncContext) -
         clusters.push(cluster);
     }
 
-    let mut centers: Vec<TaggedImage> = Vec::new();
+    let mut centers: Vec<TgdImg> = Vec::new();
     for i in 0..clusters.len() {
-        let center = TaggedImage {
+        let center = TgdImg {
             player: f.state.creator().value().address(), // the constructor requires a creator. This time it's not used tho.
             image_id: image as i32,
             boost: 1.to_string(), // this is only the default value, same as player, and can change later
@@ -612,7 +732,7 @@ pub fn vecf64_to_str(vecf64: Vec<f64>) -> String {
 
 // An internal function to convert a vector of tagged images, each with a single point
 // to one single tagged image but with many points
-pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> TaggedImage {
+pub fn vec_to_tgd_img(vec: Vec<TgdImg>, ctx: &ScFuncContext) -> TgdImg {
     let mut x: Vec<f64> = Vec::new();
     let mut y: Vec<f64> = Vec::new();
     let mut h: Vec<f64> = Vec::new();
@@ -625,7 +745,7 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
         w.push(input_str_to_vecf64(&point.w, ctx)[0]);
         boost.push(input_str_to_vecu8(&point.boost, ctx)[0]);
     }
-    let processed_image = TaggedImage {
+    let processed_image = TgdImg {
         image_id: (&vec[0]).image_id,
         player: ctx.caller().address(), // field is required but not used in this case
         x: vecf64_to_str(x),
@@ -640,12 +760,12 @@ pub fn vec_to_tagged_image(vec: Vec<TaggedImage>, ctx: &ScFuncContext) -> Tagged
 
 // An internal function to get a vector of vectors of type i64, each vector representing
 // a dimention and each dimention having multiple points. This is calculated taking a
-// reference to a TaggedImage as an input.
-pub fn input_tgimg_to_vecs(tagged_image: &TaggedImage, ctx: &ScFuncContext) -> Vec<Vec<f64>> {
-    let x = input_str_to_vecf64(&tagged_image.x, ctx);
-    let y = input_str_to_vecf64(&tagged_image.y, ctx);
-    let h = input_str_to_vecf64(&tagged_image.h, ctx);
-    let w = input_str_to_vecf64(&tagged_image.w, ctx);
+// reference to a tagged image (TgdImg) as an input.
+pub fn input_tgimg_to_vecs(tgd_img: &TgdImg, ctx: &ScFuncContext) -> Vec<Vec<f64>> {
+    let x = input_str_to_vecf64(&tgd_img.x, ctx);
+    let y = input_str_to_vecf64(&tgd_img.y, ctx);
+    let h = input_str_to_vecf64(&tgd_img.h, ctx);
+    let w = input_str_to_vecf64(&tgd_img.w, ctx);
 
     let mut vectors: Vec<Vec<f64>> = Vec::new();
 
@@ -671,14 +791,14 @@ pub fn unsafe_input_str_to_vecf64(string: &String) -> Vec<f64> {
 
 // An internal function to get a vector of vectors of type i64, each vector representing
 // a dimention and each dimention having multiple points. This is calculated taking a
-// reference to a TaggedImage as an input.
+// reference to a tagged image (TgdImg) as an input.
 // CAUTION: inputs MUST BE of type i64. Else, the error will not be handeled correctly.
 // This function takes no ctx, so no panic can be induced.
-pub fn unsafe_input_tgimg_to_vecs(tagged_image: &TaggedImage) -> Vec<Vec<f64>> {
-    let x = unsafe_input_str_to_vecf64(&tagged_image.x);
-    let y = unsafe_input_str_to_vecf64(&tagged_image.y);
-    let h = unsafe_input_str_to_vecf64(&tagged_image.h);
-    let w = unsafe_input_str_to_vecf64(&tagged_image.w);
+pub fn unsafe_input_tgimg_to_vecs(tgd_img: &TgdImg) -> Vec<Vec<f64>> {
+    let x = unsafe_input_str_to_vecf64(&tgd_img.x);
+    let y = unsafe_input_str_to_vecf64(&tgd_img.y);
+    let h = unsafe_input_str_to_vecf64(&tgd_img.h);
+    let w = unsafe_input_str_to_vecf64(&tgd_img.w);
 
     let mut vectors: Vec<Vec<f64>> = Vec::new();
 

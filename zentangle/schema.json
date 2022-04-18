@@ -32,7 +32,7 @@
         }
     },
     "structs": {
-        "TaggedImage": {
+        "TgdImg": {
             "imageId": "Int32 // the only signed integer (It is -1 by default)",
             "player": "Address // player that has tagged this image",
             "boost": "String // if the tags will be boosted or not",
@@ -48,10 +48,10 @@
         },
         "ValidTag": {
             "player": "Address // player placing the bet",
-            "taggedImage": "Uint32",
+            "tgdImg": "Uint32 // Tagged Image",
             "playTagId": "Uint32 // Identifier to distinguish different tags in the same play"
         },
-        "PlayerBoost": {
+        "PlayerInfo": {
             "player": "AgentID // The player's AgentId",
             "nTags": "Uint64 // Number of tags made by the player in the current round",
             "nValidTags": "Uint64 // Number of validated tags made by the player in the current round. this is to calculate how much to pay them",
@@ -72,11 +72,11 @@
         "pendingPlays": "Bet[] // TODO: because maps can't be cleared correcly yet",
         "playsPerImage": "Uint32[] // counts how many times an image has been tagged",
         "completeImages": "Uint32 // Number of images with all the required plays completed",
-        "taggedImages": "TaggedImage[] // a list with every TaggedImage (many per imageId) TODO: Ideally a nested array when it gets implemented",
+        "tgdImgs": "TgdImg[] // a list with every Tagged Image (many per imageId) TODO: Ideally a nested array when it gets implemented",
         "validTags": " ValidTag[] // stores the player and imageId of all valid tags",
-        "processedImages": "TaggedImage[]",
-        "playerBoost": "map[String]PlayerBoost // maps an address to the information of the player",
-        "playersBoost": "String[] // TODO: because maps can't be cleared correcly yet. This is a list containing all the playerBoost keys",
+        "processedImages": "TgdImg[]",
+        "playerInfo": "map[String]PlayerInfo // maps an address to the information of the player",
+        "playersInfo": "String[] // TODO: because maps can't be cleared correcly yet. This is a list containing all the playerInfo keys",
         "totalPlayerTags": "map[String]Uint64 // maps a player's address to the number of tags it has made (to calculate the ingots)."
     },
     "funcs": {

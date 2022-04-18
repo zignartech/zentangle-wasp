@@ -10,9 +10,8 @@ import * as wasmtypes from "wasmlib/wasmtypes";
 
 export class zentangleEvents {
 
-	gameEnded(mission: string): void {
+	gameEnded(): void {
 		const evt = new wasmlib.EventEncoder("zentangle.gameEnded");
-		evt.encode(wasmtypes.stringToString(mission));
 		evt.emit();
 	}
 
@@ -33,13 +32,12 @@ export class zentangleEvents {
 		evt.emit();
 	}
 
-	paid(accuracy: string, amount: u64, bet: u64, boost: u8, mission: string, player: string, position: u64): void {
+	paid(accuracy: string, amount: u64, bet: u64, boost: u8, player: string, position: u64): void {
 		const evt = new wasmlib.EventEncoder("zentangle.paid");
 		evt.encode(wasmtypes.stringToString(accuracy));
 		evt.encode(wasmtypes.uint64ToString(amount));
 		evt.encode(wasmtypes.uint64ToString(bet));
 		evt.encode(wasmtypes.uint8ToString(boost));
-		evt.encode(wasmtypes.stringToString(mission));
 		evt.encode(wasmtypes.stringToString(player));
 		evt.encode(wasmtypes.uint64ToString(position));
 		evt.emit();

@@ -18,7 +18,7 @@ use crate::*;
 pub const DEFAULT_TAGS_REQUIRED_PER_IMAGE: u32 = 10;
 // The distance required for two clusters of tags to remain separate and not merge into one
 pub const MIN_INTER_CLUSTER_DISTANCE: f64 = 100.0;
-// The percentage of players on an image that have to agree on a tag for it to be valid
+// The percentage of players on an image that have to agree on a tag for it to be valid. It is highly recomended for it to be > 0.5
 pub const CONFIRMATION_PERCENTAGE: f32 = 0.6;
 
 // This functions sets an owner of the smart contract, to which remaining funds can be sent to
@@ -74,8 +74,8 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
         "Error: Reward too low!",
     );
 
-    // Now, we have to initialize the taggedImages and the playsPerImage with default values.
-    let default_tagged_image = TaggedImage {
+    // Now, we have to initialize the tagged images (TgdImg) and the playsPerImage with default values.
+    let default_tgd_img = TgdImg {
         image_id: -1,
         boost: "".to_string(),
         player: ctx.account_id().address(),
@@ -86,9 +86,9 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
     };
     for _ in 0..tags_required_per_image * number_of_images {
         f.state
-            .tagged_images()
-            .append_tagged_image()
-            .set_value(&default_tagged_image);
+            .tgd_imgs()
+            .append_tgd_img()
+            .set_value(&default_tgd_img);
     }
     for _ in 0..number_of_images {
         f.state.plays_per_image().append_uint32().set_value(0);
@@ -116,6 +116,7 @@ pub fn func_create_game(ctx: &ScFuncContext, f: &CreateGameContext) {
 pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // unless all images are completed with it's required plays,
     // the context caller has to be the game crator.
+    // As automatic endGame() is not implemented, complete_images() is never increased.
     if ! f.state.complete_images().value() == f.state.plays_required_per_image().value() {
         ctx.require(
             f.state.creator().value() == ctx.caller(),
@@ -129,7 +130,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
         "Error: No game in progress",
     );
 
-    let mut centers: Vec<Vec<TaggedImage>> = Vec::new(); // stores the center of the clusters for all images
+    let mut centers: Vec<Vec<TgdImg>> = Vec::new(); // stores the center of the clusters for all images
 
     let number_of_images = f.state.number_of_images().value();
 
@@ -147,44 +148,38 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // update the 'processed_images' state variable with the final tagging data
     for image_id in 0..number_of_images as usize {
         let centers_in_image = centers[image_id].clone();
-        let processed_image = vec_to_tagged_image(centers_in_image, ctx);
+        let processed_image = vec_to_tgd_img(centers_in_image, ctx);
         f.state
             .processed_images()
-            .append_tagged_image()
+            .append_tgd_img()
             .set_value(&processed_image)
     }
 
     // Now, we set the top players and the rewards for the correct tags
     // The betters_top vector is an ordered list of the winners, from better to worse tagger.
     let n_rewards = f.state.valid_tags().length() as u64;
-    ctx.require(n_rewards > 0, "No valid tags so no rewards will be paid.");
+    ctx.require(n_rewards > 0, "No valid tags so no rewards can be paid.");
 
-    for i in 0..f.state.players_boost().length() {
+    for i in 0..f.state.players_info().length() {
         // get player address
         let address = f
             .state
-            .players_boost()
+            .players_info()
             .get_string(i)
             .value();
         
-        let mut player_boost = f.state.player_boost().get_player_boost(&address).value();
-
-
-        ctx.log("Iniciando transaccion");
+        let mut player_info = f.state.player_info().get_player_info(&address).value();
+        let valid_tags = f.state.reward().value() * player_info.n_valid_tags;
+        let payout = (valid_tags) / n_rewards;
+        if payout == 0 { continue }
+        ctx.log(&format!("Rewarding {}i to {} for doing {} correct annotations.", payout, address, valid_tags));
 
         let d = coreaccounts::ScFuncs::deposit(ctx);
-        d.params.agent_id().set_value(&player_boost.player);
-        d.func.transfer_iotas((f.state.reward().value() * player_boost.n_valid_tags) / n_rewards).call();
+        d.params.agent_id().set_value(&player_info.player);
+        d.func.transfer_iotas(payout).call();
 
-        /*
-        let transfers: ScTransfers = ScTransfers::iotas((f.state.reward().value() * player_boost.n_valid_tags) / n_rewards );
-        let parms = ScDict::new(&[]);
-        parms.set(&string_to_bytes("a"), &player_boost.player.to_bytes());
-        ctx.call(ScHname(0x3c4b5e02), ScHname::new("deposit".as_bytes()), Some(parms), Some(transfers));
-        */
-        ctx.log("Terminó transaccion");
-        player_boost.n_valid_tags = 0;
-        f.state.player_boost().get_player_boost(&address.to_string()).set_value(&player_boost);
+        player_info.n_valid_tags = 0;
+        f.state.player_info().get_player_info(&address.to_string()).set_value(&player_info);
     }
 
     // Now, we set the winners and the rewards for the correct tags
@@ -272,7 +267,7 @@ pub fn func_end_game(ctx: &ScFuncContext, f: &EndGameContext) {
     // We clear necessary state variables, so a new game can begin
     f.state.bets().clear();
     f.state.plays_per_image().clear();
-    f.state.tagged_images().clear();
+    f.state.tgd_imgs().clear();
     f.state.reward().set_value(0_u64);
     f.state.valid_tags().clear();
     f.state.complete_images().delete();
@@ -320,11 +315,11 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
             continue;
         }
         for j in i * plays_required_per_image as u32..(i + 1) * plays_required_per_image as u32 {
-            let tagged_image = f.state.tagged_images().get_tagged_image(j).value();
-            if tagged_image.image_id == -1 {
+            let tgd_img = f.state.tgd_imgs().get_tgd_img(j).value();
+            if tgd_img.image_id == -1 {
                 continue;
             }
-            if tagged_image.player == player.address()
+            if tgd_img.player == player.address()
             {
                 counter += 1;
                 continue 'image;
@@ -354,10 +349,10 @@ pub fn func_request_play(ctx: &ScFuncContext, f: &RequestPlayContext) {
         for i in image_id * plays_required_per_image
             ..(image_id + 1) * plays_required_per_image
         {
-            if f.state.tagged_images().get_tagged_image(i).value().image_id != -1 {
+            if f.state.tgd_imgs().get_tgd_img(i).value().image_id != -1 {
                 if f.state
-                    .tagged_images()
-                    .get_tagged_image(i)
+                    .tgd_imgs()
+                    .get_tgd_img(i)
                     .value()
                     .player
                     == player.address()
@@ -450,7 +445,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     add_bet(ctx, Some(f), None, image_id as u32);
 
     // We gather all the information into this struct
-    let tagged_image = TaggedImage {
+    let tgd_img = TgdImg {
         image_id: image_id,
         player: ctx.caller().address(),
         boost: vecu8_to_str(annotations.boost.clone()),
@@ -460,25 +455,25 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
         w: vecf64_to_str(annotations.w),
     };
 
-    // Add the tag data to the taggedImage array. The taggedImages array will automatically take care
-    // of serializing the taggedImage struct into a bytes representation.
+    // Add the tag data to the tagged image (TgdImg) array. The tagged images array will automatically take care
+    // of serializing the tagged image struct into a bytes representation.
     f.state
-        .tagged_images()
-        .get_tagged_image(image_id as u32 * plays_req_per_image + plays_per_image)
-        .set_value(&tagged_image);
+        .tgd_imgs()
+        .get_tgd_img(image_id as u32 * plays_req_per_image + plays_per_image)
+        .set_value(&tgd_img);
 
     // Get the number of times this image has been tagged and add one to it
     f.state
         .plays_per_image()
-        .get_uint32(tagged_image.image_id as u32)
+        .get_uint32(tgd_img.image_id as u32)
         .set_value(plays_per_image + 1);
 
     f.events.imagetagged(
-        &tagged_image.player.to_string(),
+        &tgd_img.player.to_string(),
         image_id as u32,
         f.state
             .plays_per_image()
-            .get_uint32(tagged_image.image_id as u32)
+            .get_uint32(tgd_img.image_id as u32)
             .value(), // nr of times the image has been tagged, plays_per_image)
     );
 
@@ -488,10 +483,12 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
     
     internal_request_play(f, ctx);
     
-    
+
+    /* ((IN CASE WE IMPLEMENT AUTOMATIC GAME ENDING IN THE FUTURE))
     // if this image is now played as many times as it is required, add one to the completeImages state variable
     if plays_per_image + 1 == plays_req_per_image {
         let complete_images = f.state.complete_images().value();
+        ctx.log("Ending game automatically");
 
         // If all images have been played the required amount of times, add one to the completeImages state variable
         // the game can no longer recieve plays, so it will come to an end.
@@ -503,7 +500,7 @@ pub fn func_send_tags(ctx: &ScFuncContext, f: &SendTagsContext) {
                 .post();
         }
         f.state.complete_images().set_value(complete_images + 1);
-    }
+    }*/
 }
 
 // This function is used for a the owner of the smart contract to withdraw any
@@ -537,13 +534,13 @@ pub fn view_get_plays_per_image(ctx: &ScViewContext, f: &GetPlaysPerImageContext
 
 pub fn view_get_results(ctx: &ScViewContext, f: &GetResultsContext) {
     let image_id = f.params.image_id().value();
-    let tagged_image = f
+    let tgd_img = f
         .state
         .processed_images()
-        .get_tagged_image(image_id)
+        .get_tgd_img(image_id)
         .value();
 
-    let coords = unsafe_input_tgimg_to_vecs(&tagged_image);
+    let coords = unsafe_input_tgimg_to_vecs(&tgd_img);
 
     let mut results: String = "".to_string();
 
@@ -595,7 +592,7 @@ pub fn view_get_player_bets(ctx: &ScViewContext, f: &GetPlayerBetsContext) {
     output.push_str(&player_bet_strings.join(",\n"));
     output.push_str("\n]\n}");
 
-    ctx.log(&format!("{0}", output));
+    ctx.log(&format!("{}", output));
 
     f.results.player_bets().set_value(&output);
 }
@@ -613,8 +610,8 @@ pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
         total_player_tags = f.state.total_player_tags().get_uint64(&player_address).value();
     }
     
-    // In case player_boost map exists for this address, get its value. Else, leave it as zero.
-    let mut player_boost = PlayerBoost {
+    // In case player_info map exists for this address, get its value. Else, leave it as zero.
+    let mut player_info = PlayerInfo {
         player: ctx.contract_creator(), // just a default value
         n_double_boosts: 0,
         n_tripple_boosts: 0,
@@ -622,24 +619,24 @@ pub fn view_get_player_info(ctx: &ScViewContext, f: &GetPlayerInfoContext) {
         n_valid_tags: 0
     };
     if f.state
-        .player_boost()
-        .get_player_boost(&player_address)
+        .player_info()
+        .get_player_info(&player_address)
         .exists()
     {
-        player_boost = f
+        player_info = f
             .state
-            .player_boost()
-            .get_player_boost(&player_address)
+            .player_info()
+            .get_player_info(&player_address)
             .value()
     }
 
     let mut json = "{\n".to_string();
     json.push_str("\"round_n_tags\": \"");
-    json.push_str(&player_boost.n_tags.to_string());
+    json.push_str(&player_info.n_tags.to_string());
     json.push_str("\",\n\"n_double_boosts\": \"");
-    json.push_str(&player_boost.n_double_boosts.to_string());
+    json.push_str(&player_info.n_double_boosts.to_string());
     json.push_str("\",\n\"n_tripple_boosts\": \"");
-    json.push_str(&player_boost.n_tripple_boosts.to_string());
+    json.push_str(&player_info.n_tripple_boosts.to_string());
     json.push_str("\",\n\"total_n_tags\": \"");
     json.push_str(&total_player_tags.to_string());
     json.push_str("\"\n} ");

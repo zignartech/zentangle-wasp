@@ -41,7 +41,7 @@ func TestPlay2(t *testing.T) {
 
 	//make plays
 	var player [number_of_players]*wasmsolo.SoloAgent
-	for i := 0; i < number_of_players; i++ {
+	for i := 0; i < number_of_players-1; i++ {
 		player[i] = ctx.NewSoloAgent()
 		RequestPlay := zentangle.ScFuncs.RequestPlay(ctx.Sign(player[i]))
 		require.NoError(t, ctx.Err)
@@ -67,14 +67,38 @@ func TestPlay2(t *testing.T) {
 		require.NoError(t, ctx.Err)
 	}
 
+	player[2] = ctx.NewSoloAgent()
+	RequestPlay := zentangle.ScFuncs.RequestPlay(ctx.Sign(player[2]))
+	require.NoError(t, ctx.Err)
+
+	x := 50.4518671871878
+	y := 39.46231654
+	h := 10.1465456
+	w := 11.41564515765165
+	SendTags := zentangle.ScFuncs.SendTags(ctx.Sign(player[2]))
+	SendTags.Params.InputJson().SetValue(`{
+			"x": [` + fmt.Sprintf("%v", x+float64(2)) + `, ` + fmt.Sprintf("%v", x+float64(4)) + `, ` + fmt.Sprintf("%v", x+float64(2)) + `],
+			"y": [` + fmt.Sprintf("%v", y+float64(2)) + `, ` + fmt.Sprintf("%v", y+float64(2*2)) + `, ` + fmt.Sprintf("%v", y+float64(2)) + `],
+			"h": [` + fmt.Sprintf("%v", h+float64(2)) + `, ` + fmt.Sprintf("%v", h+float64(2*2)) + `, ` + fmt.Sprintf("%v", h+float64(2)) + `],
+			"w": [` + fmt.Sprintf("%v", w+float64(2)) + `, ` + fmt.Sprintf("%v", w+float64(2*2)) + `, ` + fmt.Sprintf("%v", w+float64(2)) + `],
+			"boost": [1, 1, 1]
+		}`)
+
+	RequestPlay.Func.TransferIotas(1).Post()
+	for j := 0; uint32(j) < (plays_required_per_image * number_of_images / number_of_players); j++ {
+		SendTags.Func.TransferIotas(1000).Post()
+	}
+
+	require.NoError(t, ctx.Err)
+
+	ctx.WaitForPendingRequests(5, 2*time.Second) // wait for end_game to finish
+
 	getPlayerInfo := zentangle.ScFuncs.GetPlayerInfo(ctx)
 	getPlayerInfo.Params.PlayerAddress().SetValue(player[0].ScAddress().String())
 	getPlayerInfo.Func.Call()
 
 	getPlayerBets := zentangle.ScFuncs.GetPlayerBets(ctx)
 	getPlayerBets.Func.Call()
-
-	ctx.WaitForPendingRequests(5, 2*time.Second) // wait for end_game to finish
 
 	for i := 0; i < int(number_of_images); i++ {
 		GetPlaysPerImage := zentangle.ScFuncs.GetPlaysPerImage(ctx)
@@ -84,6 +108,7 @@ func TestPlay2(t *testing.T) {
 
 	// End game
 	EndGame := zentangle.ScFuncs.EndGame(ctx.Sign(creator))
+	EndGame.Params.Mission().SetValue("55")
 	EndGame.Func.TransferIotas(1).Post()
 	require.NoError(t, ctx.Err)
 

@@ -37,20 +37,12 @@ export class MutableCreateGameParams extends wasmtypes.ScProxy {
 }
 
 export class ImmutableEndGameParams extends wasmtypes.ScProxy {
-	mission(): wasmtypes.ScImmutableString {
-		return new wasmtypes.ScImmutableString(this.proxy.root(sc.ParamMission));
-	}
-
 	resetPlayerInfo(): wasmtypes.ScImmutableBool {
 		return new wasmtypes.ScImmutableBool(this.proxy.root(sc.ParamResetPlayerInfo));
 	}
 }
 
 export class MutableEndGameParams extends wasmtypes.ScProxy {
-	mission(): wasmtypes.ScMutableString {
-		return new wasmtypes.ScMutableString(this.proxy.root(sc.ParamMission));
-	}
-
 	resetPlayerInfo(): wasmtypes.ScMutableBool {
 		return new wasmtypes.ScMutableBool(this.proxy.root(sc.ParamResetPlayerInfo));
 	}

@@ -40,13 +40,13 @@ impl MapStringToImmutableBet {
 }
 
 #[derive(Clone)]
-pub struct MapStringToImmutablePlayerBoost {
+pub struct MapStringToImmutablePlayerInfo {
 	pub(crate) proxy: Proxy,
 }
 
-impl MapStringToImmutablePlayerBoost {
-    pub fn get_player_boost(&self, key: &str) -> ImmutablePlayerBoost {
-        ImmutablePlayerBoost { proxy: self.proxy.key(&string_to_bytes(key)) }
+impl MapStringToImmutablePlayerInfo {
+    pub fn get_player_info(&self, key: &str) -> ImmutablePlayerInfo {
+        ImmutablePlayerInfo { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
@@ -81,18 +81,18 @@ impl ArrayOfImmutableUint32 {
 }
 
 #[derive(Clone)]
-pub struct ArrayOfImmutableTaggedImage {
+pub struct ArrayOfImmutableTgdImg {
 	pub(crate) proxy: Proxy,
 }
 
-impl ArrayOfImmutableTaggedImage {
+impl ArrayOfImmutableTgdImg {
     pub fn length(&self) -> u32 {
         self.proxy.length()
     }
 
 
-	pub fn get_tagged_image(&self, index: u32) -> ImmutableTaggedImage {
-		ImmutableTaggedImage { proxy: self.proxy.index(index) }
+	pub fn get_tgd_img(&self, index: u32) -> ImmutableTgdImg {
+		ImmutableTgdImg { proxy: self.proxy.index(index) }
 	}
 }
 
@@ -161,12 +161,12 @@ impl ImmutablezentangleState {
 		ArrayOfImmutableBet { proxy: self.proxy.root(STATE_PENDING_PLAYS) }
 	}
 
-    pub fn player_boost(&self) -> MapStringToImmutablePlayerBoost {
-		MapStringToImmutablePlayerBoost { proxy: self.proxy.root(STATE_PLAYER_BOOST) }
+    pub fn player_info(&self) -> MapStringToImmutablePlayerInfo {
+		MapStringToImmutablePlayerInfo { proxy: self.proxy.root(STATE_PLAYER_INFO) }
 	}
 
-    pub fn players_boost(&self) -> ArrayOfImmutableString {
-		ArrayOfImmutableString { proxy: self.proxy.root(STATE_PLAYERS_BOOST) }
+    pub fn players_info(&self) -> ArrayOfImmutableString {
+		ArrayOfImmutableString { proxy: self.proxy.root(STATE_PLAYERS_INFO) }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfImmutableUint32 {
@@ -177,16 +177,16 @@ impl ImmutablezentangleState {
 		ScImmutableUint32::new(self.proxy.root(STATE_PLAYS_REQUIRED_PER_IMAGE))
 	}
 
-    pub fn processed_images(&self) -> ArrayOfImmutableTaggedImage {
-		ArrayOfImmutableTaggedImage { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
+    pub fn processed_images(&self) -> ArrayOfImmutableTgdImg {
+		ArrayOfImmutableTgdImg { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
 	}
 
     pub fn reward(&self) -> ScImmutableUint64 {
 		ScImmutableUint64::new(self.proxy.root(STATE_REWARD))
 	}
 
-    pub fn tagged_images(&self) -> ArrayOfImmutableTaggedImage {
-		ArrayOfImmutableTaggedImage { proxy: self.proxy.root(STATE_TAGGED_IMAGES) }
+    pub fn tgd_imgs(&self) -> ArrayOfImmutableTgdImg {
+		ArrayOfImmutableTgdImg { proxy: self.proxy.root(STATE_TGD_IMGS) }
 	}
 
     pub fn total_player_tags(&self) -> MapStringToImmutableUint64 {
@@ -238,17 +238,17 @@ impl MapStringToMutableBet {
 }
 
 #[derive(Clone)]
-pub struct MapStringToMutablePlayerBoost {
+pub struct MapStringToMutablePlayerInfo {
 	pub(crate) proxy: Proxy,
 }
 
-impl MapStringToMutablePlayerBoost {
+impl MapStringToMutablePlayerInfo {
     pub fn clear(&self) {
         self.proxy.clear_map();
     }
 
-    pub fn get_player_boost(&self, key: &str) -> MutablePlayerBoost {
-        MutablePlayerBoost { proxy: self.proxy.key(&string_to_bytes(key)) }
+    pub fn get_player_info(&self, key: &str) -> MutablePlayerInfo {
+        MutablePlayerInfo { proxy: self.proxy.key(&string_to_bytes(key)) }
     }
 }
 
@@ -299,14 +299,14 @@ impl ArrayOfMutableUint32 {
 }
 
 #[derive(Clone)]
-pub struct ArrayOfMutableTaggedImage {
+pub struct ArrayOfMutableTgdImg {
 	pub(crate) proxy: Proxy,
 }
 
-impl ArrayOfMutableTaggedImage {
+impl ArrayOfMutableTgdImg {
 
-	pub fn append_tagged_image(&self) -> MutableTaggedImage {
-		MutableTaggedImage { proxy: self.proxy.append() }
+	pub fn append_tgd_img(&self) -> MutableTgdImg {
+		MutableTgdImg { proxy: self.proxy.append() }
 	}
 	pub fn clear(&self) {
         self.proxy.clear_array();
@@ -317,8 +317,8 @@ impl ArrayOfMutableTaggedImage {
     }
 
 
-	pub fn get_tagged_image(&self, index: u32) -> MutableTaggedImage {
-		MutableTaggedImage { proxy: self.proxy.index(index) }
+	pub fn get_tgd_img(&self, index: u32) -> MutableTgdImg {
+		MutableTgdImg { proxy: self.proxy.index(index) }
 	}
 }
 
@@ -403,12 +403,12 @@ impl MutablezentangleState {
 		ArrayOfMutableBet { proxy: self.proxy.root(STATE_PENDING_PLAYS) }
 	}
 
-    pub fn player_boost(&self) -> MapStringToMutablePlayerBoost {
-		MapStringToMutablePlayerBoost { proxy: self.proxy.root(STATE_PLAYER_BOOST) }
+    pub fn player_info(&self) -> MapStringToMutablePlayerInfo {
+		MapStringToMutablePlayerInfo { proxy: self.proxy.root(STATE_PLAYER_INFO) }
 	}
 
-    pub fn players_boost(&self) -> ArrayOfMutableString {
-		ArrayOfMutableString { proxy: self.proxy.root(STATE_PLAYERS_BOOST) }
+    pub fn players_info(&self) -> ArrayOfMutableString {
+		ArrayOfMutableString { proxy: self.proxy.root(STATE_PLAYERS_INFO) }
 	}
 
     pub fn plays_per_image(&self) -> ArrayOfMutableUint32 {
@@ -419,16 +419,16 @@ impl MutablezentangleState {
 		ScMutableUint32::new(self.proxy.root(STATE_PLAYS_REQUIRED_PER_IMAGE))
 	}
 
-    pub fn processed_images(&self) -> ArrayOfMutableTaggedImage {
-		ArrayOfMutableTaggedImage { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
+    pub fn processed_images(&self) -> ArrayOfMutableTgdImg {
+		ArrayOfMutableTgdImg { proxy: self.proxy.root(STATE_PROCESSED_IMAGES) }
 	}
 
     pub fn reward(&self) -> ScMutableUint64 {
 		ScMutableUint64::new(self.proxy.root(STATE_REWARD))
 	}
 
-    pub fn tagged_images(&self) -> ArrayOfMutableTaggedImage {
-		ArrayOfMutableTaggedImage { proxy: self.proxy.root(STATE_TAGGED_IMAGES) }
+    pub fn tgd_imgs(&self) -> ArrayOfMutableTgdImg {
+		ArrayOfMutableTgdImg { proxy: self.proxy.root(STATE_TGD_IMGS) }
 	}
 
     pub fn total_player_tags(&self) -> MapStringToMutableUint64 {

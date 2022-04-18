@@ -65,7 +65,7 @@ func (o MutableBet) Value() *Bet {
 	return NewBetFromBytes(o.proxy.Get())
 }
 
-type PlayerBoost struct {
+type PlayerInfo struct {
 	NDoubleBoosts  uint64  // Number of 2x boost used in the round
 	NTags          uint64  // Number of tags made by the player in the current round
 	NTrippleBoosts uint64  // Number of 3x boosts used in the round
@@ -73,9 +73,9 @@ type PlayerBoost struct {
 	Player         wasmtypes.ScAgentID  // The player's AgentId
 }
 
-func NewPlayerBoostFromBytes(buf []byte) *PlayerBoost {
+func NewPlayerInfoFromBytes(buf []byte) *PlayerInfo {
 	dec := wasmtypes.NewWasmDecoder(buf)
-	data := &PlayerBoost{}
+	data := &PlayerInfo{}
 	data.NDoubleBoosts  = wasmtypes.Uint64Decode(dec)
 	data.NTags          = wasmtypes.Uint64Decode(dec)
 	data.NTrippleBoosts = wasmtypes.Uint64Decode(dec)
@@ -85,7 +85,7 @@ func NewPlayerBoostFromBytes(buf []byte) *PlayerBoost {
 	return data
 }
 
-func (o *PlayerBoost) Bytes() []byte {
+func (o *PlayerInfo) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
 		wasmtypes.Uint64Encode(enc, o.NDoubleBoosts)
 		wasmtypes.Uint64Encode(enc, o.NTags)
@@ -95,39 +95,39 @@ func (o *PlayerBoost) Bytes() []byte {
 	return enc.Buf()
 }
 
-type ImmutablePlayerBoost struct {
+type ImmutablePlayerInfo struct {
 	proxy wasmtypes.Proxy
 }
 
-func (o ImmutablePlayerBoost) Exists() bool {
+func (o ImmutablePlayerInfo) Exists() bool {
 	return o.proxy.Exists()
 }
 
-func (o ImmutablePlayerBoost) Value() *PlayerBoost {
-	return NewPlayerBoostFromBytes(o.proxy.Get())
+func (o ImmutablePlayerInfo) Value() *PlayerInfo {
+	return NewPlayerInfoFromBytes(o.proxy.Get())
 }
 
-type MutablePlayerBoost struct {
+type MutablePlayerInfo struct {
 	proxy wasmtypes.Proxy
 }
 
-func (o MutablePlayerBoost) Delete() {
+func (o MutablePlayerInfo) Delete() {
 	o.proxy.Delete()
 }
 
-func (o MutablePlayerBoost) Exists() bool {
+func (o MutablePlayerInfo) Exists() bool {
 	return o.proxy.Exists()
 }
 
-func (o MutablePlayerBoost) SetValue(value *PlayerBoost) {
+func (o MutablePlayerInfo) SetValue(value *PlayerInfo) {
 	o.proxy.Set(value.Bytes())
 }
 
-func (o MutablePlayerBoost) Value() *PlayerBoost {
-	return NewPlayerBoostFromBytes(o.proxy.Get())
+func (o MutablePlayerInfo) Value() *PlayerInfo {
+	return NewPlayerInfoFromBytes(o.proxy.Get())
 }
 
-type TaggedImage struct {
+type TgdImg struct {
 	Boost   string  // if the tags will be boosted or not
 	H       string  // heights of the Tags
 	ImageId int32  // the only signed integer (It is -1 by default)
@@ -137,9 +137,9 @@ type TaggedImage struct {
 	Y       string  // y top-left positions of the Tags
 }
 
-func NewTaggedImageFromBytes(buf []byte) *TaggedImage {
+func NewTgdImgFromBytes(buf []byte) *TgdImg {
 	dec := wasmtypes.NewWasmDecoder(buf)
-	data := &TaggedImage{}
+	data := &TgdImg{}
 	data.Boost   = wasmtypes.StringDecode(dec)
 	data.H       = wasmtypes.StringDecode(dec)
 	data.ImageId = wasmtypes.Int32Decode(dec)
@@ -151,7 +151,7 @@ func NewTaggedImageFromBytes(buf []byte) *TaggedImage {
 	return data
 }
 
-func (o *TaggedImage) Bytes() []byte {
+func (o *TgdImg) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
 		wasmtypes.StringEncode(enc, o.Boost)
 		wasmtypes.StringEncode(enc, o.H)
@@ -163,50 +163,50 @@ func (o *TaggedImage) Bytes() []byte {
 	return enc.Buf()
 }
 
-type ImmutableTaggedImage struct {
+type ImmutableTgdImg struct {
 	proxy wasmtypes.Proxy
 }
 
-func (o ImmutableTaggedImage) Exists() bool {
+func (o ImmutableTgdImg) Exists() bool {
 	return o.proxy.Exists()
 }
 
-func (o ImmutableTaggedImage) Value() *TaggedImage {
-	return NewTaggedImageFromBytes(o.proxy.Get())
+func (o ImmutableTgdImg) Value() *TgdImg {
+	return NewTgdImgFromBytes(o.proxy.Get())
 }
 
-type MutableTaggedImage struct {
+type MutableTgdImg struct {
 	proxy wasmtypes.Proxy
 }
 
-func (o MutableTaggedImage) Delete() {
+func (o MutableTgdImg) Delete() {
 	o.proxy.Delete()
 }
 
-func (o MutableTaggedImage) Exists() bool {
+func (o MutableTgdImg) Exists() bool {
 	return o.proxy.Exists()
 }
 
-func (o MutableTaggedImage) SetValue(value *TaggedImage) {
+func (o MutableTgdImg) SetValue(value *TgdImg) {
 	o.proxy.Set(value.Bytes())
 }
 
-func (o MutableTaggedImage) Value() *TaggedImage {
-	return NewTaggedImageFromBytes(o.proxy.Get())
+func (o MutableTgdImg) Value() *TgdImg {
+	return NewTgdImgFromBytes(o.proxy.Get())
 }
 
 type ValidTag struct {
-	PlayTagId   uint32  // Identifier to distinguish different tags in the same play
-	Player      wasmtypes.ScAddress  // player placing the bet
-	TaggedImage uint32 
+	PlayTagId uint32  // Identifier to distinguish different tags in the same play
+	Player    wasmtypes.ScAddress  // player placing the bet
+	TgdImg    uint32  // Tagged Image
 }
 
 func NewValidTagFromBytes(buf []byte) *ValidTag {
 	dec := wasmtypes.NewWasmDecoder(buf)
 	data := &ValidTag{}
-	data.PlayTagId   = wasmtypes.Uint32Decode(dec)
-	data.Player      = wasmtypes.AddressDecode(dec)
-	data.TaggedImage = wasmtypes.Uint32Decode(dec)
+	data.PlayTagId = wasmtypes.Uint32Decode(dec)
+	data.Player    = wasmtypes.AddressDecode(dec)
+	data.TgdImg    = wasmtypes.Uint32Decode(dec)
 	dec.Close()
 	return data
 }
@@ -215,7 +215,7 @@ func (o *ValidTag) Bytes() []byte {
 	enc := wasmtypes.NewWasmEncoder()
 		wasmtypes.Uint32Encode(enc, o.PlayTagId)
 		wasmtypes.AddressEncode(enc, o.Player)
-		wasmtypes.Uint32Encode(enc, o.TaggedImage)
+		wasmtypes.Uint32Encode(enc, o.TgdImg)
 	return enc.Buf()
 }
 

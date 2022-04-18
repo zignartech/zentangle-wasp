@@ -53,11 +53,9 @@ export class ZentangleEvents implements wasmclient.IEventHandler {
 }
 
 export class EventGameEnded extends wasmclient.Event {
-	public readonly mission: wasmclient.String;
 	
 	public constructor(msg: string[]) {
 		super(msg);
-		this.mission = this.nextString();
 	}
 }
 
@@ -94,7 +92,6 @@ export class EventPaid extends wasmclient.Event {
 	public readonly amount: wasmclient.Uint64;
 	public readonly bet: wasmclient.Uint64;
 	public readonly boost: wasmclient.Uint8;
-	public readonly mission: wasmclient.String;
 	public readonly player: wasmclient.String;
 	public readonly position: wasmclient.Uint64;
 	
@@ -104,7 +101,6 @@ export class EventPaid extends wasmclient.Event {
 		this.amount = this.nextUint64();
 		this.bet = this.nextUint64();
 		this.boost = this.nextUint8();
-		this.mission = this.nextString();
 		this.player = this.nextString();
 		this.position = this.nextUint64();
 	}

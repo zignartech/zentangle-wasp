@@ -1,0 +1,44 @@
+Ideas para nevo algoritmo de clusterización:
+
+Requerimientos nuevo algoritmo:
+- Mismo agente no puede estar dos veces en mismo cluster
+- Clusters con menos de X% de los agentes son descartados
+
+
+Ideas:
+1- No juntar clusters que contengan agentes repetidos
+problema 1: Si sólo un agente está repetido n veces en un cluster grande, corromperá la data al separar un cluster en n.
+solución 1: Juntarlos pero dejar a los agentes repetidos fuera de la junta. Luego podrán volver a formar un cluster separado.
+problema s1: No se puede revertir una clusterización porque la data de los puntos originales se perdió.
+solución s1: Conservar la data original para poder revertir clusterizaciones.
+
+
+2- Clusterizar con Jerárquico Aglomerativo primero y luego separar clusters con agentes repetidos en más clusters
+en caso de que más de X% de agentes está repetido en dicho cluster.
+
+3- No clusterizar con jerárquico aglomerativo, sino con otro. Se necesitará input de número de clusters.
+para esto, se analizará cuántas etiquetas hicieron los agentes, ordenándolos de menor a mayor y se cortará en en X% mayor.
+
+3.1- Al clusterizar, se eliminarán los agentes repetidos y se encontrarán con los otros luego de esto.
+
+3.2- Al clusterizar, se evitará incluir a agentes repetidos.
+
+////////////////////////// ALGORITMO NUEVO //////////////////////////////
+
+1. Considerar cada punto como un cluster
+2. Encontrar a los dos clusters más cercanso entre sí. Si hay sólo un cluster, saltar a paso 6
+3. Chequear si la distancia es menor que la distancia máxima admitida. En caso de no cumplir, saltar a paso 6
+4. Juntar a los dos clusters más cercanos
+5. Volver a paso 2
+
+6. Eliminar todos los clusters que tienen menos del X% de los agentes
+
+7. Analizar los clusters que tienen agentes repetidos (contar cuántos agentes están repetidos y cuántas veces). En caso de no tener, saltar a paso 14
+8. Eliminar todos los puntos creados por usuarios que exceden la cantidad de tags dada por el X% de los agentes.
+9. Transformar todos los puntos del cluster en clusters separados
+10. Encontrar los dos clusters más cercanos entre sí (si dos clusters tienen un mismo agente, considerar distancia máxima entre ellos)
+11. Si la distancia entre elloss es la distancia máxima, saltar a paso 14.
+12. Juntar los dos clusters más cercanos.
+13. Volver a paso 10
+
+14. End

@@ -61,7 +61,6 @@ function funcCreateGameThunk(ctx: wasmlib.ScFuncContext): void {
 function funcEndGameThunk(ctx: wasmlib.ScFuncContext): void {
 	ctx.log("zentangle.funcEndGame");
 	let f = new sc.EndGameContext();
-	ctx.require(f.params.mission().exists(), "missing mandatory mission");
 	sc.funcEndGame(ctx, f);
 	ctx.log("zentangle.funcEndGame ok");
 }

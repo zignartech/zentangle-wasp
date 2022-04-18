@@ -29,12 +29,12 @@ func (m MapStringToImmutableBet) GetBet(key string) ImmutableBet {
 	return ImmutableBet{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
 }
 
-type MapStringToImmutablePlayerBoost struct {
+type MapStringToImmutablePlayerInfo struct {
 	proxy wasmtypes.Proxy
 }
 
-func (m MapStringToImmutablePlayerBoost) GetPlayerBoost(key string) ImmutablePlayerBoost {
-	return ImmutablePlayerBoost{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
+func (m MapStringToImmutablePlayerInfo) GetPlayerInfo(key string) ImmutablePlayerInfo {
+	return ImmutablePlayerInfo{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
 }
 
 type ArrayOfImmutableString struct {
@@ -61,16 +61,16 @@ func (a ArrayOfImmutableUint32) GetUint32(index uint32) wasmtypes.ScImmutableUin
 	return wasmtypes.NewScImmutableUint32(a.proxy.Index(index))
 }
 
-type ArrayOfImmutableTaggedImage struct {
+type ArrayOfImmutableTgdImg struct {
 	proxy wasmtypes.Proxy
 }
 
-func (a ArrayOfImmutableTaggedImage) Length() uint32 {
+func (a ArrayOfImmutableTgdImg) Length() uint32 {
 	return a.proxy.Length()
 }
 
-func (a ArrayOfImmutableTaggedImage) GetTaggedImage(index uint32) ImmutableTaggedImage {
-	return ImmutableTaggedImage{proxy: a.proxy.Index(index)}
+func (a ArrayOfImmutableTgdImg) GetTgdImg(index uint32) ImmutableTgdImg {
+	return ImmutableTgdImg{proxy: a.proxy.Index(index)}
 }
 
 type MapStringToImmutableUint64 struct {
@@ -129,12 +129,12 @@ func (s ImmutablezentangleState) PendingPlays() ArrayOfImmutableBet {
 	return ArrayOfImmutableBet{proxy: s.proxy.Root(StatePendingPlays)}
 }
 
-func (s ImmutablezentangleState) PlayerBoost() MapStringToImmutablePlayerBoost {
-	return MapStringToImmutablePlayerBoost{proxy: s.proxy.Root(StatePlayerBoost)}
+func (s ImmutablezentangleState) PlayerInfo() MapStringToImmutablePlayerInfo {
+	return MapStringToImmutablePlayerInfo{proxy: s.proxy.Root(StatePlayerInfo)}
 }
 
-func (s ImmutablezentangleState) PlayersBoost() ArrayOfImmutableString {
-	return ArrayOfImmutableString{proxy: s.proxy.Root(StatePlayersBoost)}
+func (s ImmutablezentangleState) PlayersInfo() ArrayOfImmutableString {
+	return ArrayOfImmutableString{proxy: s.proxy.Root(StatePlayersInfo)}
 }
 
 func (s ImmutablezentangleState) PlaysPerImage() ArrayOfImmutableUint32 {
@@ -145,16 +145,16 @@ func (s ImmutablezentangleState) PlaysRequiredPerImage() wasmtypes.ScImmutableUi
 	return wasmtypes.NewScImmutableUint32(s.proxy.Root(StatePlaysRequiredPerImage))
 }
 
-func (s ImmutablezentangleState) ProcessedImages() ArrayOfImmutableTaggedImage {
-	return ArrayOfImmutableTaggedImage{proxy: s.proxy.Root(StateProcessedImages)}
+func (s ImmutablezentangleState) ProcessedImages() ArrayOfImmutableTgdImg {
+	return ArrayOfImmutableTgdImg{proxy: s.proxy.Root(StateProcessedImages)}
 }
 
 func (s ImmutablezentangleState) Reward() wasmtypes.ScImmutableUint64 {
 	return wasmtypes.NewScImmutableUint64(s.proxy.Root(StateReward))
 }
 
-func (s ImmutablezentangleState) TaggedImages() ArrayOfImmutableTaggedImage {
-	return ArrayOfImmutableTaggedImage{proxy: s.proxy.Root(StateTaggedImages)}
+func (s ImmutablezentangleState) TgdImgs() ArrayOfImmutableTgdImg {
+	return ArrayOfImmutableTgdImg{proxy: s.proxy.Root(StateTgdImgs)}
 }
 
 func (s ImmutablezentangleState) TotalPlayerTags() MapStringToImmutableUint64 {
@@ -197,16 +197,16 @@ func (m MapStringToMutableBet) GetBet(key string) MutableBet {
 	return MutableBet{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
 }
 
-type MapStringToMutablePlayerBoost struct {
+type MapStringToMutablePlayerInfo struct {
 	proxy wasmtypes.Proxy
 }
 
-func (m MapStringToMutablePlayerBoost) Clear() {
+func (m MapStringToMutablePlayerInfo) Clear() {
 	m.proxy.ClearMap()
 }
 
-func (m MapStringToMutablePlayerBoost) GetPlayerBoost(key string) MutablePlayerBoost {
-	return MutablePlayerBoost{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
+func (m MapStringToMutablePlayerInfo) GetPlayerInfo(key string) MutablePlayerInfo {
+	return MutablePlayerInfo{proxy: m.proxy.Key(wasmtypes.StringToBytes(key))}
 }
 
 type ArrayOfMutableString struct {
@@ -249,24 +249,24 @@ func (a ArrayOfMutableUint32) GetUint32(index uint32) wasmtypes.ScMutableUint32 
 	return wasmtypes.NewScMutableUint32(a.proxy.Index(index))
 }
 
-type ArrayOfMutableTaggedImage struct {
+type ArrayOfMutableTgdImg struct {
 	proxy wasmtypes.Proxy
 }
 
-func (a ArrayOfMutableTaggedImage) AppendTaggedImage() MutableTaggedImage {
-	return MutableTaggedImage{proxy: a.proxy.Append()}
+func (a ArrayOfMutableTgdImg) AppendTgdImg() MutableTgdImg {
+	return MutableTgdImg{proxy: a.proxy.Append()}
 }
 
-func (a ArrayOfMutableTaggedImage) Clear() {
+func (a ArrayOfMutableTgdImg) Clear() {
 	a.proxy.ClearArray()
 }
 
-func (a ArrayOfMutableTaggedImage) Length() uint32 {
+func (a ArrayOfMutableTgdImg) Length() uint32 {
 	return a.proxy.Length()
 }
 
-func (a ArrayOfMutableTaggedImage) GetTaggedImage(index uint32) MutableTaggedImage {
-	return MutableTaggedImage{proxy: a.proxy.Index(index)}
+func (a ArrayOfMutableTgdImg) GetTgdImg(index uint32) MutableTgdImg {
+	return MutableTgdImg{proxy: a.proxy.Index(index)}
 }
 
 type MapStringToMutableUint64 struct {
@@ -341,12 +341,12 @@ func (s MutablezentangleState) PendingPlays() ArrayOfMutableBet {
 	return ArrayOfMutableBet{proxy: s.proxy.Root(StatePendingPlays)}
 }
 
-func (s MutablezentangleState) PlayerBoost() MapStringToMutablePlayerBoost {
-	return MapStringToMutablePlayerBoost{proxy: s.proxy.Root(StatePlayerBoost)}
+func (s MutablezentangleState) PlayerInfo() MapStringToMutablePlayerInfo {
+	return MapStringToMutablePlayerInfo{proxy: s.proxy.Root(StatePlayerInfo)}
 }
 
-func (s MutablezentangleState) PlayersBoost() ArrayOfMutableString {
-	return ArrayOfMutableString{proxy: s.proxy.Root(StatePlayersBoost)}
+func (s MutablezentangleState) PlayersInfo() ArrayOfMutableString {
+	return ArrayOfMutableString{proxy: s.proxy.Root(StatePlayersInfo)}
 }
 
 func (s MutablezentangleState) PlaysPerImage() ArrayOfMutableUint32 {
@@ -357,16 +357,16 @@ func (s MutablezentangleState) PlaysRequiredPerImage() wasmtypes.ScMutableUint32
 	return wasmtypes.NewScMutableUint32(s.proxy.Root(StatePlaysRequiredPerImage))
 }
 
-func (s MutablezentangleState) ProcessedImages() ArrayOfMutableTaggedImage {
-	return ArrayOfMutableTaggedImage{proxy: s.proxy.Root(StateProcessedImages)}
+func (s MutablezentangleState) ProcessedImages() ArrayOfMutableTgdImg {
+	return ArrayOfMutableTgdImg{proxy: s.proxy.Root(StateProcessedImages)}
 }
 
 func (s MutablezentangleState) Reward() wasmtypes.ScMutableUint64 {
 	return wasmtypes.NewScMutableUint64(s.proxy.Root(StateReward))
 }
 
-func (s MutablezentangleState) TaggedImages() ArrayOfMutableTaggedImage {
-	return ArrayOfMutableTaggedImage{proxy: s.proxy.Root(StateTaggedImages)}
+func (s MutablezentangleState) TgdImgs() ArrayOfMutableTgdImg {
+	return ArrayOfMutableTgdImg{proxy: s.proxy.Root(StateTgdImgs)}
 }
 
 func (s MutablezentangleState) TotalPlayerTags() MapStringToMutableUint64 {

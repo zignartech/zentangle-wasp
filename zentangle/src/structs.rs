@@ -75,7 +75,7 @@ impl MutableBet {
 }
 
 #[derive(Clone)]
-pub struct PlayerBoost {
+pub struct PlayerInfo {
     pub n_double_boosts  : u64,  // Number of 2x boost used in the round
     pub n_tags           : u64,  // Number of tags made by the player in the current round
     pub n_tripple_boosts : u64,  // Number of 3x boosts used in the round
@@ -83,10 +83,10 @@ pub struct PlayerBoost {
     pub player           : ScAgentID,  // The player's AgentId
 }
 
-impl PlayerBoost {
-    pub fn from_bytes(bytes: &[u8]) -> PlayerBoost {
+impl PlayerInfo {
+    pub fn from_bytes(bytes: &[u8]) -> PlayerInfo {
         let mut dec = WasmDecoder::new(bytes);
-        PlayerBoost {
+        PlayerInfo {
             n_double_boosts  : uint64_decode(&mut dec),
             n_tags           : uint64_decode(&mut dec),
             n_tripple_boosts : uint64_decode(&mut dec),
@@ -107,26 +107,26 @@ impl PlayerBoost {
 }
 
 #[derive(Clone)]
-pub struct ImmutablePlayerBoost {
+pub struct ImmutablePlayerInfo {
     pub(crate) proxy: Proxy,
 }
 
-impl ImmutablePlayerBoost {
+impl ImmutablePlayerInfo {
     pub fn exists(&self) -> bool {
         self.proxy.exists()
     }
 
-    pub fn value(&self) -> PlayerBoost {
-        PlayerBoost::from_bytes(&self.proxy.get())
+    pub fn value(&self) -> PlayerInfo {
+        PlayerInfo::from_bytes(&self.proxy.get())
     }
 }
 
 #[derive(Clone)]
-pub struct MutablePlayerBoost {
+pub struct MutablePlayerInfo {
     pub(crate) proxy: Proxy,
 }
 
-impl MutablePlayerBoost {
+impl MutablePlayerInfo {
     pub fn delete(&self) {
         self.proxy.delete();
     }
@@ -135,17 +135,17 @@ impl MutablePlayerBoost {
         self.proxy.exists()
     }
 
-    pub fn set_value(&self, value: &PlayerBoost) {
+    pub fn set_value(&self, value: &PlayerInfo) {
         self.proxy.set(&value.to_bytes());
     }
 
-    pub fn value(&self) -> PlayerBoost {
-        PlayerBoost::from_bytes(&self.proxy.get())
+    pub fn value(&self) -> PlayerInfo {
+        PlayerInfo::from_bytes(&self.proxy.get())
     }
 }
 
 #[derive(Clone)]
-pub struct TaggedImage {
+pub struct TgdImg {
     pub boost    : String,  // if the tags will be boosted or not
     pub h        : String,  // heights of the Tags
     pub image_id : i32,  // the only signed integer (It is -1 by default)
@@ -155,10 +155,10 @@ pub struct TaggedImage {
     pub y        : String,  // y top-left positions of the Tags
 }
 
-impl TaggedImage {
-    pub fn from_bytes(bytes: &[u8]) -> TaggedImage {
+impl TgdImg {
+    pub fn from_bytes(bytes: &[u8]) -> TgdImg {
         let mut dec = WasmDecoder::new(bytes);
-        TaggedImage {
+        TgdImg {
             boost    : string_decode(&mut dec),
             h        : string_decode(&mut dec),
             image_id : int32_decode(&mut dec),
@@ -183,26 +183,26 @@ impl TaggedImage {
 }
 
 #[derive(Clone)]
-pub struct ImmutableTaggedImage {
+pub struct ImmutableTgdImg {
     pub(crate) proxy: Proxy,
 }
 
-impl ImmutableTaggedImage {
+impl ImmutableTgdImg {
     pub fn exists(&self) -> bool {
         self.proxy.exists()
     }
 
-    pub fn value(&self) -> TaggedImage {
-        TaggedImage::from_bytes(&self.proxy.get())
+    pub fn value(&self) -> TgdImg {
+        TgdImg::from_bytes(&self.proxy.get())
     }
 }
 
 #[derive(Clone)]
-pub struct MutableTaggedImage {
+pub struct MutableTgdImg {
     pub(crate) proxy: Proxy,
 }
 
-impl MutableTaggedImage {
+impl MutableTgdImg {
     pub fn delete(&self) {
         self.proxy.delete();
     }
@@ -211,29 +211,29 @@ impl MutableTaggedImage {
         self.proxy.exists()
     }
 
-    pub fn set_value(&self, value: &TaggedImage) {
+    pub fn set_value(&self, value: &TgdImg) {
         self.proxy.set(&value.to_bytes());
     }
 
-    pub fn value(&self) -> TaggedImage {
-        TaggedImage::from_bytes(&self.proxy.get())
+    pub fn value(&self) -> TgdImg {
+        TgdImg::from_bytes(&self.proxy.get())
     }
 }
 
 #[derive(Clone)]
 pub struct ValidTag {
-    pub play_tag_id  : u32,  // Identifier to distinguish different tags in the same play
-    pub player       : ScAddress,  // player placing the bet
-    pub tagged_image : u32, 
+    pub play_tag_id : u32,  // Identifier to distinguish different tags in the same play
+    pub player      : ScAddress,  // player placing the bet
+    pub tgd_img     : u32,  // Tagged Image
 }
 
 impl ValidTag {
     pub fn from_bytes(bytes: &[u8]) -> ValidTag {
         let mut dec = WasmDecoder::new(bytes);
         ValidTag {
-            play_tag_id  : uint32_decode(&mut dec),
-            player       : address_decode(&mut dec),
-            tagged_image : uint32_decode(&mut dec),
+            play_tag_id : uint32_decode(&mut dec),
+            player      : address_decode(&mut dec),
+            tgd_img     : uint32_decode(&mut dec),
         }
     }
 
@@ -241,7 +241,7 @@ impl ValidTag {
         let mut enc = WasmEncoder::new();
 		uint32_encode(&mut enc, self.play_tag_id);
 		address_encode(&mut enc, &self.player);
-		uint32_encode(&mut enc, self.tagged_image);
+		uint32_encode(&mut enc, self.tgd_img);
         enc.buf()
     }
 }
