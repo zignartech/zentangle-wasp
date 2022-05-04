@@ -38,11 +38,13 @@ pub fn func_load_addresses(ctx: &ScFuncContext, f: &LoadAddressesContext) {
     let addresses = addresses_option.unwrap();
     for i in 0..addresses.addresses.len() {
         f.state.addresses().append_string().set_value(&addresses.addresses[i]);
+        f.events.address_loaded(&addresses.addresses[i]);
     }
 }
 
 pub fn func_unload_addresses(_ctx: &ScFuncContext, f: &UnloadAddressesContext) {
     f.state.addresses().clear();
+    f.events.addresses_unloaded();
 }
 
 pub fn func_ruffle(ctx: &ScFuncContext, f: &RuffleContext) {

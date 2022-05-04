@@ -14,6 +14,17 @@ import "github.com/iotaledger/wasp/packages/wasmvm/wasmlib/go/wasmlib/wasmtypes"
 type giveawayEvents struct {
 }
 
+func (e giveawayEvents) AddressLoaded(evmAddress string) {
+	evt := wasmlib.NewEventEncoder("giveaway.addressLoaded")
+	evt.Encode(wasmtypes.StringToString(evmAddress))
+	evt.Emit()
+}
+
+func (e giveawayEvents) AddressesUnloaded() {
+	evt := wasmlib.NewEventEncoder("giveaway.addressesUnloaded")
+	evt.Emit()
+}
+
 func (e giveawayEvents) Winner(evmAddress string) {
 	evt := wasmlib.NewEventEncoder("giveaway.winner")
 	evt.Encode(wasmtypes.StringToString(evmAddress))

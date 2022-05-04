@@ -10,10 +10,21 @@
 
 use wasmlib::*;
 
-pub struct giveawayEvents {
+pub struct GiveawayEvents {
 }
 
-impl giveawayEvents {
+impl GiveawayEvents {
+
+	pub fn address_loaded(&self, evm_address: &str) {
+		let mut evt = EventEncoder::new("giveaway.addressLoaded");
+		evt.encode(&string_to_string(&evm_address));
+		evt.emit();
+	}
+
+	pub fn addresses_unloaded(&self) {
+		let mut evt = EventEncoder::new("giveaway.addressesUnloaded");
+		evt.emit();
+	}
 
 	pub fn winner(&self, evm_address: &str) {
 		let mut evt = EventEncoder::new("giveaway.winner");

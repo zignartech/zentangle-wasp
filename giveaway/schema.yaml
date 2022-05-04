@@ -3,6 +3,9 @@ description: giveaway smart contract to choose the winners of the Zentangle Dran
 events: 
   winner:
     evmAddress: String
+  addressLoaded: 
+    evmAddress: String
+  addressesUnloaded: {}
 structs: {}
 typedefs: {}
 state:

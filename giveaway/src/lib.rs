@@ -58,7 +58,7 @@ fn on_load() {
 }
 
 pub struct InitContext {
-	events:  giveawayEvents,
+	events:  GiveawayEvents,
 	params: ImmutableInitParams,
 	state: MutablegiveawayState,
 }
@@ -66,7 +66,7 @@ pub struct InitContext {
 fn func_init_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcInit");
 	let f = InitContext {
-		events:  giveawayEvents {},
+		events:  GiveawayEvents {},
 		params: ImmutableInitParams { proxy: params_proxy() },
 		state: MutablegiveawayState { proxy: state_proxy() },
 	};
@@ -75,7 +75,7 @@ fn func_init_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct LoadAddressesContext {
-	events:  giveawayEvents,
+	events:  GiveawayEvents,
 	params: ImmutableLoadAddressesParams,
 	state: MutablegiveawayState,
 }
@@ -83,7 +83,7 @@ pub struct LoadAddressesContext {
 fn func_load_addresses_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcLoadAddresses");
 	let f = LoadAddressesContext {
-		events:  giveawayEvents {},
+		events:  GiveawayEvents {},
 		params: ImmutableLoadAddressesParams { proxy: params_proxy() },
 		state: MutablegiveawayState { proxy: state_proxy() },
 	};
@@ -99,7 +99,7 @@ fn func_load_addresses_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct RuffleContext {
-	events:  giveawayEvents,
+	events:  GiveawayEvents,
 	params: ImmutableRuffleParams,
 	results: MutableRuffleResults,
 	state: MutablegiveawayState,
@@ -108,7 +108,7 @@ pub struct RuffleContext {
 fn func_ruffle_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcRuffle");
 	let f = RuffleContext {
-		events:  giveawayEvents {},
+		events:  GiveawayEvents {},
 		params: ImmutableRuffleParams { proxy: params_proxy() },
 		results: MutableRuffleResults { proxy: results_proxy() },
 		state: MutablegiveawayState { proxy: state_proxy() },
@@ -126,7 +126,7 @@ fn func_ruffle_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct SetOwnerContext {
-	events:  giveawayEvents,
+	events:  GiveawayEvents,
 	params: ImmutableSetOwnerParams,
 	state: MutablegiveawayState,
 }
@@ -134,7 +134,7 @@ pub struct SetOwnerContext {
 fn func_set_owner_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcSetOwner");
 	let f = SetOwnerContext {
-		events:  giveawayEvents {},
+		events:  GiveawayEvents {},
 		params: ImmutableSetOwnerParams { proxy: params_proxy() },
 		state: MutablegiveawayState { proxy: state_proxy() },
 	};
@@ -150,14 +150,14 @@ fn func_set_owner_thunk(ctx: &ScFuncContext) {
 }
 
 pub struct UnloadAddressesContext {
-	events:  giveawayEvents,
+	events:  GiveawayEvents,
 	state: MutablegiveawayState,
 }
 
 fn func_unload_addresses_thunk(ctx: &ScFuncContext) {
 	ctx.log("giveaway.funcUnloadAddresses");
 	let f = UnloadAddressesContext {
-		events:  giveawayEvents {},
+		events:  GiveawayEvents {},
 		state: MutablegiveawayState { proxy: state_proxy() },
 	};
 
