@@ -37,7 +37,10 @@ pub fn func_load_addresses(ctx: &ScFuncContext, f: &LoadAddressesContext) {
     }
     let addresses = addresses_option.unwrap();
     for i in 0..addresses.addresses.len() {
-        f.state.addresses().append_string().set_value(&addresses.addresses[i]);
+        f.state
+            .addresses()
+            .append_string()
+            .set_value(&addresses.addresses[i]);
         f.events.address_loaded(&addresses.addresses[i]);
     }
 }
@@ -52,11 +55,25 @@ pub fn func_ruffle(ctx: &ScFuncContext, f: &RuffleContext) {
 
     let n_winners = f.params.n_winners().value();
 
+    // we need to make sure we have enough addresses to get all winners.
+    // else, we will get stuck in a loop later
+    let mut n_addresses = 0;
+    let mut vec: Vec<String> = Vec::new();
+    for i in 0..addresses.length() {
+        if !vec.iter().any(|a| a==&addresses.get_string(i).value()){
+            vec.push(addresses.get_string(i).value());
+            n_addresses += 1;
+        }
+    } 
+    vec.clear();
+
     ctx.require(
-        n_winners as u32 <= addresses.length(),
+        n_winners as u32 <= n_addresses,
         "Error: Not sufficient addresses",
     );
 
+    // choose the required amount of winners randomly.
+    // no duplicated are allowed.
     let mut winners: Vec<String> = Vec::new();
     let mut counter = 0;
 
